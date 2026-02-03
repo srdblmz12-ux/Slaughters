@@ -1,0 +1,5 @@
+*.rbxl
+*.rbxlx
+*.lock
+aftman.lock
+_index.toml
