@@ -1,0 +1,62 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+	<Meta name="ExplicitAutoJoints">true</Meta>
+	<External>null</External>
+	<External>nil</External>
+	<Item class="Folder" referent="RBXCFA58DD8C9C4494498A81D2E18F19A7A">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+			<bool name="DefinesCapabilities">false</bool>
+			<string name="Name">Controllers</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+		</Properties>
+		<Item class="ModuleScript" referent="RBX43EFA82EAA914658B5AC54D0020C0774">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Common = ReplicatedStorage:WaitForChild("Common")
+
+local Interface = Common:WaitForChild("Interface")
+local SkillAssets = Interface:WaitForChild("SkillAssets")
+
+local Trove = require(Packages:WaitForChild("Trove"))
+local spr = require(Packages:WaitForChild("spr"))
+local Net = require(Packages:WaitForChild("Net"))
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer.PlayerGui
+
+-- Module
+local SkillController = {
+	Name = script.Name,
+	UITrove = Trove.new()
+}
+
+function SkillController:OnStart()
+	local SkillHUD = PlayerGui:WaitForChild("SkillHUD")
+	
+	--Net:Connect("GameStarted", )
+	Net:Connect("SkillAssigned", function(SkillName : string)
+		
+	end)
+end
+
+return SkillController]]></ProtectedString>
+				<string name="ScriptGuid">{BCAD2D96-4866-4681-8F23-5062D4C52D32}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">SkillController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+	</Item>
+</roblox>

@@ -1,0 +1,38 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+	<Meta name="ExplicitAutoJoints">true</Meta>
+	<External>null</External>
+	<External>nil</External>
+	<Item class="StarterPlayerScripts" referent="RBX376FA4C933464211BDB560A53F671FE6">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+			<bool name="DefinesCapabilities">false</bool>
+			<string name="Name">StarterPlayerScripts</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+		</Properties>
+		<Item class="LocalScript" referent="RBX077010069CF44B10B6288270B79F7352">
+			<Properties>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Loader = require(Packages:WaitForChild("Loader"))
+
+-- Init
+Loader:Load(ReplicatedStorage.Controllers)]]></ProtectedString>
+				<bool name="Disabled">false</bool>
+				<Content name="LinkedSource"><null></null></Content>
+				<token name="RunContext">0</token>
+				<string name="ScriptGuid">{7437EEF9-CBCC-4A93-9D34-A8E52DCCB72C}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">Initializer</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+	</Item>
+</roblox>
