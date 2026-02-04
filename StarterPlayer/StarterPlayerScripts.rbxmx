@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="StarterPlayerScripts" referent="RBX376FA4C933464211BDB560A53F671FE6">
+	<Item class="StarterPlayerScripts" referent="RBXAB6BE08C617846D5B40E3C2F1914B25A">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -11,7 +11,7 @@
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 		</Properties>
-		<Item class="LocalScript" referent="RBX077010069CF44B10B6288270B79F7352">
+		<Item class="LocalScript" referent="RBX9787574F3C79439493F6FC3E6E595450">
 			<Properties>
 				<ProtectedString name="Source"><![CDATA[-- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="Folder" referent="RBXE938124B5B7C4616A3BABA289242E681">
+	<Item class="Folder" referent="RBX42D9E7DEC5DE47C5BBB0B4283F396311">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -11,7 +11,7 @@
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 		</Properties>
-		<Item class="ModuleScript" referent="RBXD648369F68FA4F40BE72BCF23A9A7293">
+		<Item class="ModuleScript" referent="RBX658241065FE441608B4080D9E24C7EA1">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[local src = require(script.src)
@@ -30,7 +30,7 @@ return src
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBXAE0DD66553FD4E0CBD8F6B36335A025E">
+			<Item class="ModuleScript" referent="RBXB20070A652624D4F91B463BD92F89ADB">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local atom = require(script.atom)
@@ -68,7 +68,7 @@ return {
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ModuleScript" referent="RBXCCE584FE0BF644A988A441761C4B9D4F">
+				<Item class="ModuleScript" referent="RBXBCF0BF01A4994DA38868D518ED15B4C7">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local store = require(script.Parent.store)
@@ -123,7 +123,7 @@ return atom
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX666D45BB5C4E4C6C9BEDC7F78236F7F7">
+				<Item class="ModuleScript" referent="RBX8BC293190BB1409F9B8E2258EFDB72C6">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local atom = require(script.Parent.atom)
@@ -173,7 +173,7 @@ return computed
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX194D84231B9142B7A5E7A7C8374B253B">
+				<Item class="ModuleScript" referent="RBX4CCA3619A95D4957953F912839621A96">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local store = require(script.Parent.store)
@@ -239,7 +239,7 @@ return effect :: (callback: ((cleanup: Cleanup) -> ()) | ((cleanup: Cleanup) -> 
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX2630884220034EDDA8B89E0690F244E0">
+				<Item class="ModuleScript" referent="RBXCD23A5B0210A412696CDAAEC9A8E8736">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local atom = require(script.Parent.atom)
@@ -323,7 +323,7 @@ return mapped :: Map
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX54671F18AB7C4BD2B2C9FC455B551A57">
+				<Item class="ModuleScript" referent="RBX714D7C22BDCF41DB8DD761D3D881736B">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local store = require(script.Parent.store)
@@ -386,7 +386,7 @@ return observe
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX1EFB1F9FC4E44934BF210F73B591BEE1">
+				<Item class="ModuleScript" referent="RBXF309789D22B04BE0A0F023125CBC169F">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local types = require(script.Parent.types)
@@ -613,7 +613,7 @@ return {
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBXCB4C38C4DC5345A6B4381DF657086564">
+				<Item class="ModuleScript" referent="RBXE37A7AFF0C564A79B6B6A1CAD7E73F14">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local store = require(script.Parent.store)
@@ -669,7 +669,7 @@ return subscribe
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX0E06E0509DC9423F88DB963B0AF3AC33">
+				<Item class="ModuleScript" referent="RBX3D0D835B11AB47548A4019CAF2322448">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[export type Set<T> = { [T]: true }
@@ -718,7 +718,7 @@ return nil
 				</Item>
 			</Item>
 		</Item>
-		<Item class="ModuleScript" referent="RBX5A432D709A4D4265BC0ED62506D5A60C">
+		<Item class="ModuleScript" referent="RBXDFDA7A71346645D4B06C4971E7F53ACD">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[-- Services
@@ -898,7 +898,7 @@ return Framework]]></ProtectedString>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBX246113E353B1430E926286DAC3AA9557">
+			<Item class="ModuleScript" referent="RBXDE8EB1AEDA8F447E8E49EB9381EAA410">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[--[[
@@ -2979,7 +2979,7 @@ return Promise
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXE0483385DEB04D17A91E082B6C966727">
+			<Item class="ModuleScript" referent="RBXC4A5F0BA9A1443899E182D70FC99ABD2">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local RunService = game:GetService("RunService")
@@ -3183,7 +3183,7 @@ return Net
 				</Properties>
 			</Item>
 		</Item>
-		<Item class="ModuleScript" referent="RBX52B9107F212743998606228FEE0A8E15">
+		<Item class="ModuleScript" referent="RBXF963AB2BAC3B499290742B760263A627">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--[[
@@ -5264,7 +5264,7 @@ return Promise
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBXD847C85DFFEC4724BF3CD546B9E2612B">
+		<Item class="ModuleScript" referent="RBXA031E82285234145B00E9B5F51A67DB4">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--------------------------------------------------------------------------------
@@ -5468,7 +5468,7 @@ return Signal]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX2536EEB5241C4E9A8DB604B411CEEC56">
+		<Item class="ModuleScript" referent="RBX5603310FCD1C4E049179548D7F92B98C">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--!strict
@@ -6268,7 +6268,7 @@ return {
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBXAEE43ABEE2E94F1EB25DD496C087CEE8">
+		<Item class="ModuleScript" referent="RBXA456C1D1E414406CB81C2D02C83DD913">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--!strict
@@ -7190,7 +7190,7 @@ return table.freeze(spr)]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX0041E863AAF54A1FA881284B274B14F5">
+		<Item class="ModuleScript" referent="RBX6636713ACE544E00A05D3418F9BC8CB2">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[local BetterDebris = {}
@@ -7247,7 +7247,7 @@ return BetterDebris]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX6351CE7FD7A147A8AC6C26B6A5D84D14">
+		<Item class="ModuleScript" referent="RBXA0293505927F4BF6891A46573E7A8C0C">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--!nocheck
@@ -7277,7 +7277,7 @@ return setmetatable(Constants.Constants, {
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBXE0774AD521DC4768AEE9C4B52E4943ED">
+			<Item class="ModuleScript" referent="RBXB604C7E4363D45E39E6D52877B7EF69E">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[export type FormatKit = typeof(setmetatable(
@@ -7310,7 +7310,7 @@ return nil]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX9B2CCBF38BBB46D982922CCC0844339A">
+			<Item class="ModuleScript" referent="RBX9A74681828CA4593B1CD415E6AC8693E">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7346,7 +7346,7 @@ return table.freeze({
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="Folder" referent="RBX4951E43897EC4FB69B8505273C77CFBC">
+			<Item class="Folder" referent="RBX2F3BA8B52C5146A58EEE8312F136BDE5">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -7355,7 +7355,7 @@ return table.freeze({
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="Folder" referent="RBX871FA69076DD4AD9AFF052E6E16C8068">
+				<Item class="Folder" referent="RBXE94221C01C1D4162A60869DED7668BC4">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -7364,7 +7364,7 @@ return table.freeze({
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="ModuleScript" referent="RBXF7C0B2EE5B484AC39975C7CCCCF5D9E7">
+					<Item class="ModuleScript" referent="RBXD0198E4BF67A4049997C558A3E735AFC">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7391,7 +7391,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX513AA424CAC3404BBF4AE6BC03179555">
+					<Item class="ModuleScript" referent="RBXAA04BB8CF11844A393E261EA40400A34">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7420,7 +7420,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX067A6959D014477BA81690ADBDDB2AF5">
+					<Item class="ModuleScript" referent="RBXAE16A9AC46744B27B20A4CD2F05EF0A2">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7445,7 +7445,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXC1795AE4620A45B681C6F2C287E61B91">
+					<Item class="ModuleScript" referent="RBXDFDEB42D0F7940E19F8F1AE8B2824BBF">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7491,7 +7491,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXE5236BD46A464F108ADC2EB15824AC13">
+					<Item class="ModuleScript" referent="RBX59FE3AEE6CC04A379CFB635296EE90C2">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7516,7 +7516,7 @@ end]]></ProtectedString>
 						</Properties>
 					</Item>
 				</Item>
-				<Item class="Folder" referent="RBXCA0CD79F4361459BB3DA75704FCACBC9">
+				<Item class="Folder" referent="RBXF060B04CDC214838BF232655DCC53B37">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -7525,7 +7525,7 @@ end]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="ModuleScript" referent="RBX6402592E5671485FA5904C7721E16E68">
+					<Item class="ModuleScript" referent="RBX473B46B48B7C457383039721C8504DC1">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7555,7 +7555,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX3F4964BAE4854585A126FAAEA3D714F9">
+					<Item class="ModuleScript" referent="RBX27DC702AE64A4D9DBC120D14FF4D33F8">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7598,7 +7598,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX44261B83141946D09717E0CC115CBB5A">
+					<Item class="ModuleScript" referent="RBXE18FB83737844767AF443522692403A9">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7654,7 +7654,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXE6B3C97B7A0D451E9739282CEAE43365">
+					<Item class="ModuleScript" referent="RBXFDB47B4EE4CA453CBAC1CFC1F7F22E9C">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7719,7 +7719,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX0527701E706A49D184504AC5B8872DE0">
+					<Item class="ModuleScript" referent="RBX5D8EE2FC8C4646029A5428DED470DA45">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7748,7 +7748,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX1152749B69C14F0C9AFBB8D20559A0D7">
+					<Item class="ModuleScript" referent="RBXDAACF5F3598B4E31A41AC168A4E183BA">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7822,7 +7822,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXFDE4B172A0544390AFD7430EFF2FA697">
+					<Item class="ModuleScript" referent="RBX4A0E9CE11B5F440982F15E5677FF4D77">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Mapping = {
@@ -7855,7 +7855,7 @@ end]]></ProtectedString>
 					</Item>
 				</Item>
 			</Item>
-			<Item class="PackageLink" referent="RBX897133E1618041358064960BCDCFB33E">
+			<Item class="PackageLink" referent="RBX7DAB74160B5C4BFDB4E0A999242CFBFC">
 				<Properties>
 					<bool name="AutoUpdate">true</bool>
 					<string name="DefaultName"></string>
@@ -7872,7 +7872,7 @@ end]]></ProtectedString>
 				</Properties>
 			</Item>
 		</Item>
-		<Item class="ModuleScript" referent="RBXC78AF973E5F44D07AC85FD96887BC26A">
+		<Item class="ModuleScript" referent="RBX1EA2C3A1CD724C2D9C14198D9FA00A49">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[local PlayerWaitlist = {}
@@ -7975,7 +7975,7 @@ return PlayerWaitlist]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBXFD2D965983404F0AB1C8004437C911B5">
+		<Item class="ModuleScript" referent="RBXAC88FBBBA9BB44169B56D2F69B411AD1">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--!native
@@ -8495,7 +8495,7 @@ return {
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX98697AC8D80B4850939196F21066743F">
+		<Item class="ModuleScript" referent="RBX0A2437E60EFF4A2E9EBE251A4CE79B16">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[local RunService = game:GetService("RunService")
@@ -8698,7 +8698,7 @@ return Net
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX1A90A96C5AAC4076B9D42241D388A0F4">
+		<Item class="ModuleScript" referent="RBXE79343D45D2543888FCA96D6DB889BA5">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--[[
@@ -8915,7 +8915,7 @@ return Super]]></ProtectedString>
 				<int64 name="SourceAssetId">16093655178</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBX93CBA83AA6D348D88046654336262A1A">
+			<Item class="ModuleScript" referent="RBXA7C08904F7AD44AE8F97465FDD310451">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[--!strict
@@ -9013,7 +9013,7 @@ return assert]]></ProtectedString>
 				</Properties>
 			</Item>
 		</Item>
-		<Item class="ModuleScript" referent="RBXA14F900AAC694D15ABB5A424906CDAE8">
+		<Item class="ModuleScript" referent="RBXB985FF1F5C2D47319BC713A1F139355C">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[local module = {}
@@ -9022,7 +9022,7 @@ local HttpService = game:GetService("HttpService")
 local Lighting = game:GetService("Lighting")
 
 -- =============================================================================
---  YARDIMCI FONKSÝYONLAR (DATA CONVERSION)
+--  YARDIMCI FONKSİYONLAR (DATA CONVERSION)
 -- =============================================================================
 
 -- Hex kodunu Color3'e çevirir
@@ -9034,7 +9034,7 @@ local function HexToColor3(hex)
 	return Color3.new(r, g, b)
 end
 
--- Sýkýþtýrýlmýþ verileri Roblox tiplerine (Vector3, UDim2 vb.) geri çevirir
+-- Sıkıştırılmış verileri Roblox tiplerine (Vector3, UDim2 vb.) geri çevirir
 local function DecodeValue(value)
 	if type(value) ~= "table" then return value end
 
@@ -9055,27 +9055,36 @@ local function DecodeValue(value)
 end
 
 -- =============================================================================
---  UYGULAMA MANTIÐI (DESERIALIZATION)
+--  UYGULAMA MANTIĞI (DESERIALIZATION)
 -- =============================================================================
 
--- Recursive (kendini tekrar eden) fonksiyon: Nesneleri ve çocuklarýný oluþturur
+-- Recursive (kendini tekrar eden) fonksiyon: Nesneleri ve çocuklarını oluşturur veya günceller
 local function DeserializeAndApply(data, parent)
 	local instance
 
-	-- Eðer ana nesne Lighting ise yeni bir instance oluþturma, mevcudu kullan
+	-- Eğer ana nesne Lighting ise servisi kullan
 	if data.ClassName == "Lighting" and parent == game then
 		instance = Lighting
 	else
-		local ok, newInst = pcall(Instance.new, data.ClassName)
-		if not ok then 
-			warn("Instance oluþturulamadý (Bilinmeyen Class):", data.ClassName) 
-			return 
+		-- ÖNCE KONTROL ET: Bu isimde bir çocuk zaten var mı?
+		local existing = parent:FindFirstChild(data.Name)
+
+		if existing and existing:IsA(data.ClassName) then
+			-- Varsa onu kullan (Üzerine yazma mantığı)
+			instance = existing
+		else
+			-- Yoksa yenisini oluştur
+			local ok, newInst = pcall(Instance.new, data.ClassName)
+			if not ok then 
+				warn("Instance oluşturulamadı (Bilinmeyen Class):", data.ClassName) 
+				return 
+			end
+			instance = newInst
+			instance.Name = data.Name
 		end
-		instance = newInst
-		instance.Name = data.Name
 	end
 
-	-- Özellikleri (Properties) uygula
+	-- Özellikleri (Properties) uygula / güncelle
 	for propName, encodedValue in pairs(data.Properties) do
 		local decodedValue = DecodeValue(encodedValue)
 		if decodedValue ~= nil then
@@ -9085,31 +9094,31 @@ local function DeserializeAndApply(data, parent)
 		end
 	end
 
-	-- Çocuklarý (Children) oluþturmak için fonksiyonu tekrar çaðýr
+	-- Çocukları (Children) oluşturmak için fonksiyonu tekrar çağır
 	for _, childData in ipairs(data.Children) do
 		DeserializeAndApply(childData, instance)
 	end
 
-	-- Lighting deðilse, oluþturulan nesneyi ebeveynine (Parent) ata
-	if instance ~= Lighting then 
+	-- Eğer yeni oluşturulduysa ebeveynine ata (Zaten varsa Parent atamaya gerek yok ama garanti olsun)
+	if instance ~= Lighting and instance.Parent ~= parent then 
 		instance.Parent = parent 
 	end
 end
 
 -- =============================================================================
---  MODÜL FONKSÝYONLARI
+--  MODÜL FONKSİYONLARI
 -- =============================================================================
 
 --[[
-    JSON stringini alýr ve Lighting'e uygular.
+    JSON stringini alır ve Lighting'e uygular.
+    Mevcut nesneleri silmez, isimleri eşleşenlerin üzerine yazar.
     
     Parametreler:
     - jsonString (string): Import edilecek JSON verisi.
-    - clearExisting (boolean): True ise Lighting içindeki eski nesneleri siler (Sky, Atmosphere vb.).
 ]]
-function module.ImportJSON(jsonString, clearExisting)
+function module.ImportJSON(jsonString)
 	if not jsonString or jsonString == "" then
-		warn("JSON verisi boþ!")
+		warn("JSON verisi boş!")
 		return false
 	end
 
@@ -9118,18 +9127,11 @@ function module.ImportJSON(jsonString, clearExisting)
 	end)
 
 	if not success then
-		warn("JSON Decode Hatasý:", data)
+		warn("JSON Decode Hatası:", data)
 		return false
 	end
 
-	-- Ýsteðe baðlý: Lighting altýndaki eski efektleri temizle
-	if clearExisting then
-		for _, child in ipairs(Lighting:GetChildren()) do
-			child:Destroy()
-		end
-	end
-
-	-- Veriyi uygula
+	-- Veriyi uygula (Eski silme kodu kaldırıldı)
 	DeserializeAndApply(data, game)
 
 	return true
@@ -9140,12 +9142,12 @@ return module]]></ProtectedString>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 				<bool name="DefinesCapabilities">false</bool>
-				<string name="Name">LighingImporter</string>
+				<string name="Name">LightingImporter</string>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX5B92779AB2A04FBF9AEA931107E7B80D">
+		<Item class="ModuleScript" referent="RBXF10E6B5E30D645CE9C2A50B8A481C26B">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--!strict
@@ -9165,7 +9167,7 @@ local ErrorMessages = {
 }
 
 --// Types
--- Timer Instance
+-- (Type tanımları aynı kalabilir, yer kaplamasın diye kısalttım ama sen tam dosyayı kullanıyorsan silme)
 export type TimerInstance = {
 	Start : (self : TimerConstructor) -> (),
 	Stop : (self : TimerConstructor) -> (),
@@ -9177,7 +9179,7 @@ export type TimerInstance = {
 	Wait : (self : TimerConstructor) -> (),
 	Cancel : (self : TimerConstructor) -> (),
 	Destroy : (self : TimerConstructor) -> (),
-	
+
 	IsRunning : (self : TimerConstructor) -> boolean,
 	IsPaused : (self : TimerConstructor) -> boolean,
 	IsDead : (self : TimerConstructor) -> boolean,
@@ -9187,33 +9189,22 @@ export type TimerInstance = {
 	GetProgress : (self : TimerConstructor) -> number,
 }
 
--- Timer API
 type TimerMetatable = {
-	-- Public States
 	State : "Running" | "Idle" | "Dead" | "Paused",
 	Callback : ((State : string, Timer : TimerConstructor) -> ())?,
 	Completed : FastSignal.ScriptSignal<string, TimerConstructor>,
 	OnTick : FastSignal.ScriptSignal<number, number, number, TimerConstructor>,
 	StateChanged : FastSignal.ScriptSignal<string, TimerConstructor>,
-
-	-- Private Variables
 	__Duration : number,
 	__ElapsedTime : number,
 	__RemainingTime : number,
 	__Speed : number,
 	__Accumulator : number,
 	__RunningTask : RBXScriptConnection?,
-
-	-- Private States
 	__IsDestroyed : boolean
 }
-type TimerMetafield = {
-	__index : TimerInstance
-}
-export type TimerConstructor = typeof(setmetatable(
-	{} :: TimerMetatable,
-	{} :: TimerMetafield
-	))
+type TimerMetafield = { __index : TimerInstance }
+export type TimerConstructor = typeof(setmetatable({} :: TimerMetatable, {} :: TimerMetafield))
 export type Timer = {
 	NewTimer : (Duration : number, Callback : ((State : string, Timer : TimerConstructor) -> ())?) -> TimerConstructor,
 	Countdown : (Duration : number, Callback : (State : string, Timer : TimerConstructor) -> ()) -> TimerConstructor,
@@ -9246,21 +9237,13 @@ local function RunLoop(self : TimerConstructor)
 end
 
 --// Public API
--- Timer Instance API
 local TimerInstance = {} :: TimerInstance
 
---[[
-	Starts the timer. Resets elapsed time to 0 and begins the countdown from its full duration. 
-	The timer's state is set to 'Running'.
-	
-	@returns void
-]]
 function TimerInstance:Start()
 	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
 	assert((self.State :: string) ~= "Running", ErrorMessages.AlreadyRunning)
 	assert(self.__Duration > 0, ErrorMessages.NonPositiveDuration)
 
-	-- Starting the current task
 	self.State = "Running"
 	self.StateChanged:Fire(self.State, self)
 	self.__Accumulator = 0
@@ -9270,19 +9253,10 @@ function TimerInstance:Start()
 	RunLoop(self)
 end
 
---[[
-	Stops the timer's execution immediately. The timer's state is set to 'Idle'.
-	This does not trigger the 'Completed' signal and does not reset the elapsed time.
-
-	@returns void
-]]
 function TimerInstance:Stop()
 	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
 
-	if (self.State ~= "Running" and self.State ~= "Paused") then
-		-- already Idle or Dead; do nothing
-		return
-	end
+	if (self.State ~= "Running" and self.State ~= "Paused") then return end
 
 	self.State = "Idle"
 	self.StateChanged:Fire(self.State, self)
@@ -9293,12 +9267,6 @@ function TimerInstance:Stop()
 	end
 end
 
---[[
-	Pauses the timer at its current elapsed time. The state is set to 'Paused'. 
-	The timer can be continued from this point using :Resume().
-	
-	@returns void
-]]
 function TimerInstance:Pause()
 	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
 	assert(self.State == "Running", ErrorMessages.CannotPauseUnlessRunning)
@@ -9311,11 +9279,6 @@ function TimerInstance:Pause()
 	end
 end
 
---[[
-	Resumes a paused timer from where it left off. The state is set back to 'Running'.
-	
-	@returns void
-]]
 function TimerInstance:Resume()
 	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
 	assert(self.State == "Paused", ErrorMessages.MustBePausedToResume)
@@ -9326,60 +9289,22 @@ function TimerInstance:Resume()
 	RunLoop(self)
 end
 
---[[
-	Retrieves the total time in seconds that has elapsed since the timer started.
-	
-	@returns number - The elapsed time in seconds.
-]]
-function TimerInstance:GetElapsedTime()
-	return self.__ElapsedTime
-end
-
---[[
-	Retrieves the time remaining in seconds until the timer completes.
-	
-	@returns number - The remaining time in seconds.
-]]
-function TimerInstance:GetRemainingTime()
-	return self.__RemainingTime
-end
-
---[[
-	Calculates the timer's progress as a normalized value between 0 (start) and 1 (end).
-	
-	@returns number - The progress from 0.0 to 1.0.
-]]
+function TimerInstance:GetElapsedTime() return self.__ElapsedTime end
+function TimerInstance:GetRemainingTime() return self.__RemainingTime end
 function TimerInstance:GetProgress()
 	local Duration = math.max(self.__Duration, 1e-6)
 	return math.clamp(self.__ElapsedTime / Duration, 0, 1)
 end
 
---[[
-	Adjusts the playback speed of the timer. A speed of 2.0 runs twice as fast, 
-	while 0.5 runs at half speed. If the speed is set to 0 or less, the timer will be stopped.
-	
-	@param Speed - The new speed multiplier.
-	@returns void
-]]
 function TimerInstance:AdjustSpeed(Speed : number)
 	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
 	Speed = tonumber(Speed) :: number
 	assert(typeof(Speed) == "number" and Speed == Speed and Speed < math.huge, ErrorMessages.InvalidSpeed)
 
-	if (Speed <= 0) then
-		self:Stop()
-		return
-	end
+	if (Speed <= 0) then self:Stop() return end
 	self.__Speed = Speed
 end
 
---[[
-	Changes the total duration of the timer and then resets it to its initial state.
-	The state will be 'Idle' and elapsed time will be 0.
-	
-	@param Duration - The new total duration in seconds.
-	@returns void
-]]
 function TimerInstance:AdjustDuration(Duration : number)
 	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
 	Duration = tonumber(Duration) :: number
@@ -9390,59 +9315,38 @@ function TimerInstance:AdjustDuration(Duration : number)
 	self:Reset()
 end
 
---[[
-	Stops the timer if it is running and resets its elapsed and remaining time. 
-	The state is set to 'Idle'.
-	
-	@returns void
-]]
 function TimerInstance:Reset()
 	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
-
-	-- Reset should stop timer, then fix variables
 	self:Stop()
 	self.__ElapsedTime = 0
 	self.__RemainingTime = self.__Duration
 end
 
---[[
-	Yields the current coroutine until the timer's 'Completed' signal is fired.
-	
-	@returns any... - The arguments passed from the 'Completed' signal.
-]]
 function TimerInstance:Wait()
 	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
 	return self.Completed:Wait()
 end
 
---[[
-	Stops the timer and fires the 'Completed' signal with the state 'Cancelled'. 
-	This is useful for distinguishing between a natural completion and a forced cancellation.
-	
-	@returns void
-]]
 function TimerInstance:Cancel()
 	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
-
-	-- Cancelling current task
 	self:Stop()
 	self.Completed:Fire("Cancelled", self)
-	if (self.Callback) then
-		task.spawn(self.Callback, "Cancelled", self)
-	end
+	if (self.Callback) then task.spawn(self.Callback, "Cancelled", self) end
 end
 
---[[
-	Permanently destroys the timer instance, disconnects all connections, and cleans up its signals. 
-	The instance cannot be used after being destroyed. The state is set to 'Dead'.
-	
-	@returns void
+--[[ 
+    DÜZELTİLEN KISIM BURASI
+    Önce Stop() çağrılmalı, sonra IsDestroyed true yapılmalı.
+    Eskiden tam tersiydi ve Stop() içindeki assert hata veriyordu.
 ]]
 function TimerInstance:Destroy()
 	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
-	self.__IsDestroyed = true
 
-	self:Stop()
+	-- [FIX] Önce durdur (Hala yaşıyorken)
+	self:Stop() 
+
+	-- [FIX] Şimdi öldür
+	self.__IsDestroyed = true 
 
 	self.State = "Dead"
 	self.StateChanged:Fire(self.State, self)
@@ -9452,86 +9356,43 @@ function TimerInstance:Destroy()
 	self.StateChanged:Destroy()
 end
 
--- Sugar syntax
+function TimerInstance:IsRunning() return self.State == "Running" end
+function TimerInstance:IsPaused() return self.State == "Paused" end
+function TimerInstance:IsDead() return self.State == "Dead" end
 
-function TimerInstance:IsRunning()
-	return self.State == "Running"
-end
-
-function TimerInstance:IsPaused() 
-	return self.State == "Paused" 
-end
-
-function TimerInstance:IsDead()
-	return self.State == "Dead"
-end
-
--- Timer API
 local Timer = {} :: Timer
 
---[[
-	Constructs and returns a new timer instance with a specified duration and an optional callback function.
-	The timer starts in an 'Idle' state.
-	
-	@param Duration - The total duration of the timer in seconds.
-	@param Callback? - An optional function to call upon completion or cancellation.
-	@returns TimerConstructor - The new timer instance.
-]]
 function Timer.NewTimer(Duration : number, Callback : ((State : string, Timer : TimerConstructor) -> ())?) : TimerConstructor
 	Duration = tonumber(Duration) :: number
 	assert(typeof(Duration) == "number", ErrorMessages.InvalidDuration)
 
-	-- Instance creation
 	return setmetatable({
-		-- Public States
 		State = "Idle",
 		Callback = Callback,
 		Completed = FastSignal.new(),
 		OnTick = FastSignal.new(),
 		StateChanged = FastSignal.new(),
-
-		-- Private Variables
 		__Duration = Duration,
 		__ElapsedTime = 0,
 		__RemainingTime = Duration,
 		__Speed = 1,
 		__Accumulator = 0,
 		__RunningTask = nil,
-
-		-- Private States
 		__IsDestroyed = false
-	} :: TimerMetatable, {
-		__index = TimerInstance
-	} :: TimerMetafield)
+	} :: TimerMetatable, { __index = TimerInstance } :: TimerMetafield)
 end
 
---[[
-	A convenience function that creates a new timer and immediately starts it.
-	
-	@param Duration - The total duration of the timer in seconds.
-	@param Callback - A function to call upon completion or cancellation.
-	@returns TimerConstructor - The new, already running timer instance.
-]]
 function Timer.Countdown(Duration : number, Callback : (State : string, Timer : TimerConstructor) -> ()) : TimerConstructor
 	Duration = tonumber(Duration) :: number
 	assert(typeof(Duration) == "number", ErrorMessages.InvalidDuration)
 	assert(Duration > 0, ErrorMessages.NonPositiveDuration)
 	assert(typeof(Callback) == "function")
 
-	-- Instance creation and usage
 	local Countdown = Timer.NewTimer(Duration, Callback)
 	Countdown:Start()
-
 	return Countdown
 end
 
---[[
-	Creates a timer with an effectively infinite duration that counts upwards, acting as a stopwatch.
-	It will not complete on its own and must be manually stopped.
-	
-	@param Callback? - An optional function to call when manually stopped or cancelled.
-	@returns TimerConstructor - The new stopwatch instance.
-]]
 function Timer.Stopwatch(Callback : ((State : string, Timer : TimerConstructor) -> ())?) : TimerConstructor
 	local Stopwatch = Timer.NewTimer(math.huge, Callback)
 	return Stopwatch
@@ -9546,7 +9407,7 @@ return Timer]]></ProtectedString>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBX677E901DE1B745C489BADA05FFAB4BF2">
+			<Item class="ModuleScript" referent="RBX364B4C8BBC294E779CE1F8A83A479CC1">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[--!nocheck
@@ -9610,7 +9471,7 @@ return ChosenSignal]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ModuleScript" referent="RBXEF2591FC75C8403A8CCB5FE3987700F5">
+				<Item class="ModuleScript" referent="RBX32772AA22DB448AF99FD5C79D797B064">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[--!optimize 2
@@ -9700,7 +9561,7 @@ return ScriptSignal :: typeof( require(script.Parent.Docs) )]]></ProtectedString
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBXCB4A9F3D6ECE49E4AA96137E13EE5027">
+				<Item class="ModuleScript" referent="RBX635A21FDFE254B23ACAB9B5915CD81F2">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[--!optimize 2
@@ -9901,7 +9762,7 @@ return ScriptSignal :: typeof( require(script.Parent.Docs) )]]></ProtectedString
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX786B0CD6486A4068A943CC7E6CAF1928">
+				<Item class="ModuleScript" referent="RBX78E10576132144258F7E7886912D9E12">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[--[[
@@ -10148,14 +10009,14 @@ return returnType]]></ProtectedString>
 					</Properties>
 				</Item>
 			</Item>
-			<Item class="PackageLink" referent="RBXF0B1F568034B40C5885C811815A7BADC">
+			<Item class="PackageLink" referent="RBX96418CA36A5E48E18E85558E8D010D18">
 				<Properties>
 					<bool name="AutoUpdate">true</bool>
 					<string name="DefaultName"></string>
 					<int name="ModifiedState">-1</int>
 					<Content name="PackageIdSerialize"><url>rbxassetid://128646705440110</url></Content>
 					<BinaryString name="SerializedDefaultAttributes"></BinaryString>
-					<int64 name="VersionIdSerialize">2</int64>
+					<int64 name="VersionIdSerialize">3</int64>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
