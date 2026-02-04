@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="Folder" referent="RBXCFA58DD8C9C4494498A81D2E18F19A7A">
+	<Item class="Folder" referent="RBX8C3BFACB0D284E2BBAE30A57C431EA12">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -11,11 +11,13 @@
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 		</Properties>
-		<Item class="ModuleScript" referent="RBX43EFA82EAA914658B5AC54D0020C0774">
+		<Item class="ModuleScript" referent="RBX4DE9CF9489F049F8BEA381108C955F5E">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[-- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 
 -- Variables
@@ -25,26 +27,155 @@ local Common = ReplicatedStorage:WaitForChild("Common")
 
 local Interface = Common:WaitForChild("Interface")
 local SkillAssets = Interface:WaitForChild("SkillAssets")
+local SurvivorSkills = Common:WaitForChild("SurvivorSkills")
+local MurdererSkills = Common:WaitForChild("MurdererSkills")
 
+local FormatKit = require(Packages:WaitForChild("FormatKit"))
+local TimerKit = require(Packages:WaitForChild("TimerKit"))
 local Trove = require(Packages:WaitForChild("Trove"))
 local spr = require(Packages:WaitForChild("spr"))
 local Net = require(Packages:WaitForChild("Net"))
 
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer.PlayerGui
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Mouse = LocalPlayer:GetMouse()
 
--- Module
+-- Default Tuş Atamaları
+local DEFAULT_BINDS = {
+	[1] = Enum.KeyCode.E,
+	[2] = Enum.KeyCode.Q,
+	[3] = Enum.KeyCode.R,
+	[4] = Enum.KeyCode.F,
+}
+
 local SkillController = {
 	Name = script.Name,
-	UITrove = Trove.new()
+	UITrove = Trove.new(),
+	Items = {}, 
 }
+
+function SkillController:GetSkillModule(skillName)
+	return SurvivorSkills:FindFirstChild(skillName) or MurdererSkills:FindFirstChild(skillName)
+end
+
+function SkillController:Activate(data)
+	local now = workspace:GetServerTimeNow()
+
+	-- 1. Cooldown Kontrolü (Client tarafında basımı engelle)
+	if data.FinishTime and now < data.FinishTime then return end
+
+	-- 2. Sunucuya Gönder (Mouse.Hit ile)
+	Net:RemoteEvent("ActivateSkill"):FireServer(data.SkillName, Mouse.Hit)
+	
+	local moduleScript = self:GetSkillModule(data.SkillName) :: ModuleScript?
+	if moduleScript then
+		local skillModule = require(moduleScript)
+		if skillModule.Activate then
+			skillModule:Activate(self.UITrove) 
+		end
+	end
+end
 
 function SkillController:OnStart()
 	local SkillHUD = PlayerGui:WaitForChild("SkillHUD")
+	local UsageContainer = SkillHUD:WaitForChild("UsageContainer")
+	local SkillPopup = SkillHUD:WaitForChild("SkillPopup")
+	local CardsPage = SkillPopup:WaitForChild("Cards")
+	local CardsContainer = CardsPage:WaitForChild("Container")
+
+	Net:Connect("GameEnded", function()
+		self.UITrove:Clean()
+		self.Items = {}
+		CardsPage.Visible = false
+	end)
 	
-	--Net:Connect("GameStarted", )
-	Net:Connect("SkillAssigned", function(SkillName : string)
+	Net:Connect("SkillOptionsOffered", function(Options)
+		local NewTimer = TimerKit.NewTimer(10)
+		NewTimer:Start()
 		
+		self.UITrove:Connect(NewTimer.OnTick, function(_, RemainingTime : number)
+			CardsPage.Timer.Description.Text = `Select a skill. If you dont pick in {math.floor(RemainingTime)}s, game gives you random one`
+		end)
+		self.UITrove:Add(NewTimer)
+		
+		CardsPage.Visible = true
+		for _,SkillData in ipairs(Options) do
+			local SkillCard = SkillAssets.SkillCard:Clone()
+			SkillCard.Parent = CardsContainer
+			SkillCard.Icon.Image = SkillData.Image
+			SkillCard.Title.Text = SkillData.Name
+			SkillCard.Description.Text = SkillData.Description
+			
+			self.UITrove:Add(SkillCard)
+			self.UITrove:Connect(SkillCard.Activated, function()
+				Net:RemoteEvent("SelectSkill"):FireServer(SkillData.Name)
+				CardsPage.Visible = false
+			end)
+		end
+	end)
+
+	Net:Connect("SkillAssigned", function(SkillName: string, Cooldown: number, Keybind)
+		CardsPage.Visible = false
+		
+		local assignedKey = Keybind or DEFAULT_BINDS[#self.Items + 1]
+
+		local Data = {
+			SkillName = SkillName,
+			Cooldown = Cooldown, -- Sunucudan gelen sabit süre
+			KeyCode = assignedKey,
+			FinishTime = 0,
+			Item = SkillAssets.SkillButton:Clone()
+		}
+
+		Data.Item.SkillName.Text = SkillName
+		Data.Item.Keycode.Text = assignedKey.Name:gsub("Button", "")
+		Data.Item.Fade.Size = UDim2.fromScale(0, 1) 
+		Data.Item.Parent = UsageContainer
+
+		self.UITrove:Add(Data.Item)
+		self.UITrove:Connect(Data.Item.Activated, function()
+			self:Activate(Data)
+		end)
+
+		self.Items[assignedKey] = Data
+		
+		local moduleScript = self:GetSkillModule(SkillName) :: ModuleScript?
+		if moduleScript then
+			local skillModule = require(moduleScript)
+			if skillModule.OnStart then
+				skillModule:OnStart(self.UITrove) 
+			end
+		end
+	end)
+
+	--// Cooldown Güncellemesi (Sadece Onay Gelir)
+	Net:Connect("CooldownUpdate", function(SkillName: string)
+		for _, data in pairs(self.Items) do
+			if data.SkillName == SkillName then
+				-- Bitiş zamanını şu an + cooldown süresi olarak belirle
+				data.FinishTime = workspace:GetServerTimeNow() + data.Cooldown
+
+				-- Fade Barı anında 1 yap
+				data.Item.Fade.Size = UDim2.fromScale(1, 1)
+				
+				local Tween = TweenService:Create(data.Item.Fade, TweenInfo.new(data.Cooldown, Enum.EasingStyle.Linear), {
+					Size = UDim2.fromScale(0, 1)
+				})
+				Tween:Play()
+				Tween.Completed:Once(function()
+					Tween:Destroy()
+				end)
+				break
+			end
+		end
+	end)
+
+	UserInputService.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed then return end
+		local data = self.Items[input.KeyCode] or self.Items[input.UserInputType]
+		if data then
+			self:Activate(data)
+		end
 	end)
 end
 
@@ -54,6 +185,158 @@ return SkillController]]></ProtectedString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 				<bool name="DefinesCapabilities">false</bool>
 				<string name="Name">SkillController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX62C4D8A9EAB7416FB1C976F7CFED900F">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local HttpService = game:GetService("HttpService") -- JSON dönüşümü için gerekli
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+
+local LightingImporter = require(Packages:WaitForChild("LighingImporter")) -- İsmi kontrol et: 'LighingImporter' yazmışsın, 'LightingImporter' olabilir.
+local Net = require(Packages:WaitForChild("Net"))
+
+local DefaultLighting = require(Shared:WaitForChild("DefaultLighting"))
+
+-- Module
+local LightingController = {
+	Name = script.Name
+}
+
+--// Lighting Verisini İşle ve Uygula
+function LightingController:ApplyLighting(lightingData)
+	if not lightingData then
+		warn("LightingController: Data is empty")
+		return
+	end
+	
+	LightingImporter.ImportJSON(lightingData, true)
+end
+
+function LightingController:OnStart()
+	-- 1. GameService'den gelen özel Lighting yükleme isteği
+	Net:Connect("LoadLighting", function(lightingData)
+		self:ApplyLighting(lightingData)
+	end)
+
+	-- 2. MapService'den gelen harita yüklenme sinyali (Burada da lighting verisi var)
+	Net:Connect("MapLoaded", function(mapName, lightingData)
+		if lightingData then
+			self:ApplyLighting(lightingData)
+		end
+	end)
+
+	-- Opsiyonel: Oyun bittiğinde veya harita silindiğinde varsayılan lighting'e dönmek istersen:
+	Net:Connect("MapUnloaded", function()
+		LightingImporter.ImportJSON(DefaultLighting, true)
+	end)
+end
+
+return LightingController]]></ProtectedString>
+				<string name="ScriptGuid">{5a4af3a0-7334-4ff4-a311-88e698ab57c2}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">LightingController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX6124C903AD044B929A527AF6153DADBC">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Common = ReplicatedStorage:WaitForChild("Common")
+local Interface = Common:WaitForChild("Interface")
+
+local MapVotingAssets = Interface:WaitForChild("MapVotingAssets")
+
+local FormatKit = require(Packages:WaitForChild("FormatKit"))
+local TimerKit = require(Packages:WaitForChild("TimerKit"))
+local Trove = require(Packages:WaitForChild("Trove"))
+local Net = require(Packages:WaitForChild("Net"))
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer.PlayerGui
+
+-- Module
+local VotingController = {
+	Name = script.Name,
+	UITrove = Trove.new(),
+	Items = {},
+}
+
+function VotingController:OnStart()
+	local VotingHUD = PlayerGui:WaitForChild("MapVotingHUD")
+	local MapPopup = VotingHUD:WaitForChild("MapPopup")
+	local CardsPage = MapPopup:WaitForChild("Cards")
+	
+	local function CleanUI()
+		self.UITrove:Clean()
+		self.Items = {}
+		CardsPage.Visible = false
+	end
+	
+	Net:Connect("GameEnded", CleanUI)
+	Net:Connect("WarmupStarted", CleanUI)
+	
+	Net:Connect("VoteOptions", function(Options, ServerTime)
+		local NewTimer = TimerKit.NewTimer(ServerTime)
+		NewTimer:Start()
+		self.UITrove:Add(NewTimer)
+		self.UITrove:Connect(NewTimer.OnTick, function(_, Remaining)
+			CardsPage.Timer.Description.Text = `Vote a map! {math.floor(Remaining)}s later voting ends`
+		end)
+		
+		CardsPage.Visible = true
+		for _,Details in ipairs(Options) do
+			local NewCard = MapVotingAssets:WaitForChild("VoteCard"):Clone()
+			NewCard.Parent = CardsPage.Container
+			NewCard.Title.Text = Details.Name
+			NewCard.Icon.Image = Details.Image
+			NewCard.Description.Text = Details.Description
+			
+			self.Items[Details.Id] = NewCard
+			self.UITrove:Add(NewCard)
+			self.UITrove:Connect(NewCard.Activated, function()
+				Net:RemoteEvent("CastVote"):FireServer(Details.Id)
+				
+				for _,OtherCard in pairs(self.Items) do
+					OtherCard.UIStroke.Color = Color3.new(1, 0, 0)
+				end
+				NewCard.UIStroke.Color = Color3.new(0, 1, 0)
+			end)
+		end
+	end)
+	Net:Connect("VoteUpdate", function(VoteCounts)
+		for MapId, Count in pairs(VoteCounts) do
+			local Item = self.Items[MapId]
+			if (Item) then
+				Item.VoteCount.Text = `{FormatKit.FormatComma(Count)} Vote`
+			end
+		end
+	end)
+end
+
+return VotingController]]></ProtectedString>
+				<string name="ScriptGuid">{9d46ad25-1862-4dbc-b13a-0fb8dd6c5d78}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">VotingController</string>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>

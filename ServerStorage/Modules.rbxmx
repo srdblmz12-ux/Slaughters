@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="Folder" referent="RBXA266749E2A184F28BEB2A5D4FA3E8038">
+	<Item class="Folder" referent="RBXCB9728E28A334BB384C058838A8598EF">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -11,7 +11,7 @@
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 		</Properties>
-		<Item class="ModuleScript" referent="RBXD9183CD57E424ADC8DACB8ECA41E39A4">
+		<Item class="ModuleScript" referent="RBX8D9E44F7765F468FAD0D733075990C76">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--[[
@@ -2266,7 +2266,7 @@ return ProfileStore]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="Folder" referent="RBXD24CF8CD2D094E3DA1FE2885BBB47B11">
+		<Item class="Folder" referent="RBX5F7CF0C6E17046C0BAB3B8AFC396AAAE">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -2275,7 +2275,7 @@ return ProfileStore]]></ProtectedString>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBX9DCDEA3FBCF84C7594CDC6F73789E8DB">
+			<Item class="ModuleScript" referent="RBX1A2DAE477DAF4AA2960C089FCE0316D9">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local Classic = {}
@@ -2331,7 +2331,7 @@ return Classic]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX436BB15A59804457B053F9C1FAF05D85">
+			<Item class="ModuleScript" referent="RBXF334C3D31916473F9F65A25DA048F573">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local Infection = {}
@@ -2390,7 +2390,7 @@ return Infection]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBXD35F9DE8A5C74610ABD211A3DE96D764">
+			<Item class="ModuleScript" referent="RBX43A456DE4D35427FAA21DB4D2520BBAE">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local Duo = {}
@@ -2458,7 +2458,7 @@ return Duo]]></ProtectedString>
 				</Properties>
 			</Item>
 		</Item>
-		<Item class="Folder" referent="RBX8F46CE1E556E4DB094B91DC36DDA4007">
+		<Item class="Folder" referent="RBX6DEF135260A0433095E216440F6D72C8">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -2467,12 +2467,13 @@ return Duo]]></ProtectedString>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBX48615C82D17540EA811DACDD164C59AE">
+			<Item class="ModuleScript" referent="RBX761772772E71478A8D0C3A90584EFE6A">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local DefaultSkill = {}
 
 DefaultSkill.Cooldown = 15 -- Saniye
+DefaultSkill.Keybind = Enum.UserInputType.MouseButton1
 
 function DefaultSkill:Activate(player, gameService, MousePosition)
 	-- adam yiyicek
@@ -2489,7 +2490,7 @@ return DefaultSkill]]></ProtectedString>
 				</Properties>
 			</Item>
 		</Item>
-		<Item class="Folder" referent="RBX9DC6C5BA1FCE4C4E8CFDE06D33B2CC04">
+		<Item class="Folder" referent="RBXD5162269E25C4590B8AC97E47BB7DAB3">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -2498,7 +2499,7 @@ return DefaultSkill]]></ProtectedString>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBXB78B47F9743C49429C7CF41C446826FE">
+			<Item class="ModuleScript" referent="RBXDBA3E56029424D9A8C96C151D4673146">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -2510,6 +2511,9 @@ local Magic = {}
 Magic.Cooldown = 30 
 Magic.Duration = 10 
 Magic.TransitionTime = 1 -- 1 saniyede görünmez ol
+
+Magic.Description = "metin gir..."
+Magic.Image = "rbxassetid://0"
 
 local DAMPING = 1
 local FREQUENCY = 2
@@ -2584,7 +2588,7 @@ return Magic]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX2420BB529E0044B4B6097FD8311CDBA0">
+			<Item class="ModuleScript" referent="RBX9503465542024EC58A75E62D05E2E181">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -2597,146 +2601,179 @@ local Trove = require(Packages.Trove)
 
 local Decoy = {}
 
-Decoy.Cooldown = 60
-Decoy.Duration = 15 
+-- >> İSTEDİĞİN SABİT DEĞERLER <<
+Decoy.Cooldown = 80
+Decoy.Duration = 30
+Decoy.Description = "Deploys a realistic clone that roams and flees from the Killer."
+Decoy.Image = "rbxassetid://0"
 
 -- AI Ayarları
-local DETECT_RANGE = 40 
-local WANDER_RADIUS = 20 
-local FLEE_CHANCE = 0.7 
+local SIGHT_RANGE = 60
+local HIDE_THRESHOLD = 30
+
+-- Yardımcı Fonksiyon: En müsait kaçış yönünü bulur
+local function GetSmartFleePosition(rootPart, killerPos)
+	local origin = rootPart.Position
+	local baseDir = (origin - killerPos).Unit -- Katilin tam tersi yönü (Varsayılan)
+
+	-- Kontrol edilecek açılar (0=Tam tersi, 45=Sağ çapraz, -45=Sol çapraz vs.)
+	-- Önce direkt kaçmaya bakar, olmazsa yanlara bakar, o da olmazsa 90 derece kaçar.
+	local anglesToCheck = {0, 45, -45, 90, -90}
+	local bestPos = origin + (baseDir * 20)
+	local maxDistanceFound = 0
+
+	local rayParams = RaycastParams.new()
+	rayParams.FilterDescendantsInstances = {rootPart.Parent} -- Kendini görmezden gel
+	rayParams.FilterType = Enum.RaycastFilterType.Exclude
+
+	for _, angle in ipairs(anglesToCheck) do
+		-- Açıyı hesapla
+		local rot = CFrame.Angles(0, math.rad(angle), 0)
+		local checkDir = (rot * CFrame.new(baseDir)).Position
+
+		-- Bu yöne 25 studluk bir ışın at
+		local result = workspace:Raycast(origin, checkDir * 25, rayParams)
+
+		if not result then
+			-- Eğer ışın hiçbir şeye çarpmadıysa burası tertemiz, kaç!
+			return origin + (checkDir * 25)
+		else
+			-- Çarptıysa mesafeyi ölç. En uzun mesafeyi veren (en ferah) yeri aklında tut.
+			if result.Distance > maxDistanceFound then
+				maxDistanceFound = result.Distance
+				bestPos = result.Position
+			end
+		end
+	end
+
+	return bestPos -- En mantıklı pozisyonu döndür
+end
 
 function Decoy:Activate(player, gameService)
 	local character = player.Character
 	if not character then return false end
 
-	character.Archivable = true 
+	character.Archivable = true
 	local decoyModel = character:Clone()
-	character.Archivable = false 
+	character.Archivable = false
 
 	local trove = Trove.new()
 
-	-- 1. NPC AYARLARI
-	decoyModel.Name = player.Name 
-
-	for _, child in ipairs(decoyModel:GetChildren()) do
-		if child:IsA("LocalScript") or child:IsA("Script") then
-			child:Destroy()
-		end
-	end
+	-- 1. NPC KURULUMU
+	decoyModel.Name = player.Name
 
 	local rootPart = decoyModel:FindFirstChild("HumanoidRootPart")
-	local humanoid = decoyModel:FindFirstChild("Humanoid")
+	local humanoid = decoyModel:FindFirstChild("Humanoid") :: Humanoid
 
 	if rootPart and humanoid then
-		-- GÜNCELLEME: Oyuncunun 5 stud önüne koyuyoruz (Roblox'ta ön taraf -Z eksenidir)
-		rootPart.CFrame = character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -5)
+		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+		humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+		rootPart.CFrame = character.HumanoidRootPart.CFrame * CFrame.new(3, 0, 0)
 		decoyModel.Parent = workspace
 
-		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None 
+		rootPart:SetNetworkOwner(nil)
+		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 		humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
 
 		CollectionService:AddTag(decoyModel, "Survivor")
 		trove:Add(decoyModel)
 
-		local deathConn = humanoid.Died:Connect(function()
-			task.wait(2) 
+		trove:Add(humanoid.Died:Connect(function()
+			task.wait(2)
 			trove:Destroy()
-		end)
-		trove:Add(deathConn)
+		end))
 	else
 		decoyModel:Destroy()
 		return false
 	end
 
-	-- 2. YAPAY ZEKA (AI) DÖNGÜSÜ
+	-- 2. AI DÖNGÜSÜ
 	local aiLoop = task.spawn(function()
 		while decoyModel and decoyModel.Parent and humanoid.Health > 0 do
 
-			local killerFound = nil
+			local targetKiller = nil
+			local distToKiller = math.huge
+			local canSeeKiller = false
 
-			-- GÜNCELLEME: GameService üzerinden Katili Bulma
+			-- Katil Tespiti
 			for otherPlayer, roleAtom in pairs(gameService.RunningPlayers) do
-				-- Sadece Killer olanlara bak ve karakteri var mı kontrol et
 				if roleAtom() == "Killer" and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
-					local killerRoot = otherPlayer.Character.HumanoidRootPart
-					local dist = (killerRoot.Position - rootPart.Position).Magnitude
+					local kRoot = otherPlayer.Character.HumanoidRootPart
+					local dist = (kRoot.Position - rootPart.Position).Magnitude
 
-					if dist < DETECT_RANGE then
-						killerFound = killerRoot
-						break
-					end
-				end
-			end
+					if dist < SIGHT_RANGE then
+						targetKiller = kRoot
+						distToKiller = dist
 
-			if killerFound then
-				-- >> KAÇMA MANTIĞI <<
-				if math.random() < FLEE_CHANCE then
-					local direction = (rootPart.Position - killerFound.Position).Unit
-					local fleePos = rootPart.Position + (direction * 15) 
+						local params = RaycastParams.new()
+						params.FilterDescendantsInstances = {decoyModel, otherPlayer.Character}
+						params.FilterType = Enum.RaycastFilterType.Exclude
+						local dir = (kRoot.Position - rootPart.Position).Unit * dist
 
-					-- Kaçarken bazen zıplasın (Korku efekti)
-					if math.random() > 0.5 then humanoid.Jump = true end
-
-					self:MoveTo(humanoid, fleePos)
-					task.wait(0.5) 
-				else
-					humanoid:MoveTo(rootPart.Position) 
-					task.wait(1) 
-				end
-			else
-				-- >> GEZİNME (IDLE) MANTIĞI <<
-				if math.random() > 0.4 then 
-					local randX = math.random(-WANDER_RADIUS, WANDER_RADIUS)
-					local randZ = math.random(-WANDER_RADIUS, WANDER_RADIUS)
-					local targetPos = rootPart.Position + Vector3.new(randX, 0, randZ)
-
-					self:MoveTo(humanoid, targetPos)
-
-					-- GÜNCELLEME: Yürürken rastgele zıplama ekledik (Doğallık için)
-					task.delay(math.random(0.5, 2), function()
-						if humanoid and humanoid.Health > 0 then
-							humanoid.Jump = true
+						if not workspace:Raycast(rootPart.Position, dir, params) then
+							canSeeKiller = true
 						end
-					end)
-
-					humanoid.MoveToFinished:Wait(4)
-				else
-					task.wait(math.random(1, 3))
+					end
+					break
 				end
 			end
 
-			task.wait()
+			-- >> DURUM MAKİNESİ <<
+
+			if targetKiller and canSeeKiller then
+				-- [DURUM: KAÇIŞ] - Duvar Kontrollü
+
+				-- Akıllı fonksiyonu çağır: Duvar olmayan yönü bul
+				local safeFleePos = GetSmartFleePosition(rootPart, targetKiller.Position)
+
+				humanoid:MoveTo(safeFleePos)
+
+				-- Zıplama ve Zigzag (Görsel efekt)
+				if math.random() > 0.2 then humanoid.Jump = true end
+
+				-- Kaçarken çok hızlı karar değiştirsin (Akıcılık için)
+				task.wait(0.25)
+
+			elseif targetKiller and not canSeeKiller and distToKiller < HIDE_THRESHOLD then
+				-- [DURUM: PUSU] - Katil yakın ama duvar arkasında
+				humanoid:MoveTo(rootPart.Position)
+				task.wait(0.5)
+
+			else
+				-- [DURUM: GEZİNME] - Katil yok
+				local randX = math.random(-30, 30)
+				local randZ = math.random(-30, 30)
+				local targetPos = rootPart.Position + Vector3.new(randX, 0, randZ)
+
+				self:MoveToPathfinding(humanoid, targetPos)
+				humanoid.Jump = false -- Gezerken zıplama yok
+
+				if math.random() > 0.6 then
+					rootPart.CFrame = rootPart.CFrame * CFrame.Angles(0, math.rad(math.random(90, 180)), 0)
+				end
+
+				task.wait(math.random(3, 5))
+			end
 		end
 	end)
-	trove:Add(aiLoop) 
+	trove:Add(aiLoop)
 
-	task.delay(Decoy.Duration, function()
-		trove:Destroy()
-	end)
-
+	task.delay(Decoy.Duration, function() trove:Destroy() end)
 	return true
 end
 
-function Decoy:MoveTo(humanoid, targetPos)
-	local path = PathfindingService:CreatePath()
-	-- Hata önleme: NPC silinmişse path hesaplama
-	if not humanoid.Parent or not humanoid.Parent:FindFirstChild("HumanoidRootPart") then return end
+-- Pathfinding (Sadece Gezinme Modu İçin)
+function Decoy:MoveToPathfinding(humanoid, targetPos)
+	local path = PathfindingService:CreatePath({ AgentRadius = 2, AgentCanJump = false })
+	if not humanoid.Parent then return end
 
-	pcall(function()
+	local success = pcall(function()
 		path:ComputeAsync(humanoid.Parent.HumanoidRootPart.Position, targetPos)
 	end)
 
-	if path.Status == Enum.PathStatus.Success then
+	if success and path.Status == Enum.PathStatus.Success then
 		local waypoints = path:GetWaypoints()
-		if waypoints[2] then
-			humanoid:MoveTo(waypoints[2].Position)
-			-- Yol üstünde zıplama gerekiyorsa zıpla
-			if waypoints[2].Action == Enum.PathWaypointAction.Jump then
-				humanoid.Jump = true
-			end
-		else
-			humanoid:MoveTo(targetPos)
-		end
+		if waypoints[2] then humanoid:MoveTo(waypoints[2].Position) end
 	else
 		humanoid:MoveTo(targetPos)
 	end
@@ -2752,7 +2789,7 @@ return Decoy]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX24003C471A2E4030832FBEE52BD8008C">
+			<Item class="ModuleScript" referent="RBXBDA84D71FCD444369C541755748FB037">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -2760,6 +2797,9 @@ local Adrenaline = {}
 
 Adrenaline.Cooldown = 40 -- Özellik güçlü, 40sn cooldown makul olabilir
 Adrenaline.Duration = 8 -- Toplam etki süresi (5 koşma + 3 yorulma)
+
+Adrenaline.Description = "metin gir..."
+Adrenaline.Image = "rbxassetid://0"
 
 function Adrenaline:Activate(player, gameService)
 	local character = player.Character

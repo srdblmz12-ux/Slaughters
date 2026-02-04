@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="Folder" referent="RBX871CA85582624D1CBDBD119D7E8BBCA9">
+	<Item class="Folder" referent="RBXE938124B5B7C4616A3BABA289242E681">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -11,7 +11,7 @@
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 		</Properties>
-		<Item class="ModuleScript" referent="RBXBBA3D74D8C844EF0B117E94C3E7FBA17">
+		<Item class="ModuleScript" referent="RBXD648369F68FA4F40BE72BCF23A9A7293">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[local src = require(script.src)
@@ -30,7 +30,7 @@ return src
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBX1CC67689036F4E0F947EB25D27464959">
+			<Item class="ModuleScript" referent="RBXAE0DD66553FD4E0CBD8F6B36335A025E">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local atom = require(script.atom)
@@ -68,7 +68,7 @@ return {
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ModuleScript" referent="RBX1BB18B8E42EB46DCBC9BCE7A0CB6C6A3">
+				<Item class="ModuleScript" referent="RBXCCE584FE0BF644A988A441761C4B9D4F">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local store = require(script.Parent.store)
@@ -123,7 +123,7 @@ return atom
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX7DE2DFA8A79544D9A648F3DBB994D1DF">
+				<Item class="ModuleScript" referent="RBX666D45BB5C4E4C6C9BEDC7F78236F7F7">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local atom = require(script.Parent.atom)
@@ -173,7 +173,7 @@ return computed
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX93510DB3C20041BFA4042D5DE651AADD">
+				<Item class="ModuleScript" referent="RBX194D84231B9142B7A5E7A7C8374B253B">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local store = require(script.Parent.store)
@@ -239,7 +239,7 @@ return effect :: (callback: ((cleanup: Cleanup) -> ()) | ((cleanup: Cleanup) -> 
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX78731B6073734ACCB7D0156345C1E360">
+				<Item class="ModuleScript" referent="RBX2630884220034EDDA8B89E0690F244E0">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local atom = require(script.Parent.atom)
@@ -323,7 +323,7 @@ return mapped :: Map
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBXF3A7616B038D4D219029C0318D81635C">
+				<Item class="ModuleScript" referent="RBX54671F18AB7C4BD2B2C9FC455B551A57">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local store = require(script.Parent.store)
@@ -386,7 +386,7 @@ return observe
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBXC07AEC97BD294011AA796BFABA789C4D">
+				<Item class="ModuleScript" referent="RBX1EFB1F9FC4E44934BF210F73B591BEE1">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local types = require(script.Parent.types)
@@ -613,7 +613,7 @@ return {
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX6FA854E5378741C6BD1C812FFECBC83F">
+				<Item class="ModuleScript" referent="RBXCB4C38C4DC5345A6B4381DF657086564">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[local store = require(script.Parent.store)
@@ -669,7 +669,7 @@ return subscribe
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="ModuleScript" referent="RBX865A2C007FDA4463B7442B94CA67938C">
+				<Item class="ModuleScript" referent="RBX0E06E0509DC9423F88DB963B0AF3AC33">
 					<Properties>
 						<Content name="LinkedSource"><null></null></Content>
 						<ProtectedString name="Source"><![CDATA[export type Set<T> = { [T]: true }
@@ -718,7 +718,7 @@ return nil
 				</Item>
 			</Item>
 		</Item>
-		<Item class="ModuleScript" referent="RBX55E635360ABC451886A16BEE0FF66F2D">
+		<Item class="ModuleScript" referent="RBX5A432D709A4D4265BC0ED62506D5A60C">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[-- Services
@@ -898,7 +898,7 @@ return Framework]]></ProtectedString>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBXA640872CC1D5408CAA5F0A288993D88D">
+			<Item class="ModuleScript" referent="RBX246113E353B1430E926286DAC3AA9557">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[--[[
@@ -2979,7 +2979,7 @@ return Promise
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX7C0D5022B2D84B82B09467CD0B206B3C">
+			<Item class="ModuleScript" referent="RBXE0483385DEB04D17A91E082B6C966727">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local RunService = game:GetService("RunService")
@@ -3183,7 +3183,7 @@ return Net
 				</Properties>
 			</Item>
 		</Item>
-		<Item class="ModuleScript" referent="RBX02616F2FAF22455EA88581F3B52DE793">
+		<Item class="ModuleScript" referent="RBX52B9107F212743998606228FEE0A8E15">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--[[
@@ -5264,7 +5264,7 @@ return Promise
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX7E46BCE280264414BDD2E98A6F21895F">
+		<Item class="ModuleScript" referent="RBXD847C85DFFEC4724BF3CD546B9E2612B">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--------------------------------------------------------------------------------
@@ -5468,7 +5468,7 @@ return Signal]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBXF88258347B024333A829F52E3A2FFECF">
+		<Item class="ModuleScript" referent="RBX2536EEB5241C4E9A8DB604B411CEEC56">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--!strict
@@ -6268,7 +6268,7 @@ return {
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX8B6F66F3E2FC433F905AD8D715E01F10">
+		<Item class="ModuleScript" referent="RBXAEE43ABEE2E94F1EB25DD496C087CEE8">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--!strict
@@ -7190,7 +7190,7 @@ return table.freeze(spr)]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBXF73C107F698B4918B27C2AEFE8530051">
+		<Item class="ModuleScript" referent="RBX0041E863AAF54A1FA881284B274B14F5">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[local BetterDebris = {}
@@ -7247,7 +7247,7 @@ return BetterDebris]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBXD35EFC5C180D434E8B02A4F842EDAA55">
+		<Item class="ModuleScript" referent="RBX6351CE7FD7A147A8AC6C26B6A5D84D14">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--!nocheck
@@ -7277,7 +7277,7 @@ return setmetatable(Constants.Constants, {
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBX3BCC7C6593E84845A65808013922F4AF">
+			<Item class="ModuleScript" referent="RBXE0774AD521DC4768AEE9C4B52E4943ED">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[export type FormatKit = typeof(setmetatable(
@@ -7310,7 +7310,7 @@ return nil]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX025A1B43D170446F8DCAC64E3C3AF3A7">
+			<Item class="ModuleScript" referent="RBX9B2CCBF38BBB46D982922CCC0844339A">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7346,7 +7346,7 @@ return table.freeze({
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
 			</Item>
-			<Item class="Folder" referent="RBXEA0EEDFE53EE4205A841E1A2A0F9D232">
+			<Item class="Folder" referent="RBX4951E43897EC4FB69B8505273C77CFBC">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -7355,7 +7355,7 @@ return table.freeze({
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="Folder" referent="RBXA61A72E9E97D4BBB87D2F28B2BBC284C">
+				<Item class="Folder" referent="RBX871FA69076DD4AD9AFF052E6E16C8068">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -7364,7 +7364,7 @@ return table.freeze({
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="ModuleScript" referent="RBXF05B1F26F65E40719356EBF6F05887FA">
+					<Item class="ModuleScript" referent="RBXF7C0B2EE5B484AC39975C7CCCCF5D9E7">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7391,7 +7391,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX94E8B0D2F90245BDAF30023D3BDA7D0B">
+					<Item class="ModuleScript" referent="RBX513AA424CAC3404BBF4AE6BC03179555">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7420,7 +7420,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXE908BE9BC7AB4C2E8D866AAC40469CCE">
+					<Item class="ModuleScript" referent="RBX067A6959D014477BA81690ADBDDB2AF5">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7445,7 +7445,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX4B6C9D2172A042158534EA9CC4C077D7">
+					<Item class="ModuleScript" referent="RBXC1795AE4620A45B681C6F2C287E61B91">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7491,7 +7491,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXF5737195F3B349EDABCD97DD79B405E7">
+					<Item class="ModuleScript" referent="RBXE5236BD46A464F108ADC2EB15824AC13">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7516,7 +7516,7 @@ end]]></ProtectedString>
 						</Properties>
 					</Item>
 				</Item>
-				<Item class="Folder" referent="RBXF9C82ED1D4E74714A3A93284B6A7B501">
+				<Item class="Folder" referent="RBXCA0CD79F4361459BB3DA75704FCACBC9">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -7525,7 +7525,7 @@ end]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="ModuleScript" referent="RBXDCA7A1119ED14151BB2BB595584294C2">
+					<Item class="ModuleScript" referent="RBX6402592E5671485FA5904C7721E16E68">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7555,7 +7555,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXAC3256648B084474B276E3F5751FA260">
+					<Item class="ModuleScript" referent="RBX3F4964BAE4854585A126FAAEA3D714F9">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7598,7 +7598,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXE9D7F2B246FC40A383B072495642FEB1">
+					<Item class="ModuleScript" referent="RBX44261B83141946D09717E0CC115CBB5A">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7654,7 +7654,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX7DCDA5841EA649EAB71FD64C11A9470C">
+					<Item class="ModuleScript" referent="RBXE6B3C97B7A0D451E9739282CEAE43365">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7719,7 +7719,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXEA1B1ED3308A44C68B361FC371EFED29">
+					<Item class="ModuleScript" referent="RBX0527701E706A49D184504AC5B8872DE0">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7748,7 +7748,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX3ECFB975EA6A46038F95B3CE3F1BFABB">
+					<Item class="ModuleScript" referent="RBX1152749B69C14F0C9AFBB8D20559A0D7">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Kit = script
@@ -7822,7 +7822,7 @@ end]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX50F3E213AB0246E8A63CFB2F73E90361">
+					<Item class="ModuleScript" referent="RBXFDE4B172A0544390AFD7430EFF2FA697">
 						<Properties>
 							<Content name="LinkedSource"><null></null></Content>
 							<ProtectedString name="Source"><![CDATA[local Mapping = {
@@ -7855,7 +7855,7 @@ end]]></ProtectedString>
 					</Item>
 				</Item>
 			</Item>
-			<Item class="PackageLink" referent="RBX5FB36740FB014639AE7B0897FFC81AE5">
+			<Item class="PackageLink" referent="RBX897133E1618041358064960BCDCFB33E">
 				<Properties>
 					<bool name="AutoUpdate">true</bool>
 					<string name="DefaultName"></string>
@@ -7872,7 +7872,7 @@ end]]></ProtectedString>
 				</Properties>
 			</Item>
 		</Item>
-		<Item class="ModuleScript" referent="RBX35B3F0FE2AEF4445A5BD5243AB6AEEB7">
+		<Item class="ModuleScript" referent="RBXC78AF973E5F44D07AC85FD96887BC26A">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[local PlayerWaitlist = {}
@@ -7975,7 +7975,7 @@ return PlayerWaitlist]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX4A5CC38208F743B5B254A23F4D3ABB50">
+		<Item class="ModuleScript" referent="RBXFD2D965983404F0AB1C8004437C911B5">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--!native
@@ -8495,7 +8495,7 @@ return {
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX3B05690F784C44DAB1391C3D7C4D4487">
+		<Item class="ModuleScript" referent="RBX98697AC8D80B4850939196F21066743F">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[local RunService = game:GetService("RunService")
@@ -8698,7 +8698,7 @@ return Net
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBXBEA5D75AE8E348B59023B1C1AD8BA1FD">
+		<Item class="ModuleScript" referent="RBX1A90A96C5AAC4076B9D42241D388A0F4">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[--[[
@@ -8915,7 +8915,7 @@ return Super]]></ProtectedString>
 				<int64 name="SourceAssetId">16093655178</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBX7FC6D38B54BC41B99166F856C99C90A7">
+			<Item class="ModuleScript" referent="RBX93CBA83AA6D348D88046654336262A1A">
 				<Properties>
 					<Content name="LinkedSource"><null></null></Content>
 					<ProtectedString name="Source"><![CDATA[--!strict
@@ -9013,7 +9013,7 @@ return assert]]></ProtectedString>
 				</Properties>
 			</Item>
 		</Item>
-		<Item class="ModuleScript" referent="RBXAEE246BC0FC14FC2992EFFEF9430D01F">
+		<Item class="ModuleScript" referent="RBXA14F900AAC694D15ABB5A424906CDAE8">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[local module = {}
@@ -9144,6 +9144,1026 @@ return module]]></ProtectedString>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX5B92779AB2A04FBF9AEA931107E7B80D">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[--!strict
+--// Services
+local RunService = game:GetService("RunService")
+
+--// Constants
+local FastSignal = require(script.FastSignal)
+local ErrorMessages = {
+	InvalidDuration = "Expected 'Duration' to be a number or numeric string",
+	InvalidSpeed = "Expected 'Speed' to be a number or numeric string",
+	TimerDestroyed = "This timer instance has been destroyed and can no longer be used",
+	AlreadyRunning = "This timer is already running and cannot be started again",
+	NonPositiveDuration = "Cannot start a timer with a duration of zero or less",
+	CannotPauseUnlessRunning = "Timer must be running to be paused",
+	MustBePausedToResume = "Timer must be paused to resume",
+}
+
+--// Types
+-- Timer Instance
+export type TimerInstance = {
+	Start : (self : TimerConstructor) -> (),
+	Stop : (self : TimerConstructor) -> (),
+	Pause : (self : TimerConstructor) -> (),
+	Resume : (self : TimerConstructor) -> (),
+	AdjustSpeed : (self : TimerConstructor, Speed : number) -> (),
+	AdjustDuration : (self : TimerConstructor, Duration : number) -> (),
+	Reset : (self : TimerConstructor) -> (),
+	Wait : (self : TimerConstructor) -> (),
+	Cancel : (self : TimerConstructor) -> (),
+	Destroy : (self : TimerConstructor) -> (),
+	
+	IsRunning : (self : TimerConstructor) -> boolean,
+	IsPaused : (self : TimerConstructor) -> boolean,
+	IsDead : (self : TimerConstructor) -> boolean,
+
+	GetElapsedTime : (self : TimerConstructor) -> number,
+	GetRemainingTime : (self : TimerConstructor) -> number,
+	GetProgress : (self : TimerConstructor) -> number,
+}
+
+-- Timer API
+type TimerMetatable = {
+	-- Public States
+	State : "Running" | "Idle" | "Dead" | "Paused",
+	Callback : ((State : string, Timer : TimerConstructor) -> ())?,
+	Completed : FastSignal.ScriptSignal<string, TimerConstructor>,
+	OnTick : FastSignal.ScriptSignal<number, number, number, TimerConstructor>,
+	StateChanged : FastSignal.ScriptSignal<string, TimerConstructor>,
+
+	-- Private Variables
+	__Duration : number,
+	__ElapsedTime : number,
+	__RemainingTime : number,
+	__Speed : number,
+	__Accumulator : number,
+	__RunningTask : RBXScriptConnection?,
+
+	-- Private States
+	__IsDestroyed : boolean
+}
+type TimerMetafield = {
+	__index : TimerInstance
+}
+export type TimerConstructor = typeof(setmetatable(
+	{} :: TimerMetatable,
+	{} :: TimerMetafield
+	))
+export type Timer = {
+	NewTimer : (Duration : number, Callback : ((State : string, Timer : TimerConstructor) -> ())?) -> TimerConstructor,
+	Countdown : (Duration : number, Callback : (State : string, Timer : TimerConstructor) -> ()) -> TimerConstructor,
+	Stopwatch : (Callback : ((State : string, Timer : TimerConstructor) -> ())?) -> TimerConstructor
+}
+
+--// Private API
+local function RunLoop(self : TimerConstructor)
+	self.__RunningTask = RunService.Heartbeat:Connect(function(Delta : number)
+		if ((self.State :: string) ~= "Running") then return end
+		local ElapsedDelta = Delta * self.__Speed
+		self.__ElapsedTime = math.clamp(self.__ElapsedTime + ElapsedDelta, 0, self.__Duration)
+		self.__RemainingTime = math.max(self.__RemainingTime - ElapsedDelta, 0)
+
+		self.__Accumulator += ElapsedDelta
+		while self.__Accumulator >= 1 do
+			self.__Accumulator -= 1
+			self.OnTick:Fire(self.__ElapsedTime, self.__RemainingTime, self:GetProgress(), self)
+		end
+
+		if (self.__ElapsedTime >= self.__Duration) then
+			if (self.Callback) then
+				task.spawn(self.Callback, "Completed", self)
+			end
+
+			self.Completed:Fire("Completed", self)
+			self:Stop()
+		end
+	end)
+end
+
+--// Public API
+-- Timer Instance API
+local TimerInstance = {} :: TimerInstance
+
+--[[
+	Starts the timer. Resets elapsed time to 0 and begins the countdown from its full duration. 
+	The timer's state is set to 'Running'.
+	
+	@returns void
+]]
+function TimerInstance:Start()
+	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
+	assert((self.State :: string) ~= "Running", ErrorMessages.AlreadyRunning)
+	assert(self.__Duration > 0, ErrorMessages.NonPositiveDuration)
+
+	-- Starting the current task
+	self.State = "Running"
+	self.StateChanged:Fire(self.State, self)
+	self.__Accumulator = 0
+	self.__ElapsedTime = 0
+	self.__RemainingTime = self.__Duration
+
+	RunLoop(self)
+end
+
+--[[
+	Stops the timer's execution immediately. The timer's state is set to 'Idle'.
+	This does not trigger the 'Completed' signal and does not reset the elapsed time.
+
+	@returns void
+]]
+function TimerInstance:Stop()
+	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
+
+	if (self.State ~= "Running" and self.State ~= "Paused") then
+		-- already Idle or Dead; do nothing
+		return
+	end
+
+	self.State = "Idle"
+	self.StateChanged:Fire(self.State, self)
+
+	if (self.__RunningTask) then
+		self.__RunningTask:Disconnect()
+		self.__RunningTask = nil
+	end
+end
+
+--[[
+	Pauses the timer at its current elapsed time. The state is set to 'Paused'. 
+	The timer can be continued from this point using :Resume().
+	
+	@returns void
+]]
+function TimerInstance:Pause()
+	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
+	assert(self.State == "Running", ErrorMessages.CannotPauseUnlessRunning)
+
+	self.State = "Paused"
+	self.StateChanged:Fire(self.State, self)
+	if (self.__RunningTask) then
+		self.__RunningTask:Disconnect()
+		self.__RunningTask = nil
+	end
+end
+
+--[[
+	Resumes a paused timer from where it left off. The state is set back to 'Running'.
+	
+	@returns void
+]]
+function TimerInstance:Resume()
+	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
+	assert(self.State == "Paused", ErrorMessages.MustBePausedToResume)
+
+	self.State = "Running"
+	self.StateChanged:Fire(self.State, self)
+
+	RunLoop(self)
+end
+
+--[[
+	Retrieves the total time in seconds that has elapsed since the timer started.
+	
+	@returns number - The elapsed time in seconds.
+]]
+function TimerInstance:GetElapsedTime()
+	return self.__ElapsedTime
+end
+
+--[[
+	Retrieves the time remaining in seconds until the timer completes.
+	
+	@returns number - The remaining time in seconds.
+]]
+function TimerInstance:GetRemainingTime()
+	return self.__RemainingTime
+end
+
+--[[
+	Calculates the timer's progress as a normalized value between 0 (start) and 1 (end).
+	
+	@returns number - The progress from 0.0 to 1.0.
+]]
+function TimerInstance:GetProgress()
+	local Duration = math.max(self.__Duration, 1e-6)
+	return math.clamp(self.__ElapsedTime / Duration, 0, 1)
+end
+
+--[[
+	Adjusts the playback speed of the timer. A speed of 2.0 runs twice as fast, 
+	while 0.5 runs at half speed. If the speed is set to 0 or less, the timer will be stopped.
+	
+	@param Speed - The new speed multiplier.
+	@returns void
+]]
+function TimerInstance:AdjustSpeed(Speed : number)
+	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
+	Speed = tonumber(Speed) :: number
+	assert(typeof(Speed) == "number" and Speed == Speed and Speed < math.huge, ErrorMessages.InvalidSpeed)
+
+	if (Speed <= 0) then
+		self:Stop()
+		return
+	end
+	self.__Speed = Speed
+end
+
+--[[
+	Changes the total duration of the timer and then resets it to its initial state.
+	The state will be 'Idle' and elapsed time will be 0.
+	
+	@param Duration - The new total duration in seconds.
+	@returns void
+]]
+function TimerInstance:AdjustDuration(Duration : number)
+	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
+	Duration = tonumber(Duration) :: number
+	assert(typeof(Duration) == "number", ErrorMessages.InvalidDuration)
+	assert(Duration > 0, ErrorMessages.NonPositiveDuration)
+
+	self.__Duration = Duration
+	self:Reset()
+end
+
+--[[
+	Stops the timer if it is running and resets its elapsed and remaining time. 
+	The state is set to 'Idle'.
+	
+	@returns void
+]]
+function TimerInstance:Reset()
+	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
+
+	-- Reset should stop timer, then fix variables
+	self:Stop()
+	self.__ElapsedTime = 0
+	self.__RemainingTime = self.__Duration
+end
+
+--[[
+	Yields the current coroutine until the timer's 'Completed' signal is fired.
+	
+	@returns any... - The arguments passed from the 'Completed' signal.
+]]
+function TimerInstance:Wait()
+	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
+	return self.Completed:Wait()
+end
+
+--[[
+	Stops the timer and fires the 'Completed' signal with the state 'Cancelled'. 
+	This is useful for distinguishing between a natural completion and a forced cancellation.
+	
+	@returns void
+]]
+function TimerInstance:Cancel()
+	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
+
+	-- Cancelling current task
+	self:Stop()
+	self.Completed:Fire("Cancelled", self)
+	if (self.Callback) then
+		task.spawn(self.Callback, "Cancelled", self)
+	end
+end
+
+--[[
+	Permanently destroys the timer instance, disconnects all connections, and cleans up its signals. 
+	The instance cannot be used after being destroyed. The state is set to 'Dead'.
+	
+	@returns void
+]]
+function TimerInstance:Destroy()
+	assert(not self.__IsDestroyed, ErrorMessages.TimerDestroyed)
+	self.__IsDestroyed = true
+
+	self:Stop()
+
+	self.State = "Dead"
+	self.StateChanged:Fire(self.State, self)
+
+	self.Completed:Destroy()
+	self.OnTick:Destroy()
+	self.StateChanged:Destroy()
+end
+
+-- Sugar syntax
+
+function TimerInstance:IsRunning()
+	return self.State == "Running"
+end
+
+function TimerInstance:IsPaused() 
+	return self.State == "Paused" 
+end
+
+function TimerInstance:IsDead()
+	return self.State == "Dead"
+end
+
+-- Timer API
+local Timer = {} :: Timer
+
+--[[
+	Constructs and returns a new timer instance with a specified duration and an optional callback function.
+	The timer starts in an 'Idle' state.
+	
+	@param Duration - The total duration of the timer in seconds.
+	@param Callback? - An optional function to call upon completion or cancellation.
+	@returns TimerConstructor - The new timer instance.
+]]
+function Timer.NewTimer(Duration : number, Callback : ((State : string, Timer : TimerConstructor) -> ())?) : TimerConstructor
+	Duration = tonumber(Duration) :: number
+	assert(typeof(Duration) == "number", ErrorMessages.InvalidDuration)
+
+	-- Instance creation
+	return setmetatable({
+		-- Public States
+		State = "Idle",
+		Callback = Callback,
+		Completed = FastSignal.new(),
+		OnTick = FastSignal.new(),
+		StateChanged = FastSignal.new(),
+
+		-- Private Variables
+		__Duration = Duration,
+		__ElapsedTime = 0,
+		__RemainingTime = Duration,
+		__Speed = 1,
+		__Accumulator = 0,
+		__RunningTask = nil,
+
+		-- Private States
+		__IsDestroyed = false
+	} :: TimerMetatable, {
+		__index = TimerInstance
+	} :: TimerMetafield)
+end
+
+--[[
+	A convenience function that creates a new timer and immediately starts it.
+	
+	@param Duration - The total duration of the timer in seconds.
+	@param Callback - A function to call upon completion or cancellation.
+	@returns TimerConstructor - The new, already running timer instance.
+]]
+function Timer.Countdown(Duration : number, Callback : (State : string, Timer : TimerConstructor) -> ()) : TimerConstructor
+	Duration = tonumber(Duration) :: number
+	assert(typeof(Duration) == "number", ErrorMessages.InvalidDuration)
+	assert(Duration > 0, ErrorMessages.NonPositiveDuration)
+	assert(typeof(Callback) == "function")
+
+	-- Instance creation and usage
+	local Countdown = Timer.NewTimer(Duration, Callback)
+	Countdown:Start()
+
+	return Countdown
+end
+
+--[[
+	Creates a timer with an effectively infinite duration that counts upwards, acting as a stopwatch.
+	It will not complete on its own and must be manually stopped.
+	
+	@param Callback? - An optional function to call when manually stopped or cancelled.
+	@returns TimerConstructor - The new stopwatch instance.
+]]
+function Timer.Stopwatch(Callback : ((State : string, Timer : TimerConstructor) -> ())?) : TimerConstructor
+	local Stopwatch = Timer.NewTimer(math.huge, Callback)
+	return Stopwatch
+end
+
+return Timer]]></ProtectedString>
+				<string name="ScriptGuid">{3F3A09E6-ABFC-4D0C-B36F-5CC8364ABD9C}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">TimerKit</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+			<Item class="ModuleScript" referent="RBX677E901DE1B745C489BADA05FFAB4BF2">
+				<Properties>
+					<Content name="LinkedSource"><null></null></Content>
+					<ProtectedString name="Source"><![CDATA[--!nocheck
+--!optimize 2
+--!native
+
+--[[
+	This script deals with typing and automatic choosing of the right variant depending on what your experience is currently running.
+]]
+
+local IsDeferred: boolean do
+	IsDeferred = false
+
+	local bindable = Instance.new("BindableEvent")
+
+	local handlerRun = false
+	bindable.Event:Connect(function()
+		handlerRun = true
+	end)
+
+	bindable:Fire()
+	bindable:Destroy()
+
+	if handlerRun == false then
+		-- In Deferred mode, things run "later", we can take advantage of this to detect the mode active,
+		-- by checking whether a :Fire call manages to change a variable right away, we are able to detect
+		-- whether Immediate or Deferred mode is being used.
+		
+		IsDeferred = true
+	end
+end
+
+-- These were copied and modified from sleitnick's fork of GoodSignal, thanks sleitnick!
+export type ScriptSignal<T...> = {
+	IsActive: (self: ScriptSignal<T...>) -> boolean,
+	Fire: (self: ScriptSignal<T...>, T...) -> (),
+	Connect: (self: ScriptSignal<T...>, callback: (T...) -> ()) -> ScriptConnection,
+	Once: (self: ScriptSignal<T...>, callback: (T...) -> ()) -> ScriptConnection,
+	DisconnectAll: (self: ScriptSignal<T...>) -> (),
+	Destroy: (self: ScriptSignal<T...>) -> (),
+	Wait: (self: ScriptSignal<T...>) -> T...,
+}
+export type ScriptConnection = {
+	Disconnect: (self: ScriptConnection) -> (),
+	Connected: boolean,
+}
+
+-- Legacy type. Do not use in newer work.
+export type Class = ScriptSignal<...any>
+
+local ChosenSignal: typeof( require(script.Docs) ) = IsDeferred
+	and require(script.Deferred)
+	or require(script.Immediate)
+
+return ChosenSignal]]></ProtectedString>
+					<string name="ScriptGuid">{b968eb03-7247-4b55-9034-852248ba1eb4}</string>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<string name="Name">FastSignal</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+				<Item class="ModuleScript" referent="RBXEF2591FC75C8403A8CCB5FE3987700F5">
+					<Properties>
+						<Content name="LinkedSource"><null></null></Content>
+						<ProtectedString name="Source"><![CDATA[--!optimize 2
+--!native
+
+export type ScriptSignal<T...> = {
+	IsActive: (self: ScriptSignal<T...>) -> boolean,
+	Fire: (self: ScriptSignal<T...>, T...) -> (),
+	Connect: (self: ScriptSignal<T...>, callback: (T...) -> ()) -> ScriptConnection,
+	Once: (self: ScriptSignal<T...>, callback: (T...) -> ()) -> ScriptConnection,
+	DisconnectAll: (self: ScriptSignal<T...>) -> (),
+	Destroy: (self: ScriptSignal<T...>) -> (),
+	Wait: (self: ScriptSignal<T...>) -> T...,
+}
+export type ScriptConnection = {
+	Disconnect: (self: ScriptConnection) -> (),
+	Connected: boolean,
+}
+
+-- Legacy type. Do not use in newer work.
+export type Class = ScriptSignal<...any>
+
+local MainScriptSignal = require(script.Parent.Deferred)
+
+local ScriptSignal = {} do
+	for methodName, method in pairs(MainScriptSignal) do
+		ScriptSignal[methodName] = method
+	end
+	ScriptSignal.__index = ScriptSignal
+end
+
+local FreeThread: thread? = nil
+local function RunHandlerInFreeThread(handler, ...)
+	local thread = FreeThread :: thread
+	FreeThread = nil
+
+	handler(...)
+
+	FreeThread = thread
+end
+
+local function CreateFreeThread()
+	FreeThread = coroutine.running()
+
+	while true do
+		RunHandlerInFreeThread( coroutine.yield() )
+	end
+end
+
+function ScriptSignal.new()
+	return setmetatable({
+		_active = true,
+		_head = nil
+	}, ScriptSignal)
+end
+
+function ScriptSignal.Is(object)
+	return typeof(object) == 'table'
+		and getmetatable(object) == ScriptSignal
+end
+
+function ScriptSignal:Fire(...)
+	local node = self._head
+	while node ~= nil do
+		if node._connection ~= nil then
+			if FreeThread == nil then
+				task.spawn(CreateFreeThread)
+			end
+
+			task.spawn(
+				FreeThread :: thread,
+				node._handler, ...
+			)
+		end
+
+		node = node._next
+	end
+end
+
+return ScriptSignal :: typeof( require(script.Parent.Docs) )]]></ProtectedString>
+						<string name="ScriptGuid">{6c506abb-d101-4be6-93ee-48294c32f098}</string>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<string name="Name">Immediate</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBXCB4A9F3D6ECE49E4AA96137E13EE5027">
+					<Properties>
+						<Content name="LinkedSource"><null></null></Content>
+						<ProtectedString name="Source"><![CDATA[--!optimize 2
+--!native
+
+export type ScriptSignal<T...> = {
+	IsActive: (self: ScriptSignal<T...>) -> boolean,
+	Fire: (self: ScriptSignal<T...>, T...) -> (),
+	Connect: (self: ScriptSignal<T...>, callback: (T...) -> ()) -> ScriptConnection,
+	Once: (self: ScriptSignal<T...>, callback: (T...) -> ()) -> ScriptConnection,
+	DisconnectAll: (self: ScriptSignal<T...>) -> (),
+	Destroy: (self: ScriptSignal<T...>) -> (),
+	Wait: (self: ScriptSignal<T...>) -> T...,
+}
+export type ScriptConnection = {
+	Disconnect: (self: ScriptConnection) -> (),
+	Connected: boolean,
+}
+
+-- Legacy type. Do not use in newer work.
+export type Class = ScriptSignal<...any>
+
+local ScriptSignal = {}
+ScriptSignal.__index = ScriptSignal
+
+local ScriptConnection = {}
+ScriptConnection.__index = ScriptConnection
+
+function ScriptSignal.new()
+	return setmetatable({
+		_active = true,
+		_head = nil
+	}, ScriptSignal)
+end
+
+function ScriptSignal.Is(object)
+	return typeof(object) == 'table'
+		and getmetatable(object) == ScriptSignal
+end
+
+function ScriptSignal:IsActive()
+	return self._active == true
+end
+
+function ScriptSignal:Connect(handler)
+	assert(
+		typeof(handler) == 'function',
+		"Must be function"
+	)
+
+	if self._active ~= true then
+		return setmetatable({
+			Connected = false,
+			_node = nil
+		}, ScriptConnection)
+	end
+
+	local _head = self._head
+
+	local node = {
+		_signal = self,
+		_connection = nil,
+		_handler = handler,
+
+		_next = _head,
+		_prev = nil
+	}
+
+	if _head ~= nil then
+		_head._prev = node
+	end
+
+	self._head = node
+
+	local connection = setmetatable({
+		Connected = true,
+		_node = node
+	}, ScriptConnection)
+
+	node._connection = connection
+
+	return connection
+end
+
+function ScriptSignal:Once(handler)
+	assert(
+		typeof(handler) == 'function',
+		"Must be function"
+	)
+
+	local connection
+	connection = self:Connect(function(...)
+		if connection == nil then
+			return
+		end
+
+		connection:Disconnect()
+		connection = nil
+
+		handler(...)
+	end)
+
+	return connection
+end
+ScriptSignal.ConnectOnce = ScriptSignal.Once
+
+function ScriptSignal:Wait()
+	local thread do
+		thread = coroutine.running()
+
+		local connection
+		connection = self:Connect(function(...)
+			if connection == nil then
+				return
+			end
+
+			connection:Disconnect()
+			connection = nil
+			if coroutine.status(thread) == "suspended" then
+				task.spawn(thread, ...)
+			end
+		end)
+	end
+
+	return coroutine.yield()
+end
+
+function ScriptSignal:Fire(...)
+	local node = self._head
+	while node ~= nil do
+		task.defer(node._handler, ...)
+
+		node = node._next
+	end
+end
+
+function ScriptSignal:DisconnectAll()
+	local node = self._head
+	while node ~= nil do
+		local _connection = node._connection
+
+		if _connection ~= nil then
+			_connection.Connected = false
+			_connection._node = nil
+			node._connection = nil
+		end
+
+		node = node._next
+	end
+
+	self._head = nil
+end
+
+function ScriptSignal:Destroy()
+	if self._active ~= true then
+		return
+	end
+
+	self:DisconnectAll()
+	self._active = false
+end
+
+function ScriptConnection:Disconnect()
+	if self.Connected ~= true then
+		return
+	end
+
+	self.Connected = false
+
+	local _node = self._node
+	local _prev = _node._prev
+	local _next = _node._next
+
+	if _next ~= nil then
+		_next._prev = _prev
+	end
+
+	if _prev ~= nil then
+		_prev._next = _next
+	else
+		-- _node == _signal._head
+
+		_node._signal._head = _next
+	end
+
+	_node._connection = nil
+	self._node = nil
+end
+ScriptConnection.Destroy = ScriptConnection.Disconnect
+
+return ScriptSignal :: typeof( require(script.Parent.Docs) )]]></ProtectedString>
+						<string name="ScriptGuid">{49aa0d03-b213-4ce3-bdb1-4935e7f07c67}</string>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<string name="Name">Deferred</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBX786B0CD6486A4068A943CC7E6CAF1928">
+					<Properties>
+						<Content name="LinkedSource"><null></null></Content>
+						<ProtectedString name="Source"><![CDATA[--[[
+	Meant to hold docs. Makes it easier to mess with them individually.
+]]
+
+if true then
+	error("This is not supposed to run!")
+end
+
+export type ScriptSignal<T...> = {
+	IsActive: (self: ScriptSignal<T...>) -> boolean,
+	Fire: (self: ScriptSignal<T...>, T...) -> (),
+	Connect: (self: ScriptSignal<T...>, callback: (T...) -> ()) -> ScriptConnection,
+	Once: (self: ScriptSignal<T...>, callback: (T...) -> ()) -> ScriptConnection,
+	DisconnectAll: (self: ScriptSignal<T...>) -> (),
+	Destroy: (self: ScriptSignal<T...>) -> (),
+	Wait: (self: ScriptSignal<T...>) -> T...,
+}
+export type ScriptConnection = {
+	Disconnect: (self: ScriptConnection) -> (),
+	Connected: boolean,
+}
+
+-- Legacy type. Do not use in newer work.
+export type Class = ScriptSignal<...any>
+
+-- Methods:
+
+--[=[
+	A class which holds data and methods for ScriptSignals.
+
+	@class ScriptSignal
+]=]
+local ScriptSignal = {}
+ScriptSignal.__index = ScriptSignal
+
+--[=[
+	A class which holds data and methods for ScriptConnections.
+
+	@class ScriptConnection
+]=]
+local ScriptConnection = {}
+ScriptConnection.__index = ScriptConnection
+
+--[=[
+	A boolean which determines if a ScriptConnection is active or not.
+
+	@prop Connected boolean
+	@within ScriptConnection
+
+	@readonly
+]=]
+
+--[=[
+	Creates a ScriptSignal object.
+
+	@return ScriptSignal
+]=]
+function ScriptSignal.new()
+	return {}
+end
+
+--[=[
+	Returns a boolean determining if the object is a ScriptSignal.
+
+	```lua
+	local janitor = Janitor.new()
+	local signal = ScriptSignal.new()
+
+	ScriptSignal.Is(signal) -> true
+	ScriptSignal.Is(janitor) -> false
+	```
+
+	@param object any
+	@return boolean
+]=]
+function ScriptSignal.Is(object)
+	return true
+end
+
+--[=[
+	Returns a boolean which determines if a ScriptSignal object is active.
+
+	```lua
+	ScriptSignal:IsActive() -> true
+	ScriptSignal:Destroy()
+	ScriptSignal:IsActive() -> false
+	```
+
+	@return boolean
+]=]
+function ScriptSignal:IsActive()
+	return true
+end
+
+--[=[
+	Connects a handler to a ScriptSignal object.
+
+	```lua
+	ScriptSignal:Connect(function(text)
+		print(text)
+	end)
+
+	ScriptSignal:Fire("Something")
+	ScriptSignal:Fire("Something else")
+
+	-- "Something" and then "Something else" are printed
+	```
+
+	@param handler (...: any) -> ()
+	@return ScriptConnection
+]=]
+function ScriptSignal:Connect(handler)
+
+end
+
+--[=[
+	Connects a handler to a ScriptSignal object, but only allows that
+	connection to run once. Any `:Fire` calls called afterwards won't trigger anything.
+
+	```lua
+	ScriptSignal:Once(function()
+		print("Connection fired")
+	end)
+
+	ScriptSignal:Fire()
+	ScriptSignal:Fire()
+
+	-- "Connection fired" is only fired once
+	```
+
+	@param handler (...: any) -> ()
+	@return ScriptConnection
+]=]
+function ScriptSignal:Once(handler)
+
+end
+
+--[=[
+	Yields the thread until a `:Fire` call occurs, returns what the signal was fired with.
+
+	```lua
+	task.spawn(function()
+		print(
+			ScriptSignal:Wait()
+		)
+	end)
+
+	ScriptSignal:Fire("Arg", nil, 1, 2, 3, nil)
+	-- "Arg", nil, 1, 2, 3, nil are printed
+	```
+
+	@yields
+	@return ...any
+]=]
+function ScriptSignal:Wait()
+	
+end
+
+--[=[
+	Fires a ScriptSignal object with the arguments passed.
+
+	```lua
+	ScriptSignal:Connect(function(text)
+		print(text)
+	end)
+
+	ScriptSignal:Fire("Some Text...")
+
+	-- "Some Text..." is printed twice
+	```
+
+	@param ... any
+]=]
+function ScriptSignal:Fire(...)
+	
+end
+
+--[=[
+	Disconnects all connections from a ScriptSignal object without making it unusable.
+
+	```lua
+	local connection = ScriptSignal:Connect(function() end)
+
+	connection.Connected -> true
+	ScriptSignal:DisconnectAll()
+	connection.Connected -> false
+	```
+]=]
+function ScriptSignal:DisconnectAll()
+	
+end
+
+--[=[
+	Destroys a ScriptSignal object, disconnecting all connections and making it unusable.
+
+	```lua
+	ScriptSignal:Destroy()
+
+	local connection = ScriptSignal:Connect(function() end)
+	connection.Connected -> false
+	```
+]=]
+function ScriptSignal:Destroy()
+	
+end
+
+--[=[
+	Disconnects a connection, any `:Fire` calls from now on will not
+	invoke this connection's handler.
+
+	```lua
+	local connection = ScriptSignal:Connect(function() end)
+
+	connection.Connected -> true
+	connection:Disconnect()
+	connection.Connected -> false
+	```
+]=]
+function ScriptConnection:Disconnect()
+	
+end
+
+-- Stricter type
+local returnType = {}
+
+function returnType.new<T...>(): ScriptSignal<T...>
+	return ScriptSignal.new()
+end
+
+function returnType.Is(any): boolean
+	return true
+end
+
+return returnType]]></ProtectedString>
+						<string name="ScriptGuid">{191f7c87-17d2-4b2b-8cb0-80517c5fcb7a}</string>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<string name="Name">Docs</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
+			</Item>
+			<Item class="PackageLink" referent="RBXF0B1F568034B40C5885C811815A7BADC">
+				<Properties>
+					<bool name="AutoUpdate">true</bool>
+					<string name="DefaultName"></string>
+					<int name="ModifiedState">-1</int>
+					<Content name="PackageIdSerialize"><url>rbxassetid://128646705440110</url></Content>
+					<BinaryString name="SerializedDefaultAttributes"></BinaryString>
+					<int64 name="VersionIdSerialize">2</int64>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<string name="Name">PackageLink</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
 		</Item>
 	</Item>
 </roblox>

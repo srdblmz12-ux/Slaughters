@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="Folder" referent="RBXFBA4180BBBB84A8DBD45A70A55881B69">
+	<Item class="Folder" referent="RBX6216494F3DB747CD8B5381F19AB66F57">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -11,7 +11,7 @@
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 		</Properties>
-		<Item class="ModuleScript" referent="RBX0B7A5C8977A14EC9B6188A5B65055C52">
+		<Item class="ModuleScript" referent="RBXD50E9775C2E54C8A85F1D0B9FD55EA86">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[-- Services
@@ -52,7 +52,7 @@ local GameService = {
 	-- Global State Atoms
 	Gamemode = Charm.atom("Waiting"),
 	TimeLeft = Charm.atom(0),
-	GameStatus = Charm.atom("Waiting"), -- "Voting", "Loading", "Warmup", "InGame"
+	GameStatus = Charm.atom("Waiting"), 
 
 	-- Admin Override State
 	NextMapOverride = Charm.atom(nil),
@@ -67,55 +67,97 @@ local GameService = {
 	_gameLoopTask = nil,
 	_activeModeModule = nil,
 
-	-- EKSİK OLAN SİNYALLER EKLENDİ BURAYA:
 	Signals = {
 		GameEnded = Signal.new(),
-		WarmupStarted = Signal.new(), -- SurvivorService bunu dinleyecek
-		GameStarted = Signal.new(),   -- SurvivorService bunu dinleyecek
+		WarmupStarted = Signal.new(), 
+		GameStarted = Signal.new(),   
 	},
 
 	Network = {
-		-- State Sync
 		StateUpdate = Net:RemoteEvent("StateUpdate"),
+		VoteOptions = Net:RemoteEvent("VoteOptions"), -- Args: (Options, TimeLeft)
+		VoteUpdate = Net:RemoteEvent("VoteUpdate"),   
 
-		-- Phase Events
-		VoteOptions = Net:RemoteEvent("VoteOptions"), 
 		WarmupStarted = Net:RemoteEvent("WarmupStarted"),
 		GameStarted = Net:RemoteEvent("GameStarted"),
 		GameEnded = Net:RemoteEvent("GameEnded"),
-
-		-- Actions
 		CastVote = Net:RemoteEvent("CastVote"),
 		LoadLighting = Net:RemoteEvent("LoadLighting"),
 	}
 }
 
 -- =============================================================================
---  ADMIN & HELPER FUNCTIONS
+--  HELPER FUNCTIONS
 -- =============================================================================
 
+function GameService:_calculateVoteCounts()
+	local options = self.CurrentOptions()
+	local votes = self.Votes()
+	local counts = {}
+
+	for _, data in ipairs(options) do
+		counts[data.Id] = 0
+	end
+
+	for _, mapId in pairs(votes) do
+		if counts[mapId] ~= nil then
+			counts[mapId] = counts[mapId] + 1
+		end
+	end
+
+	return counts
+end
+
+function GameService:SelectWeightedKiller(playerCandidates)
+	local totalChance = 0
+	local selectionPool = {}
+
+	for _, player in ipairs(playerCandidates) do
+		local chance = PlayerService:GetChance(player)
+		if chance <= 0 then chance = 1 end
+
+		totalChance = totalChance + chance
+		table.insert(selectionPool, {Player = player, Weight = totalChance})
+	end
+
+	local randomNumber = math.random(1, totalChance)
+	for _, poolEntry in ipairs(selectionPool) do
+		if randomNumber <= poolEntry.Weight then
+			return poolEntry.Player
+		end
+	end
+	return playerCandidates[1]
+end
+
 function GameService:SetNextMap(mapName)
-	local module = MapService:FindMapModule(mapName)
-	if module then
-		self.NextMapOverride(module)
-		print("[ADMIN] Sıradaki harita ayarlandı: " .. module.Name)
+	local mapModule = MapService:FindMapModule(mapName)
+	if mapModule then
+		self.NextMapOverride(mapModule)
+		print("[ADMIN] Sıradaki harita ayarlandı: " .. mapModule.Name)
 		return true
 	end
 	warn("[ADMIN] Harita bulunamadı: " .. mapName)
 	return false
 end
 
-function GameService:CastVote(player, optionIndex)
+function GameService:CastVote(player, mapId)
 	if self.GameStatus() ~= "Voting" then return end
-	if type(optionIndex) ~= "number" then return end
+	if type(mapId) ~= "string" then return end
 
-	local options = self.CurrentOptions()
-	if optionIndex < 1 or optionIndex > #options then return end
+	local isValidOption = false
+	for _, optionData in ipairs(self.CurrentOptions()) do
+		if optionData.Id == mapId then
+			isValidOption = true
+			break
+		end
+	end
 
-	self.Votes(function(current)
-		local new = table.clone(current)
-		new[player.UserId] = optionIndex
-		return new
+	if not isValidOption then return end
+
+	self.Votes(function(currentVotes)
+		local newVotes = table.clone(currentVotes)
+		newVotes[player.UserId] = mapId
+		return newVotes
 	end)
 end
 
@@ -127,38 +169,45 @@ function GameService:RunVotingPhase()
 	self.GameStatus("Voting")
 	self.TimeLeft(CONFIG.VOTING_TIME)
 
-	local options = MapService:GetVoteOptions(3)
-	self.CurrentOptions(options)
+	-- 1. MapService'den verileri al
+	local processedOptions = MapService:GetProcessedVoteOptions(3)
+	self.CurrentOptions(processedOptions)
 	self.Votes({})
 
-	self.Network.VoteOptions:FireAllClients(options)
+	-- 2. Client'a seçenekleri ve BAŞLANGIÇ SÜRESİNİ gönder
+	-- [GÜNCELLENDİ] İkinci parametre olarak süreyi ekledik
+	self.Network.VoteOptions:FireAllClients(processedOptions, CONFIG.VOTING_TIME)
 
-	for i = CONFIG.VOTING_TIME, 1, -1 do
-		self.TimeLeft(i)
+	-- Geri Sayım
+	for timeRemaining = CONFIG.VOTING_TIME, 1, -1 do
+		self.TimeLeft(timeRemaining)
 		task.wait(1)
 		if #Players:GetPlayers() < CONFIG.MIN_PLAYERS then return nil end
 	end
 
-	local counts = {0, 0, 0}
-	for _, idx in pairs(self.Votes()) do
-		if counts[idx] then counts[idx] += 1 end
-	end
-
-	local winnerIndex = math.random(1, #options)
+	-- Kazananı Belirle
+	local finalCounts = self:_calculateVoteCounts()
+	local winnerId = nil
 	local maxVotes = -1
+	local candidates = {}
 
-	for i, count in ipairs(counts) do
-		if i <= #options then
-			if count > maxVotes then
-				maxVotes = count
-				winnerIndex = i
-			elseif count == maxVotes and math.random() > 0.5 then
-				winnerIndex = i
-			end
+	for mapId, voteCount in pairs(finalCounts) do
+		if voteCount > maxVotes then
+			maxVotes = voteCount
+			candidates = {mapId}
+		elseif voteCount == maxVotes then
+			table.insert(candidates, mapId)
 		end
 	end
 
-	return options[winnerIndex]
+	winnerId = candidates[math.random(1, #candidates)]
+
+	local winnerModule = MapService:FindMapModule(winnerId)
+	if not winnerModule and #processedOptions > 0 then
+		winnerModule = MapService:FindMapModule(processedOptions[1].Id)
+	end
+
+	return winnerModule
 end
 
 function GameService:StartGame()
@@ -167,11 +216,9 @@ function GameService:StartGame()
 		return Promise.reject("Yetersiz Oyuncu") 
 	end
 
-	-- [AŞAMA 1] HARİTA BELİRLEME
 	local mapModule = self.NextMapOverride()
 
 	if mapModule then
-		print("Admin Override Aktif. Oylama atlanıyor.")
 		self.NextMapOverride(nil) 
 		self.GameStatus("Loading")
 		task.wait(2)
@@ -183,15 +230,12 @@ function GameService:StartGame()
 
 	self.GameStatus("Loading")
 
-	-- [AŞAMA 2] VERİ YÜKLEME
 	local promises = {}
-	for _, p in ipairs(activePlayers) do
-		table.insert(promises, PlayerService:GetProfile(p))
+	for _, player in ipairs(activePlayers) do
+		table.insert(promises, PlayerService:GetProfile(player))
 	end
 
 	return Promise.all(promises):andThen(function()
-
-		-- [AŞAMA 3] HARİTA & LIGHTING YÜKLEME
 		local mapData = MapService:LoadMap(mapModule)
 		if not mapData then error("Harita yüklenemedi!") end
 
@@ -199,52 +243,35 @@ function GameService:StartGame()
 			self.Network.LoadLighting:FireAllClients(mapData.Lighting)
 		end
 
-		-- [AŞAMA 4] OYUN MODU & ROLLER
 		self:_setupGameMode(activePlayers)
 
-		-- [AŞAMA 5] WARMUP (SAKLANMA)
 		self.GameStatus("Warmup")
 		self.TimeLeft(CONFIG.WARMUP_TIME)
 
-		-- Network Event (Client için)
-		self.Network.WarmupStarted:FireAllClients(self.Gamemode(), self._activeModeModule:GetRoles(), CONFIG.WARMUP_TIME)
-
-		-- Internal Signal (SurvivorService için - BURASI EKLENDİ)
+		self.Network.WarmupStarted:FireAllClients(self.Gamemode(), self.RunningPlayers, CONFIG.WARMUP_TIME)
 		self.Signals.WarmupStarted:Fire() 
 
-		-- Survivor Spawn
 		SpawnerService:SpawnSurvivors(self.RunningPlayers, mapData.Spawns)
 		self:_setupSurvivorMonitoring()
 
-		-- Warmup Loop
-		for i = CONFIG.WARMUP_TIME, 1, -1 do
-			self.TimeLeft(i)
+		for timeRemaining = CONFIG.WARMUP_TIME, 1, -1 do
+			self.TimeLeft(timeRemaining)
 			task.wait(1)
 			if #Players:GetPlayers() < CONFIG.MIN_PLAYERS then self:EndGame() return end
 		end
 
-		-- [AŞAMA 6] OYUN BAŞLANGICI (KATİL GELİYOR)
 		self.GameStatus("InGame")
-
 		SpawnerService:SpawnKillers(self.RunningPlayers, mapData.Spawns)
-
-		-- Network Event
 		self.Network.GameStarted:FireAllClients()
-
-		-- Internal Signal (SurvivorService için - BURASI EKLENDİ)
 		self.Signals.GameStarted:Fire()
 
 		self:_startTimeLoop()
 
-	end):catch(function(err)
-		warn("Game Start Error:", err)
+	end):catch(function(errorMessage)
+		warn("Game Start Error:", errorMessage)
 		self:EndGame()
 	end)
 end
-
--- =============================================================================
---  INTERNAL HELPERS
--- =============================================================================
 
 function GameService:_setupGameMode(players)
 	local modes = GameModesFolder:GetChildren()
@@ -265,10 +292,10 @@ function GameService:_setupGameMode(players)
 	for player, role in pairs(roles) do
 		self.RunningPlayers[player] = Charm.atom(role)
 
-		if role == "Killer" then
+		if role == "Killer" then 
 			PlayerService:ResetChance(player)
-		elseif role == "Survivor" then
-			PlayerService:AddChance(player, 1)
+		elseif role == "Survivor" then 
+			PlayerService:AddChance(player, 1) 
 		end
 	end
 end
@@ -276,35 +303,33 @@ end
 function GameService:_setupSurvivorMonitoring()
 	for player, roleAtom in pairs(self.RunningPlayers) do
 		if roleAtom() == "Survivor" then
-			local function onDeath(char)
-				local hum = char:WaitForChild("Humanoid", 10)
-				if hum then
-					local conn = hum.Died:Connect(function()
+			local function onCharacterDeath(character)
+				local humanoid = character:WaitForChild("Humanoid", 10)
+				if humanoid then
+					local connection = humanoid.Died:Connect(function()
 						if self.GameStatus() == "InGame" and self._activeModeModule then
 							self._activeModeModule:OnPlayerDied(self, player)
 						end
 					end)
-					table.insert(self._connections, conn)
+					table.insert(self._connections, connection)
 				end
 			end
 
-			if player.Character then onDeath(player.Character) end
-			local conn = player.CharacterAdded:Connect(onDeath)
-			table.insert(self._connections, conn)
+			if player.Character then onCharacterDeath(player.Character) end
+			local connection = player.CharacterAdded:Connect(onCharacterDeath)
+			table.insert(self._connections, connection)
 		end
 	end
 end
 
 function GameService:_startTimeLoop()
 	if self._gameLoopTask then task.cancel(self._gameLoopTask) end
-
 	self.TimeLeft(CONFIG.GAME_TIME)
 
 	self._gameLoopTask = task.spawn(function()
 		while self.TimeLeft() > 0 do
 			task.wait(1)
 			self.TimeLeft(self.TimeLeft() - 1)
-
 			if self._activeModeModule and self._activeModeModule.CheckWinCondition then
 				if self._activeModeModule:CheckWinCondition(self) then break end
 			end
@@ -315,7 +340,7 @@ end
 
 function GameService:EndGame(Executable)
 	if self._gameLoopTask then task.cancel(self._gameLoopTask) self._gameLoopTask = nil end
-	for _, conn in ipairs(self._connections) do conn:Disconnect() end
+	for _, connection in ipairs(self._connections) do connection:Disconnect() end
 	self._connections = {}
 
 	self.GameStatus("Waiting")
@@ -323,18 +348,13 @@ function GameService:EndGame(Executable)
 	self.TimeLeft(0)
 	self._activeModeModule = nil
 	self.RunningPlayers = {}
-
 	self.Votes({})
 	self.CurrentOptions({})
 	self.NextMapOverride(nil)
 
-	-- Network Duyuru
 	self.Network.GameEnded:FireAllClients()
-
-	-- Internal Signal (SurvivorService için - BURASI ZATEN VARDI)
 	self.Signals.GameEnded:Fire()
 
-	-- Fiziksel Reset
 	MapService:Cleanup()
 	SpawnerService:DespawnAll()
 
@@ -346,34 +366,58 @@ end
 -- =============================================================================
 
 function GameService:OnStart()
-	local function sync(name, atom)
-		Charm.effect(function()
-			self.Network.StateUpdate:FireAllClients(name, atom())
+	local function syncState(stateName, stateAtom)
+		Charm.effect(function() 
+			self.Network.StateUpdate:FireAllClients(stateName, stateAtom()) 
 		end)
 	end
 
-	sync("Gamemode", self.Gamemode)
-	sync("GameStatus", self.GameStatus)
-	sync("TimeLeft", self.TimeLeft)
+	syncState("Gamemode", self.Gamemode)
+	syncState("GameStatus", self.GameStatus)
+	syncState("TimeLeft", self.TimeLeft)
 
-	self.Network.CastVote.OnServerEvent:Connect(function(plr, idx)
-		self:CastVote(plr, idx)
+	Charm.effect(function()
+		local voteCounts = self:_calculateVoteCounts()
+		self.Network.VoteUpdate:FireAllClients(voteCounts)
+	end)
+
+	self.Network.CastVote.OnServerEvent:Connect(function(player, mapId) 
+		self:CastVote(player, mapId) 
+	end)
+
+	Players.PlayerAdded:Connect(function(player)
+		self.Network.StateUpdate:FireClient(player, "Gamemode", self.Gamemode())
+		self.Network.StateUpdate:FireClient(player, "GameStatus", self.GameStatus())
+		self.Network.StateUpdate:FireClient(player, "TimeLeft", self.TimeLeft())
+
+		-- Late Join Kontrolü
+		if self.GameStatus() == "Voting" then
+			local currentOptions = self.CurrentOptions()
+
+			if currentOptions and #currentOptions > 0 then
+				-- [GÜNCELLENDİ] Late join yapan oyuncuya SUNUCUDAKİ GÜNCEL SÜREYİ gönderiyoruz
+				-- self.TimeLeft() o anki saniyeyi (örn: 7) verir.
+				self.Network.VoteOptions:FireClient(player, currentOptions, self.TimeLeft())
+
+				task.defer(function()
+					if player.Parent then 
+						local voteCounts = self:_calculateVoteCounts()
+						self.Network.VoteUpdate:FireClient(player, voteCounts)
+					end
+				end)
+			end
+		end
 	end)
 
 	task.spawn(function()
 		while true do
-			while #Players:GetPlayers() < CONFIG.MIN_PLAYERS do
-				task.wait(5)
-			end
-
+			while #Players:GetPlayers() < CONFIG.MIN_PLAYERS do task.wait(5) end
 			task.wait(CONFIG.INTERMISSION)
 
 			local promise = self:StartGame()
-			if promise and promise:getStatus() ~= Promise.Status.Rejected then
-				self.Signals.GameEnded:Wait()
+			if promise and promise:getStatus() ~= Promise.Status.Rejected then 
+				self.Signals.GameEnded:Wait() 
 			end
-
-			print("Oyun bitti, Lobiye dönülüyor...")
 			task.wait(3)
 		end
 	end)
@@ -389,7 +433,7 @@ return GameService]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX20121168CC144CFA9D6EA7954BB30396">
+		<Item class="ModuleScript" referent="RBX249EC273203B4431A40FFC0C16DEE355">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[-- Services
@@ -553,7 +597,7 @@ return PlayerService]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBXF4EA00071DE04059A2B4FDA3F15BA284">
+		<Item class="ModuleScript" referent="RBXCCFE25CB3ED64FADB06A33F1A3FF53DE">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[-- Services
@@ -656,8 +700,11 @@ function MurdererService:_initializeMurdererSkill()
 					local skillModule = require(skillModuleScript)
 					local cooldownTime = skillModule.Cooldown or 10
 
-					-- Client'a skill ismini ve varsayılan cooldown süresini bildir
-					self.Network.SkillAssigned:FireClient(player, skillName, cooldownTime)
+					-- YENİ: Modüldeki Keybind bilgisini al (Yoksa nil gider)
+					local keybind = skillModule.Keybind 
+
+					-- Client'a ismi, cooldown süresini ve tuş atamasını bildir
+					self.Network.SkillAssigned:FireClient(player, skillName, cooldownTime, keybind)
 				end
 			end)
 		end
@@ -691,7 +738,7 @@ return MurdererService]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBXE58554A14572439CB5E9C1BEC163675A">
+		<Item class="ModuleScript" referent="RBXFB6593F33C824226AD7BB9DA5FC1168A">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[-- Services
@@ -718,14 +765,16 @@ local SurvivorService = {
 	IsSelectionOpen = false,
 	AreSkillsActive = false, 
 
-	SelectedSkills = {}, -- Artık burası { [Player] = {"SkillA", "SkillB"} } yapısında olacak
-	Cooldowns = {},      -- Artık burası { [Player] = { ["SkillA"] = atom, ["SkillB"] = atom } } yapısında olacak
+	SelectedSkills = {}, 
+	OfferedSkills = {},  
+	Cooldowns = {},      
 
 	Network = {
 		SelectSkill = Net:RemoteEvent("SelectSkill"), 
 		SkillAssigned = Net:RemoteEvent("SkillAssigned"), 
 		ActivateSkill = Net:RemoteEvent("ActivateSkill"), 
 		CooldownUpdate = Net:RemoteEvent("CooldownUpdate"),
+		SkillOptionsOffered = Net:RemoteEvent("SkillOptionsOffered"), -- Args: (Options, TimeLeft)
 	}
 }
 
@@ -735,144 +784,222 @@ function SurvivorService:IsSurvivor(player)
 	return roleAtom and roleAtom() == "Survivor"
 end
 
---// Client: Skill Seçimi (Çoklu Seçim / Ekleme)
+--// YENİ: Tek bir oyuncuya yetenek sunma işlemi (Kod tekrarını önlemek için ayrıldı)
+function SurvivorService:_offerSkillsToPlayer(player)
+	-- Zaten sunulmuşsa tekrar sunma (Late Join spam koruması)
+	if self.OfferedSkills[player] then 
+		-- Ama eğer UI'ı açması gerekiyorsa veriyi tekrar gönderebiliriz.
+		-- Late Join durumunda UI'ın açılması için veriyi tekrar yollamakta fayda var.
+		-- Ancak yeni rastgeleler üretmemeliyiz, eskilerini yollamalıyız.
+		-- Şimdilik basit tutuyoruz, eğer listede varsa yeniden hesaplamıyoruz.
+	end
+
+	local allSkillsScripts = SkillsFolder:GetChildren()
+	if #allSkillsScripts == 0 then return end
+
+	local optionsDataToSend = {} 
+	local validOptionNames = {}  
+	local usedIndices = {}
+
+	local countToSelect = math.min(3, #allSkillsScripts)
+
+	-- Eğer daha önce oluşturulmuş bir liste varsa (Rejoin durumu) onu kullan
+	if self.OfferedSkills[player] then
+		validOptionNames = self.OfferedSkills[player]
+		-- Bu isimlerin detaylarını tekrar paketle
+		for _, name in ipairs(validOptionNames) do
+			local scriptObj = SkillsFolder:FindFirstChild(name)
+			if scriptObj then
+				local success, mod = pcall(require, scriptObj)
+				if success and mod then
+					table.insert(optionsDataToSend, {
+						Name = scriptObj.Name,
+						DisplayName = mod.Name or scriptObj.Name,
+						Description = mod.Description or "...",
+						Image = mod.Image or "",
+						Cooldown = mod.Cooldown or 20
+					})
+				end
+			end
+		end
+	else
+		-- Yoksa yeni rastgele oluştur
+		while #optionsDataToSend < countToSelect do
+			local index = math.random(1, #allSkillsScripts)
+			if not usedIndices[index] then
+				usedIndices[index] = true
+				local skillScript = allSkillsScripts[index]
+				local success, skillModule = pcall(require, skillScript)
+
+				if success and skillModule then
+					local skillInfo = {
+						Name = skillScript.Name,
+						DisplayName = skillModule.Name or skillScript.Name,
+						Description = skillModule.Description or "No description available.",
+						Image = skillModule.Image or "",
+						Cooldown = skillModule.Cooldown or 20
+					}
+					table.insert(optionsDataToSend, skillInfo)
+					table.insert(validOptionNames, skillScript.Name)
+				else
+					warn("Skill modülü yüklenemedi: " .. skillScript.Name)
+				end
+			end
+		end
+		-- Hafızaya kaydet
+		self.OfferedSkills[player] = validOptionNames
+	end
+
+	-- [GÜNCELLENDİ] Client'a Sunucudaki Kalan Süreyi (TimeLeft) gönderiyoruz
+	local remainingTime = GameService.TimeLeft()
+	self.Network.SkillOptionsOffered:FireClient(player, optionsDataToSend, remainingTime)
+end
+
+--// Toplu Sunum (Warmup Başlangıcı)
+function SurvivorService:OfferRandomSkills()
+	for player, roleAtom in pairs(GameService.RunningPlayers) do
+		if roleAtom() == "Survivor" then
+			self:_offerSkillsToPlayer(player)
+		end
+	end
+end
+
+--// Client: Skill Seçimi 
 function SurvivorService:SelectSkill(player, skillName)
 	if not self.IsSelectionOpen then return end
 	if not self:IsSurvivor(player) then return end
 
+	local offeredNames = self.OfferedSkills[player]
+	if not offeredNames or not table.find(offeredNames, skillName) then
+		warn(player.Name .. " hile girişimi: " .. tostring(skillName))
+		return
+	end
+
 	local skillModuleScript = SkillsFolder:FindFirstChild(skillName)
 	if not skillModuleScript then return end
 
-	-- Oyuncunun tablosunu oluştur (yoksa)
-	if not self.SelectedSkills[player] then
-		self.SelectedSkills[player] = {}
-	end
-
+	if not self.SelectedSkills[player] then self.SelectedSkills[player] = {} end
 	local playerSkills = self.SelectedSkills[player]
 
-	-- Eğer oyuncu bu skilli zaten seçmediyse ekle
+	if #playerSkills >= 1 then return end
+
 	if not table.find(playerSkills, skillName) then
 		table.insert(playerSkills, skillName)
 
-		-- Modülü require ederek içindeki Cooldown değerini alıyoruz
 		local skillModule = require(skillModuleScript)
-		local cooldownTime = skillModule.Cooldown or 20 -- Modülde yoksa varsayılan 20
+		local cooldownTime = skillModule.Cooldown or 20
+		local keybind = skillModule.Keybind
 
-		-- Client'a hem ismi hem de bekleme süresini gönderiyoruz
-		self.Network.SkillAssigned:FireClient(player, skillName, cooldownTime)
+		self.Network.SkillAssigned:FireClient(player, skillName, cooldownTime, keybind)
 	end
 end
 
---// Server: Seçim Yapmayanlara Rastgele Ata
+--// Server: Otomatik Atama
 function SurvivorService:_finalizeSelections()
 	self.IsSelectionOpen = false
-	local availableSkills = SkillsFolder:GetChildren()
-	if #availableSkills == 0 then return end 
 
 	for player, roleAtom in pairs(GameService.RunningPlayers) do
 		if roleAtom() == "Survivor" then
 			if not self.SelectedSkills[player] or #self.SelectedSkills[player] == 0 then
-				local randomSkillScript = availableSkills[math.random(1, #availableSkills)]
-				local skillName = randomSkillScript.Name
+				local offeredNames = self.OfferedSkills[player]
+				local skillName
 
-				-- Cooldown bilgisini al
-				local skillModule = require(randomSkillScript)
-				local cooldownTime = skillModule.Cooldown or 20
+				if offeredNames and #offeredNames > 0 then
+					skillName = offeredNames[math.random(1, #offeredNames)]
+				else
+					local all = SkillsFolder:GetChildren()
+					if #all > 0 then skillName = all[math.random(1, #all)].Name end
+				end
 
-				self.SelectedSkills[player] = { skillName }
-
-				-- Client'a hem isim hem süre gönder
-				self.Network.SkillAssigned:FireClient(player, skillName, cooldownTime)
+				if skillName then
+					local scriptObj = SkillsFolder:FindFirstChild(skillName)
+					if scriptObj then
+						local mod = require(scriptObj)
+						self.SelectedSkills[player] = { skillName }
+						self.Network.SkillAssigned:FireClient(player, skillName, mod.Cooldown or 20, mod.Keybind)
+					end
+				end
 			end
 		end
 	end
 end
 
---// Client: Skill Kullanımı (Hangi Skill + Mouse Pozisyonu)
--- ARTIK BURASI "skillName" PARAMETRESİ ALIYOR
+--// Client: Skill Kullanımı
 function SurvivorService:ActivateSkill(player, skillName, mousePosition)
-	-- 1. Genel Kontroller
 	if not self.AreSkillsActive then return end 
 	if GameService.Gamemode() == "Waiting" then return end
 	if not self:IsSurvivor(player) then return end
-
-	-- 2. Parametre Kontrolü (Güvenlik)
 	if typeof(skillName) ~= "string" then return end
-	-- Mouse position kontrolü
-	if mousePosition and typeof(mousePosition) ~= "Vector3" then return end
 
-	-- 3. SAHİPLİK KONTROLÜ: Oyuncu bu skilli gerçekten seçmiş mi?
-	local playerSkills = self.SelectedSkills[player]
-	if not playerSkills or not table.find(playerSkills, skillName) then
-		warn(player.Name .. " sahip olmadığı bir skilli kullanmaya çalıştı: " .. skillName)
-		return 
+	local targetPos = nil
+	if mousePosition then
+		if typeof(mousePosition) == "CFrame" then targetPos = mousePosition.Position
+		elseif typeof(mousePosition) == "Vector3" then targetPos = mousePosition end
 	end
 
-	-- 4. COOLDOWN KONTROLÜ (Skill Bazlı)
-	local currentTime = workspace:GetServerTimeNow()
+	local playerSkills = self.SelectedSkills[player]
+	if not playerSkills or not table.find(playerSkills, skillName) then return end
 
-	-- Oyuncunun cooldown tablosunu hazırla
+	local currentTime = workspace:GetServerTimeNow()
 	if not self.Cooldowns[player] then self.Cooldowns[player] = {} end
 
-	local skillCooldownAtom = self.Cooldowns[player][skillName]
+	local atom = self.Cooldowns[player][skillName]
+	if atom and atom() > currentTime then return end
 
-	-- Eğer bu spesifik skillin cooldown süresi bitmediyse dur
-	if skillCooldownAtom and skillCooldownAtom() > currentTime then return end
+	local scriptObj = SkillsFolder:FindFirstChild(skillName)
+	if scriptObj then
+		local mod = require(scriptObj)
+		mod:Activate(player, GameService, targetPos)
 
-	-- 5. Modülü Çalıştır
-	local skillModuleScript = SkillsFolder:FindFirstChild(skillName)
-	if skillModuleScript then
-		local skillModule = require(skillModuleScript)
-
-		-- Modüle Player, GameService ve Mouse Pozisyonunu gönderiyoruz
-		skillModule:Activate(player, GameService, mousePosition)
-
-		-- 6. Cooldown Ayarla (Skill Bazlı)
-		local cooldownDuration = skillModule.Cooldown or 20
-		local finishTime = currentTime + cooldownDuration
+		local cd = mod.Cooldown or 20
+		local finish = currentTime + cd
 
 		if not self.Cooldowns[player][skillName] then
-			self.Cooldowns[player][skillName] = Charm.atom(finishTime)
+			self.Cooldowns[player][skillName] = Charm.atom(finish)
 		else
-			self.Cooldowns[player][skillName](finishTime)
+			self.Cooldowns[player][skillName](finish)
 		end
 
-		-- Client'a hangi skillin cooldowna girdiğini söylemeliyiz
-		self.Network.CooldownUpdate:FireClient(player, skillName, finishTime)
+		self.Network.CooldownUpdate:FireClient(player, skillName, finish)
 	end
 end
 
 function SurvivorService:OnStart()
-	-- Event Listeners
-	self.Network.SelectSkill.OnServerEvent:Connect(function(player, skillName)
-		self:SelectSkill(player, skillName)
-	end)
+	self.Network.SelectSkill.OnServerEvent:Connect(function(plr, name) self:SelectSkill(plr, name) end)
+	self.Network.ActivateSkill.OnServerEvent:Connect(function(plr, name, pos) self:ActivateSkill(plr, name, pos) end)
 
-	-- Client artık (SkillAdı, MousePozisyonu) gönderiyor
-	self.Network.ActivateSkill.OnServerEvent:Connect(function(player, skillName, mousePosition)
-		self:ActivateSkill(player, skillName, mousePosition)
-	end)
-
-	-- GameService Sinyalleri
 	GameService.Signals.WarmupStarted:Connect(function()
 		self.IsSelectionOpen = true
 		self.AreSkillsActive = false
 		self.SelectedSkills = {}
+		self.OfferedSkills = {} 
 		self.Cooldowns = {}
-		print("SurvivorService: Seçimler açıldı.")
+
+		self:OfferRandomSkills() 
+		print("SurvivorService: Seçenekler sunuldu.")
 	end)
 
 	GameService.Signals.GameStarted:Connect(function()
 		self:_finalizeSelections()
 		self.AreSkillsActive = true
-		print("SurvivorService: Skiller aktif edildi.")
+		print("SurvivorService: Skiller aktif.")
 	end)
 
 	GameService.Signals.GameEnded:Connect(function()
 		self.IsSelectionOpen = false
 		self.AreSkillsActive = false
 		self.SelectedSkills = {}
+		self.OfferedSkills = {}
 		self.Cooldowns = {}
+	end)
+
+	-- [GÜNCELLENDİ] Late Join (Sonradan Girenler) İçin Kontrol
+	Players.PlayerAdded:Connect(function(player)
+		-- Eğer oyun Warmup aşamasındaysa ve bu oyuncu bir Survivor ise (örn: reconnect)
+		if GameService.GameStatus() == "Warmup" and self:IsSurvivor(player) then
+			-- Seçenekleri o anki süreyle gönder
+			self:_offerSkillsToPlayer(player)
+		end
 	end)
 end
 
@@ -886,7 +1013,7 @@ return SurvivorService]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX629F36A895C84C769FA256CDCD11C204">
+		<Item class="ModuleScript" referent="RBX2A2D85BCF90743BDA285060E25D4093F">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[-- Services
@@ -896,7 +1023,11 @@ local UserService = game:GetService("UserService")
 
 -- Variables
 local Packages = ReplicatedStorage:WaitForChild("Packages")
+
+local Signal = require(Packages:WaitForChild("Signal"))
 local Charm = require(Packages:WaitForChild("Charm"))
+local Net = require(Packages:WaitForChild("Net"))
+local Promise = require(Packages:WaitForChild("Promise"))
 
 -- Constants
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -908,114 +1039,174 @@ local MapService = {
 
 	CurrentMapInstance = nil,
 	CurrentMapData = Charm.atom(nil), -- { Name, Authors, Module }
+
+	Signals = {
+		MapLoaded = Signal.new(),
+		MapUnloaded = Signal.new()
+	},
+
+	Network = {
+		MapLoaded = Net:RemoteEvent("MapLoaded"),
+		MapUnloaded = Net:RemoteEvent("MapUnloaded")
+	}
 }
 
---// YARDIMCI: Harita Modülünü Bul (İsme göre)
+--// SERVER: Mevcut haritayı döndür
+function MapService:GetMap()
+	return self.CurrentMapInstance, self.CurrentMapData()
+end
+
+--// CLIENT: Client erişimi
+function MapService.Client:GetMap(player)
+	return self.Server:GetMap()
+end
+
+--// YARDIMCI: İsimden Modül Bulma
 function MapService:FindMapModule(mapName)
-	for _, module in ipairs(MapsFolder:GetChildren()) do
-		if module.Name:lower() == mapName:lower() then
-			return module
+	for _, moduleInstance in ipairs(MapsFolder:GetChildren()) do
+		if moduleInstance.Name == mapName then
+			return moduleInstance
 		end
 	end
 	return nil
 end
 
---// YARDIMCI: Oylama İçin Rastgele Seçenekler Getir
-function MapService:GetVoteOptions(count)
+--// YENİ: Tam İşlenmiş Oylama Verisi Getir (Promise ile)
+function MapService:GetProcessedVoteOptions(count)
 	local allMaps = MapsFolder:GetChildren()
-	local options = {}
+	local selectedModules = {}
 	local usedIndices = {}
 
-	-- Mevcut harita sayısı istenenden azsa hepsini döndür
-	if #allMaps <= count then
-		return allMaps
-	end
-
-	-- Rastgele ve eşsiz seçim yap
-	while #options < count do
-		local index = math.random(1, #allMaps)
-		if not usedIndices[index] then
-			usedIndices[index] = true
-			table.insert(options, allMaps[index])
+	-- 1. Rastgele Modülleri Seç
+	local amountToSelect = math.min(count, #allMaps)
+	while #selectedModules < amountToSelect do
+		local randomIndex = math.random(1, #allMaps)
+		if not usedIndices[randomIndex] then
+			usedIndices[randomIndex] = true
+			table.insert(selectedModules, allMaps[randomIndex])
 		end
 	end
 
-	return options
+	-- 2. Verileri İşle
+	local promises = {}
+
+	for _, mapModule in ipairs(selectedModules) do
+		table.insert(promises, Promise.new(function(resolve)
+			local success, moduleData = pcall(require, mapModule)
+
+			-- Varsayılan Veri Şablonu
+			local processedData = {
+				Id = mapModule.Name,
+				Name = mapModule.Name,
+				Description = "No description available.",
+				Image = "",
+				Authors = {}
+			}
+
+			if success and moduleData then
+				processedData.Name = moduleData.Name or processedData.Name
+				processedData.Description = moduleData.Description or processedData.Description
+				processedData.Image = moduleData.Image or processedData.Image
+
+				-- Yazar İsimlerini Çek (Async)
+				if moduleData.Authors and #moduleData.Authors > 0 then
+					local pcallSuccess, userInfos = pcall(function()
+						return UserService:GetUserInfosByUserIdsAsync(moduleData.Authors)
+					end)
+
+					if pcallSuccess and userInfos then
+						for _, userInfo in ipairs(userInfos) do
+							table.insert(processedData.Authors, userInfo.DisplayName)
+						end
+					end
+				end
+			else
+				warn("MapService: Modül require edilemedi ->", mapModule.Name)
+			end
+
+			resolve(processedData)
+		end))
+	end
+
+	-- Tüm verilerin hazırlanmasını bekle
+	local success, results = Promise.all(promises):await()
+
+	if success then
+		return results
+	else
+		warn("MapService: Oylama verileri hazırlanırken hata oluştu.")
+		return {}
+	end
 end
 
 --// ÇEKİRDEK: Haritayı Yükle
 function MapService:LoadMap(mapModule)
-	self:Cleanup() -- Önceki haritayı temizle
+	self:Cleanup() 
 
-	-- 1. Modülü Çalıştır (Require)
 	local success, mapData = pcall(require, mapModule)
-	if not success or not mapData then
-		warn("Map Modülü yüklenemedi:", mapModule.Name, mapData)
+	if not success or not mapData or not mapData.Map then
+		warn("Map Yükleme Hatası:", mapModule.Name)
 		return nil
 	end
 
-	if not mapData.Map then
-		warn("Map Data içinde 'Map' modeli yok:", mapModule.Name)
-		return nil
-	end
+	local newMapInstance = mapData.Map:Clone()
+	newMapInstance.Name = "CurrentMap"
+	newMapInstance.Parent = Workspace
+	self.CurrentMapInstance = newMapInstance
 
-	-- 2. Haritayı Kopyala
-	local newMap = mapData.Map:Clone()
-	newMap.Name = "CurrentMap"
-	newMap.Parent = Workspace
-	self.CurrentMapInstance = newMap
+	-- Yazar isimlerini asenkron yükle (UI güncellemesi için)
+	local displayAuthors = {"Loading..."}
 
-	-- 3. Yazar İsimlerini Çek (UserId -> Username)
-	local authorNames = {}
-	if mapData.Authors and #mapData.Authors > 0 then
-		task.spawn(function()
-			local ok, infos = pcall(function()
-				return UserService:GetUserInfosByUserIdsAsync(mapData.Authors)
+	task.spawn(function()
+		if mapData.Authors then
+			local pcallSuccess, userInfos = pcall(function() 
+				return UserService:GetUserInfosByUserIdsAsync(mapData.Authors) 
 			end)
-			if ok and infos then
-				local names = {}
-				for _, info in ipairs(infos) do
-					table.insert(names, info.DisplayName)
+
+			if pcallSuccess and userInfos then
+				local authorNames = {}
+				for _, userInfo in ipairs(userInfos) do 
+					table.insert(authorNames, userInfo.DisplayName) 
 				end
-				-- State'i sonradan güncelle (Async olduğu için)
-				self.CurrentMapData(function(current)
-					if current and current.Module == mapModule then
-						local newData = table.clone(current)
-						newData.Authors = names
-						return newData
-					end
-					return current
+
+				-- State atomunu güncelle
+				self.CurrentMapData(function(currentData) 
+					if currentData and currentData.Module == mapModule then 
+						local newData = table.clone(currentData)
+						newData.Authors = authorNames
+						return newData 
+					end 
+					return currentData 
 				end)
 			end
-		end)
-	end
+		end
+	end)
 
-	-- 4. State Güncelle (İlk başta yazarlar boş gelir, async dolar)
 	self.CurrentMapData({
 		Name = mapData.Name,
-		Authors = {"Loading..."},
+		Authors = displayAuthors, 
 		Module = mapModule
 	})
 
-	print("MapService: '" .. mapData.Name .. "' başarıyla yüklendi.")
+	self.Signals.MapLoaded:Fire(newMapInstance, mapData)
+	self.Network.MapLoaded:FireAllClients(mapData.Name, mapData.Lighting)
 
-	-- 5. GameService'e Gerekli Verileri Döndür
 	return {
 		Spawns = self:GetSpawns(),
 		Lighting = mapData.Lighting
 	}
 end
 
---// TEMİZLİK
 function MapService:Cleanup()
 	if self.CurrentMapInstance then
+		self.Signals.MapUnloaded:Fire()
+		self.Network.MapUnloaded:FireAllClients()
 		self.CurrentMapInstance:Destroy()
 		self.CurrentMapInstance = nil
 	end
 	self.CurrentMapData(nil)
 end
 
---// SPAWN NOKTALARI
 function MapService:GetSpawns()
 	if not self.CurrentMapInstance then return {} end
 
@@ -1023,10 +1214,16 @@ function MapService:GetSpawns()
 	if spawnsFolder then return spawnsFolder:GetChildren() end
 
 	local spawns = {}
-	for _, obj in ipairs(self.CurrentMapInstance:GetDescendants()) do
-		if obj:IsA("SpawnLocation") then table.insert(spawns, obj) end
+	for _, descendant in ipairs(self.CurrentMapInstance:GetDescendants()) do
+		if descendant:IsA("SpawnLocation") then 
+			table.insert(spawns, descendant) 
+		end
 	end
 	return spawns
+end
+
+function MapService:OnStart()
+	
 end
 
 return MapService]]></ProtectedString>
@@ -1039,7 +1236,7 @@ return MapService]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
 		</Item>
-		<Item class="ModuleScript" referent="RBX8F767795746249D094D071CB9E14180F">
+		<Item class="ModuleScript" referent="RBX62DEA3B59DAB41D595DD4AF3FEDB8DB4">
 			<Properties>
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[-- Services
@@ -1071,22 +1268,35 @@ end
 -- Herkesi Lobiye Gönder (Reset)
 function SpawnerService:DespawnAll()
 	for _, player in ipairs(Players:GetPlayers()) do
-		player.RespawnLocation = nil -- Default spawn'a döner
+		player.RespawnLocation = nil
 		player:LoadCharacterAsync()
 	end
 end
 
 --// Internal Helper
-function SpawnerService:_spawnPlayer(player, spawnLocations)
+function SpawnerService:_spawnPlayer(player: Player, spawnLocations)
 	if not player then return end
 
-	-- Rastgele bir spawn seç
 	if spawnLocations and #spawnLocations > 0 then
 		local randomSpawn = spawnLocations[math.random(1, #spawnLocations)]
+
+		-- 1. RespawnLocation'ı ayarla (Doğal Roblox spawnı için)
 		player.RespawnLocation = randomSpawn
+
+		-- 2. Işınlama garantisi (Karakter yüklendiği an tam konuma çekmek için)
+		local connection
+		connection = player.CharacterAdded:Connect(function(character)
+			local rootPart = character:WaitForChild("HumanoidRootPart", 5)
+			if rootPart then
+				-- PivotTo ile direkt spawn CFrame'ine ışınlıyoruz
+				character:PivotTo(randomSpawn.CFrame * CFrame.new(0, 3, 0))
+			end
+			connection:Disconnect() -- Sadece bir kez çalışması için
+		end)
 	end
 
-	player:LoadCharacter()
+	-- 3. Karakteri yükle
+	player:LoadCharacterAsync()
 end
 
 return SpawnerService]]></ProtectedString>
