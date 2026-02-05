@@ -22,7 +22,7 @@ function LightingController:ApplyLighting(lightingData)
 		warn("LightingController: Data is empty")
 		return
 	end
-	
+
 	LightingImporter.ImportJSON(lightingData, true)
 end
 

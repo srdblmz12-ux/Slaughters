@@ -29,28 +29,33 @@ local MurdererService = {
 	}
 }
 
--- [FIX] roleAtom() yerine role (Senin düzeltmen korundu)
+-- [DÜZELTME 1] UserId ile Rol Kontrolü
 function MurdererService:IsMurderer(player)
-	local role = GameService.RunningPlayers[player]
+	local uid = tostring(player.UserId)
+	local role = GameService.RunningPlayers[uid]
 	return role == "Killer"
 end
 
 function MurdererService:_initializeMurdererSkill()
-	-- [FIX] roleAtom yerine role (Senin düzeltmen korundu)
-	for player, role in pairs(GameService.RunningPlayers) do
+	-- [DÜZELTME 2] Döngüde UserId -> Player dönüşümü
+	for userIdStr, role in pairs(GameService.RunningPlayers) do
 		if role == "Killer" then
-			DataService:GetProfile(player):andThen(function(profile)
-				local skillName = profile.Data.MurdererSkill or "Default"
-				local skillModuleScript = SkillsFolder:FindFirstChild(skillName) or SkillsFolder:FindFirstChild("Default")
+			local player = Players:GetPlayerByUserId(tonumber(userIdStr))
 
-				if skillModuleScript then
-					local skillModule = require(skillModuleScript)
-					local cooldownTime = skillModule.Cooldown or 10
-					local keybind = skillModule.Keybind 
+			if player then
+				DataService:GetProfile(player):andThen(function(profile)
+					local skillName = profile.Data.MurdererSkill or "Default"
+					local skillModuleScript = SkillsFolder:FindFirstChild(skillName) or SkillsFolder:FindFirstChild("Default")
 
-					self.Network.SkillAssigned:FireClient(player, skillName, cooldownTime, keybind)
-				end
-			end)
+					if skillModuleScript then
+						local skillModule = require(skillModuleScript)
+						local cooldownTime = skillModule.Cooldown or 10
+						local keybind = skillModule.Keybind 
+
+						self.Network.SkillAssigned:FireClient(player, skillName, cooldownTime, keybind)
+					end
+				end)
+			end
 		end
 	end
 end
@@ -83,12 +88,8 @@ function MurdererService:ActivateSkill(player, skillName, mousePosition)
 		if skillModuleScript then
 			local skillModule = require(skillModuleScript)
 
-			-- [GÜNCELLEME BURADA]
-			-- Modülü çalıştırıp sonucunu alıyoruz (true/false)
 			local success = skillModule:Activate(player, GameService, targetPos)
 
-			-- EĞER BAŞARILIYSA (true) COOLDOWN UYGULA
-			-- Başarısızsa (boşa sıktıysa) buraya girmez, cooldown yemez.
 			if success == true then
 				local cd = skillModule.Cooldown or 10
 				local finish = currentTime + cd

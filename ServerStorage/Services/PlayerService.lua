@@ -9,6 +9,7 @@ local Services = ServerStorage:WaitForChild("Services")
 
 local Charm = require(Packages:WaitForChild("Charm"))
 local Promise = require(Packages:WaitForChild("Promise"))
+local Net = require(Packages:WaitForChild("Net")) -- [EKLENDİ]
 
 -- Dependencies
 local DataService = require(Services:WaitForChild("DataService"))
@@ -18,6 +19,11 @@ local PlayerService = {
 	Client = {},
 
 	PlayerChances = {}, 
+
+	-- [EKLENDİ]
+	Network = {
+		ChanceUpdate = Net:RemoteEvent("ChanceUpdate")
+	}
 }
 
 --// Client Functions
@@ -35,21 +41,28 @@ end
 
 function PlayerService:ResetChance(player)
 	local atom = self.PlayerChances[player]
-	if atom then atom(0) end
+	if atom then 
+		atom(0) 
+		-- [EKLENDİ] Haber ver
+		self.Network.ChanceUpdate:FireClient(player, 0)
+	end
 end
 
 function PlayerService:AddChance(player, amount)
 	local atom = self.PlayerChances[player]
 	if atom then
 		local value = amount or 1
-		atom(function(current) return current + value end)
+		local newValue = atom() + value
+
+		atom(newValue)
+		-- [EKLENDİ] Haber ver
+		self.Network.ChanceUpdate:FireClient(player, newValue)
 	end
 end
 
---// SPAWNER SYSTEM (HATA BURADAYDI, DÜZELTİLDİ)
+--// SPAWNER SYSTEM
 
 function PlayerService:SpawnSurvivors(runningPlayers, spawnLocations)
-	-- [FIX] roleAtom ismi 'role' yapıldı ve () kaldırıldı.
 	for player, role in pairs(runningPlayers) do
 		if role == "Survivor" then
 			self:_spawnPlayer(player, spawnLocations)
@@ -58,7 +71,6 @@ function PlayerService:SpawnSurvivors(runningPlayers, spawnLocations)
 end
 
 function PlayerService:SpawnKillers(runningPlayers, spawnLocations)
-	-- [FIX] roleAtom ismi 'role' yapıldı ve () kaldırıldı.
 	for player, role in pairs(runningPlayers) do
 		if role == "Killer" then
 			self:_spawnPlayer(player, spawnLocations)
@@ -95,6 +107,9 @@ end
 function PlayerService:OnStart()
 	Players.PlayerAdded:Connect(function(player)
 		self.PlayerChances[player] = Charm.atom(0)
+		-- [EKLENDİ] İlk girişte şansı bildir
+		task.wait(1) -- Biraz bekle ki UI yüklensin
+		self.Network.ChanceUpdate:FireClient(player, 0)
 	end)
 
 	Players.PlayerRemoving:Connect(function(player)

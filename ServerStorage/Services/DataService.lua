@@ -11,6 +11,8 @@ local Modules = ServerStorage:WaitForChild("Modules")
 local ProfileStore = require(Modules:WaitForChild("ProfileStore"))
 local Promise = require(Packages:WaitForChild("Promise"))
 local Signal = require(Packages:WaitForChild("Signal"))
+local Charm = require(Packages:WaitForChild("Charm"))
+local Net = require(Packages:WaitForChild("Net")) -- [EKLENDİ]
 
 -- Profile Template
 local Store = ProfileStore.New(RunService:IsStudio() and "Test" or "Live0", {
@@ -34,7 +36,7 @@ local Store = ProfileStore.New(RunService:IsStudio() and "Test" or "Live0", {
 		KillerSkin = "Wendigo",
 		KillerSkill = "",
 	},
-	
+
 	MurdererSkill = "Default"
 })
 
@@ -47,6 +49,11 @@ local DataService = {
 	Signals = {
 		ProfileLoaded = Signal.new(), -- (player, profile)
 		ProfileReleased = Signal.new() -- (player)
+	},
+
+	-- [EKLENDİ] Veri güncelleme kanalı
+	Network = {
+		DataUpdate = Net:RemoteEvent("DataUpdate")
 	}
 }
 
@@ -76,6 +83,46 @@ function DataService:GetProfile(player)
 	end)
 end
 
+-- [YENİ] Para Ekleme Fonksiyonu
+function DataService:AddCurrency(player, amount)
+	local profile = self.LoadedProfiles[player]
+	if profile then
+		local currency = profile.Data.CurrencyData
+		if currency then
+			currency.Value = currency.Value + amount
+			currency.Total = currency.Total + amount
+
+			-- [EKLENDİ] Client'a haber ver
+			self.Network.DataUpdate:FireClient(player, "Currency", currency.Value)
+
+			print("[DataService] " .. player.Name .. " +" .. amount .. " Token kazandı! (Toplam: " .. currency.Value .. ")")
+		end
+	end
+end
+
+-- [YENİ] XP Ekleme ve Level Atlama Fonksiyonu
+function DataService:AddXP(player, amount)
+	local profile = self.LoadedProfiles[player]
+	if profile then
+		local levelData = profile.Data.LevelData
+		if levelData then
+			levelData.ValueXP = levelData.ValueXP + amount
+
+			-- Level Atlaması (Döngü ile birden fazla level atlayabilir)
+			while levelData.ValueXP >= levelData.TargetXP do
+				levelData.ValueXP = levelData.ValueXP - levelData.TargetXP
+				levelData.Level = levelData.Level + 1
+				-- Her seviyede gereken XP'yi %20 artırıyoruz
+				levelData.TargetXP = math.floor(levelData.TargetXP * 1.2)
+				print("[DataService] " .. player.Name .. " Level Atladı! Yeni Level: " .. levelData.Level)
+			end
+
+			-- [EKLENDİ] Client'a haber ver (Level ve XP verisi)
+			self.Network.DataUpdate:FireClient(player, "Level", levelData)
+		end
+	end
+end
+
 function DataService:LoadProfile(player)
 	local profile = Store:StartSessionAsync("Player_" .. player.UserId)
 
@@ -86,9 +133,6 @@ function DataService:LoadProfile(player)
 		if player:IsDescendantOf(Players) then
 			self.LoadedProfiles[player] = profile
 
-			-- [DÜZELTME BURADA YAPILDI]
-			-- Eski: profile:ListenToRelease(...) -> Bu fonksiyon yok.
-			-- Yeni: profile.OnSessionEnd:Connect(...) -> Doğrusu bu.
 			profile.OnSessionEnd:Connect(function()
 				self.LoadedProfiles[player] = nil
 				player:Kick("Profile released (Session loaded elsewhere).")
@@ -96,6 +140,15 @@ function DataService:LoadProfile(player)
 
 			self.Signals.ProfileLoaded:Fire(player, profile)
 			print("[DataService] Profil yüklendi: " .. player.Name)
+
+			-- [EKLENDİ] İlk girişte verileri gönder ki arayüz dolsun
+			task.delay(1, function()
+				if player.Parent then
+					self.Network.DataUpdate:FireClient(player, "Currency", profile.Data.CurrencyData.Value)
+					self.Network.DataUpdate:FireClient(player, "Level", profile.Data.LevelData)
+				end
+			end)
+
 		else
 			profile:Release()
 		end
@@ -105,7 +158,7 @@ function DataService:LoadProfile(player)
 end
 
 function DataService:ReleaseProfile(player)
-	local profile = self.LoadedProfiles[player] :: ProfileStore.Profile<any>
+	local profile = self.LoadedProfiles[player]
 	if profile then
 		profile:EndSession()
 		self.LoadedProfiles[player] = nil

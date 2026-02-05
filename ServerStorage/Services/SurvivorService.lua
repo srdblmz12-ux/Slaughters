@@ -21,8 +21,8 @@ local SurvivorService = {
 	IsSelectionOpen = false,
 	AreSkillsActive = false, 
 
-	SelectedSkills = {}, -- [OYUNCU] = "SkillName" (Sadece 1 tane)
-	OfferedSkills = {},  -- [OYUNCU] = {"Skill1", "Skill2", "Skill3"}
+	SelectedSkills = {}, 
+	OfferedSkills = {},  
 	Cooldowns = {},      
 
 	Network = {
@@ -34,13 +34,13 @@ local SurvivorService = {
 	}
 }
 
--- Yardımcı Fonksiyon: Survivor Kontrolü
+-- [DÜZELTME 1] UserId ile Rol Kontrolü
 function SurvivorService:IsSurvivor(player)
-	local role = GameService.RunningPlayers[player]
+	local uid = tostring(player.UserId)
+	local role = GameService.RunningPlayers[uid]
 	return role == "Survivor"
 end
 
--- Oyuncuya 3 Rastgele Seçenek Sunar
 function SurvivorService:_offerSkillsToPlayer(player)
 	local allSkillsScripts = SkillsFolder:GetChildren()
 	if #allSkillsScripts == 0 then return end
@@ -49,7 +49,6 @@ function SurvivorService:_offerSkillsToPlayer(player)
 	local validOptionNames = {}  
 	local usedIndices = {}
 
-	-- En fazla 3 yetenek seç
 	local countToSelect = math.min(3, #allSkillsScripts)
 
 	while #validOptionNames < countToSelect do
@@ -78,18 +77,21 @@ function SurvivorService:_offerSkillsToPlayer(player)
 end
 
 function SurvivorService:OfferRandomSkills()
-	for player, role in pairs(GameService.RunningPlayers) do
+	-- [DÜZELTME 2] Döngüde UserId -> Player dönüşümü
+	for userIdStr, role in pairs(GameService.RunningPlayers) do
 		if role == "Survivor" then
-			self:_offerSkillsToPlayer(player)
+			local player = Players:GetPlayerByUserId(tonumber(userIdStr))
+			if player then
+				self:_offerSkillsToPlayer(player)
+			end
 		end
 	end
 end
 
--- Oyuncu Seçim Yaptığında Çalışır
 function SurvivorService:SelectSkill(player, skillName)
 	if not self.IsSelectionOpen then return end
 	if not self:IsSurvivor(player) then return end
-	if self.SelectedSkills[player] then return end -- Zaten seçmişse engelle
+	if self.SelectedSkills[player] then return end 
 
 	local offered = self.OfferedSkills[player]
 	if not offered or not table.find(offered, skillName) then return end
@@ -97,19 +99,20 @@ function SurvivorService:SelectSkill(player, skillName)
 	local skillModuleScript = SkillsFolder:FindFirstChild(skillName)
 	if not skillModuleScript then return end
 
-	-- Seçimi kaydet
 	self.SelectedSkills[player] = skillName
 
 	local mod = require(skillModuleScript)
 	self.Network.SkillAssigned:FireClient(player, skillName, mod.Cooldown or 20, mod.Keybind)
 end
 
--- Süre Bitince Seçim Yapmayanlara Rastgele Atar
 function SurvivorService:_finalizeSelections()
 	self.IsSelectionOpen = false
 
-	for player, role in pairs(GameService.RunningPlayers) do
-		if role == "Survivor" and not self.SelectedSkills[player] then
+	-- [DÜZELTME 3] Döngüde UserId -> Player dönüşümü
+	for userIdStr, role in pairs(GameService.RunningPlayers) do
+		local player = Players:GetPlayerByUserId(tonumber(userIdStr))
+
+		if player and role == "Survivor" and not self.SelectedSkills[player] then
 			local offered = self.OfferedSkills[player]
 			local finalChoice = nil
 
@@ -129,12 +132,10 @@ function SurvivorService:_finalizeSelections()
 	end
 end
 
--- Yetenek Aktifleştirme
 function SurvivorService:ActivateSkill(player, skillName, mousePosition)
 	if not self.AreSkillsActive then return end 
 	if not self:IsSurvivor(player) then return end
 
-	-- Oyuncunun seçtiği yetenek mi?
 	if self.SelectedSkills[player] ~= skillName then return end
 
 	local currentTime = workspace:GetServerTimeNow()
@@ -147,7 +148,6 @@ function SurvivorService:ActivateSkill(player, skillName, mousePosition)
 	if scriptObj then
 		local mod = require(scriptObj)
 
-		-- Pozisyon verisi kontrolü
 		local targetPos = nil
 		if typeof(mousePosition) == "CFrame" then targetPos = mousePosition.Position
 		elseif typeof(mousePosition) == "Vector3" then targetPos = mousePosition end

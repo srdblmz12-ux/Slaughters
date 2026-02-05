@@ -1,3 +1,10 @@
+-- Services
+local ServerStorage = game:GetService("ServerStorage")
+local Services = ServerStorage:WaitForChild("Services")
+
+-- Dependencies
+local DataService = require(Services:WaitForChild("DataService"))
+
 local DefaultSkill = {}
 
 DefaultSkill.Cooldown = 3
@@ -16,8 +23,9 @@ local function findClosestPartByType(character, typeName, mousePos)
 	local closest = nil
 	local minDist = math.huge
 	for _, child in ipairs(character:GetChildren()) do
-		-- DÜZELTME: IsEaten ise veya görünmezse hedef alma
+		-- BasePart kontrolü ve tip eşleşmesi
 		if child:IsA("BasePart") and getDetailedPartType(child) == typeName then
+			-- Zaten yenmişse veya görünmezse hedef alma
 			if child:GetAttribute("IsEaten") or child.Transparency >= 1 then
 				continue
 			end
@@ -53,6 +61,7 @@ local function HideLimb(part)
 	end
 end
 
+-- [GÜNCELLENMİŞ ACTIVATE FONKSİYONU]
 function DefaultSkill:Activate(player, GameService, mousePosition)
 	local character = player.Character
 	if not character then return false end
@@ -64,18 +73,22 @@ function DefaultSkill:Activate(player, GameService, mousePosition)
 	raycastParams.FilterDescendantsInstances = {character}
 	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
+	-- Mouse yönüne doğru 15 birimlik raycast at
 	local result = workspace:Raycast(head.Position, (mousePosition - head.Position).Unit * 15, raycastParams)
 
-	-- DÜZELTME: Tıklanan parça yenmişse iptal et
+	-- Tıklanan parça yoksa veya zaten yenmişse iptal et
 	if not result or result.Instance:GetAttribute("IsEaten") then return false end
 
 	local hitPart = result.Instance
 	local victimChar = hitPart.Parent
 	local victimHum = victimChar:FindFirstChild("Humanoid")
+
+	-- Aksesuar kontrolü (Bazen aksesuara tıklanabilir)
 	if not victimHum and hitPart.Parent:IsA("Accessory") then
 		victimChar = hitPart.Parent.Parent
 		victimHum = victimChar:FindFirstChild("Humanoid")
 	end
+
 	if not victimHum then return false end
 
 	local finalTarget = nil
@@ -105,13 +118,24 @@ function DefaultSkill:Activate(player, GameService, mousePosition)
 	local limbsEaten = victimChar:GetAttribute("LimbsEaten") or 0
 
 	if finalType == "Limb" then
+		-- Uzuv yendi
 		HideLimb(finalTarget)
 		victimChar:SetAttribute("LimbsEaten", limbsEaten + 1)
 		updateLegState(victimHum, victimChar)
+
+		-- [ÖDÜL] Kol veya Bacak yendiği için 10 Token ver
+		DataService:AddCurrency(player, 10)
+
 		return true
+
 	elseif finalType == "Head" and limbsEaten >= 4 then
+		-- Kafa yendi (Öldürücü vuruş)
 		HideLimb(finalTarget)
 		victimHum.Health = 0
+
+		-- [ÖDÜL] Kafa yendiği için 25 Token ver
+		DataService:AddCurrency(player, 25)
+
 		return true
 	end
 

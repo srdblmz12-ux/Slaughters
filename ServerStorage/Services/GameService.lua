@@ -103,9 +103,15 @@ function GameService.Client:GetPlayerData(player, targetPlayerName: string)
 	local target = Players:FindFirstChild(targetPlayerName)
 	if not target then return nil end
 
+	-- [GÜNCELLEME BURADA] UserId string'e çevrilip bakılıyor
+	local targetId = tostring(target.UserId)
+
+	-- self.Server.RunningPlayers[targetId] ile doğru veriye ulaşıyoruz
+	local role = self.Server.RunningPlayers[targetId] or "Lobby"
+
 	return {
 		PlayerName = target.Name,
-		Role = self.Server.RunningPlayers[target] or "Lobby",
+		Role = role,
 		UserId = target.UserId,
 		IsAlive = (target.Character and target.Character:FindFirstChild("Humanoid") and target.Character.Humanoid.Health > 0) or false
 	}
@@ -285,8 +291,14 @@ function GameService:StartGame()
 			self.Network.LoadLighting:FireAllClients(mapData.Lighting) 
 		end
 
+		-- [AŞAMA 4] OYUN MODU & ROLLER
 		self:_setupGameMode(activePlayers)
-		self.SurvivorCount(self:_countSurvivors())
+
+		local sCount = 0
+		for _, r in pairs(self.RunningPlayers) do 
+			if r == "Survivor" then sCount += 1 end 
+		end
+		self.SurvivorCount(sCount)
 
 		self.GameStatus("Warmup")
 		self.TimeLeft(CONFIG.WARMUP_TIME)
@@ -294,7 +306,14 @@ function GameService:StartGame()
 		self.Network.WarmupStarted:FireAllClients(self.Gamemode(), self.RunningPlayers, CONFIG.WARMUP_TIME)
 		self.Signals.WarmupStarted:Fire()
 
-		PlayerService:SpawnSurvivors(self.RunningPlayers, mapData.Spawns)
+		-- [SPAWN HAZIRLIĞI] UserId -> Player Instance Dönüşümü
+		local activeInstancesRoles = {}
+		for uid, role in pairs(self.RunningPlayers) do
+			local p = Players:GetPlayerByUserId(tonumber(uid))
+			if p then activeInstancesRoles[p] = role end
+		end
+
+		PlayerService:SpawnSurvivors(activeInstancesRoles, mapData.Spawns)
 		self:_setupPlayerMonitoring()
 
 		for t = CONFIG.WARMUP_TIME, 1, -1 do
@@ -308,7 +327,19 @@ function GameService:StartGame()
 		end
 
 		self.GameStatus("GameRunning")
-		PlayerService:SpawnKillers(self.RunningPlayers, mapData.Spawns)
+
+		-- [DÜZELTME BURADA] Warmup sırasında çıkan oyuncular olabilir, listeyi tazeliyoruz
+		local currentPlayersForSpawn = {}
+		for uid, role in pairs(self.RunningPlayers) do
+			local p = Players:GetPlayerByUserId(tonumber(uid))
+			-- Sadece oyunda olanları (Parent'i olanları) listeye al
+			if p and p.Parent then 
+				currentPlayersForSpawn[p] = role 
+			end
+		end
+
+		-- Artık self.RunningPlayers değil, Instance içeren taze listeyi yolluyoruz
+		PlayerService:SpawnKillers(currentPlayersForSpawn, mapData.Spawns)
 
 		local modeDuration = (self._activeModeModule and self._activeModeModule.Time) or CONFIG.GAME_TIME
 		self.Network.GameStarted:FireAllClients(modeDuration)
@@ -336,61 +367,72 @@ function GameService:_setupGameMode(players)
 	self._activeModeModule = modeModule
 	self.Gamemode(selectedScript.Name)
 
-	local roles = modeModule:Start(self, players)
-	self.RunningPlayers = roles 
+	-- Modülden gelen ham roller (Hala [Player Instance] = "Rol" formatında gelir)
+	local rawRoles = modeModule:Start(self, players)
+	self.RunningPlayers = {} -- Tabloyu sıfırla
 
-	for player, role in pairs(roles) do
-		if role == "Killer" then 
-			PlayerService:ResetChance(player)
-		else 
-			PlayerService:AddChance(player, 1) 
+	-- [GÜNCELLEME] Player Instance'larını UserId String'e çevirerek ana tabloya kaydet
+	for playerInstance, roleName in pairs(rawRoles) do
+		if playerInstance and playerInstance:IsA("Player") then
+			-- ANAHTAR NOKTA BURASI: Player objesini değil, ID'sini string olarak kullanıyoruz.
+			local userIdStr = tostring(playerInstance.UserId)
+			self.RunningPlayers[userIdStr] = roleName
+
+			if roleName == "Killer" then 
+				PlayerService:ResetChance(playerInstance)
+			else 
+				PlayerService:AddChance(playerInstance, 1) 
+			end
 		end
 	end
 end
 
 function GameService:_setupPlayerMonitoring()
-	for player, role in pairs(self.RunningPlayers) do
+	-- RunningPlayers artık UserId (String) -> Role yapısında
+	for userIdStr, role in pairs(self.RunningPlayers) do
+		local userId = tonumber(userIdStr)
+		local player = Players:GetPlayerByUserId(userId)
 
-		local function monitorCharacter(character)
-			local humanoid = character:WaitForChild("Humanoid", 10)
-			if not humanoid then return end
+		if player then
+			local function monitorCharacter(character)
+				local humanoid = character:WaitForChild("Humanoid", 10)
+				if not humanoid then return end
 
-			local conn = humanoid.Died:Connect(function()
-				if self.GameStatus() ~= "GameRunning" and self.GameStatus() ~= "Warmup" then return end
+				local conn = humanoid.Died:Connect(function()
+					if self.GameStatus() ~= "GameRunning" and self.GameStatus() ~= "Warmup" then return end
 
-				if self._activeModeModule and self._activeModeModule.OnPlayerDied then
-					self._activeModeModule:OnPlayerDied(self, player)
-				end
-
-				if role == "Survivor" then
-					-- Survivor ölürse katile zaman ekle ve listeyi güncelle
-					local newTime = self.TimeLeft() + 7
-					self.TimeLeft(newTime)
-					self.Network.StateUpdate:FireAllClients("TimeLeft", newTime)
-
-					self.RunningPlayers[player] = nil
-					self.SurvivorCount(self:_countSurvivors())
-
-					task.delay(3, function()
-						if player and player.Parent then player:LoadCharacter() end
-					end)
-
-					if self:_countSurvivors() <= 0 then
-						self:EndGame("Killer")
+					if self._activeModeModule and self._activeModeModule.OnPlayerDied then
+						self._activeModeModule:OnPlayerDied(self, player)
 					end
 
-				elseif role == "Killer" then
-					-- Killer ölürse direkt survivorlar kazanır
-					self:EndGame("Survivors")
-				end
-			end)
+					if role == "Survivor" then
+						local newTime = self.TimeLeft() + 7
+						self.TimeLeft(newTime)
+						self.Network.StateUpdate:FireAllClients("TimeLeft", newTime)
 
+						self.RunningPlayers[userIdStr] = nil -- Listeden sil (String key kullanıyoruz)
+						self.SurvivorCount(self:_countSurvivors())
+
+						task.delay(3, function()
+							if player and player.Parent then player:LoadCharacter() end
+						end)
+
+						if self:_countSurvivors() <= 0 then
+							self:EndGame("Killer")
+						end
+
+					elseif role == "Killer" then
+						self:EndGame("Survivors")
+					end
+				end)
+
+				table.insert(self._connections, conn)
+			end
+
+			if player.Character then monitorCharacter(player.Character) end
+			local conn = player.CharacterAdded:Connect(monitorCharacter)
 			table.insert(self._connections, conn)
 		end
-
-		if player.Character then monitorCharacter(player.Character) end
-		local conn = player.CharacterAdded:Connect(monitorCharacter)
-		table.insert(self._connections, conn)
 	end
 end
 
@@ -414,12 +456,15 @@ function GameService:_startTimeLoop()
 			end
 		end
 
-		-- Süre biterse Killer'ları öldür ve survivorları kazandır
+		-- [DÜZELTME BURADA] Süre biterse Killer'ları öldür
 		if self.TimeLeft() <= 0 then
-			for player, role in pairs(self.RunningPlayers) do
-				if role == "Killer" and player.Character then
-					local hum = player.Character:FindFirstChild("Humanoid")
-					if hum then hum.Health = 0 end
+			for userIdStr, role in pairs(self.RunningPlayers) do
+				if role == "Killer" then
+					local player = Players:GetPlayerByUserId(tonumber(userIdStr))
+					if player and player.Character then
+						local hum = player.Character:FindFirstChild("Humanoid")
+						if hum then hum.Health = 0 end
+					end
 				end
 			end
 
@@ -447,6 +492,23 @@ function GameService:EndGame(winningTeam, Executable)
 		conn:Disconnect() 
 	end
 	self._connections = {}
+	
+	for userIdStr, role in pairs(self.RunningPlayers) do
+		local player = Players:GetPlayerByUserId(tonumber(userIdStr))
+
+		if player then
+			if winningTeam == "Killer" and role == "Killer" then
+				-- Katil Kazandı
+				DataService:AddXP(player, 100)
+				print("Ödül: " .. player.Name .. " (Katil) +100 XP kazandı.")
+
+			elseif winningTeam == "Survivors" and role == "Survivor" then
+				-- Survivorlar Kazandı (Sadece yaşayanlar RunningPlayers'da kalır)
+				DataService:AddXP(player, 25)
+				print("Ödül: " .. player.Name .. " (Survivor) +25 XP kazandı.")
+			end
+		end
+	end
 
 	self.TimeLeft(0)
 	self.Network.StateUpdate:FireAllClients("TimeLeft", 0)
@@ -504,10 +566,13 @@ function GameService:OnStart()
 	end)
 
 	-- Oyuncu Çıkış Kontrolü (Rage-quit handling)
+	-- Oyuncu Çıkış Kontrolü (Rage-quit handling)
 	Players.PlayerRemoving:Connect(function(player)
-		if self.RunningPlayers[player] then
-			local role = self.RunningPlayers[player]
-			self.RunningPlayers[player] = nil
+		local userIdStr = tostring(player.UserId) -- Anahtarı oluştur
+
+		if self.RunningPlayers[userIdStr] then -- Anahtar ile kontrol et
+			local role = self.RunningPlayers[userIdStr]
+			self.RunningPlayers[userIdStr] = nil -- Listeden sil
 
 			-- Oyun devam ediyorsa win condition kontrolü yap
 			if self.GameStatus() == "GameRunning" or self.GameStatus() == "Warmup" then
