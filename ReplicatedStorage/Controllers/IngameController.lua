@@ -18,6 +18,9 @@ local IngameController = {
 
 -- Update Token (Currency) Interface (Pop Effect with spr)
 function IngameController:UpdateCurrency(amount)
+	-- Güvenlik: Gelen veri sayı mı? Değilse 0 yap.
+	if typeof(amount) ~= "number" then amount = 0 end
+
 	local IngameHUD = PlayerGui:WaitForChild("IngameHUD", 5)
 	if not IngameHUD then return end
 
@@ -57,16 +60,31 @@ function IngameController:UpdateLevel(levelData)
 	local fillBar = LevelBar:FindFirstChild("FillBar")
 	if fillBar then
 		local percent = math.clamp(levelData.ValueXP / levelData.TargetXP, 0, 1)
-
-		-- [SPR ANIMATION] Bar Filling
-		-- Damping: 0.8 (Controlled, less bouncy)
-		-- Frequency: 2 (Heavier feel)
 		spr.target(fillBar, 0.8, 2, {Size = UDim2.fromScale(percent, 1)})
 	end
 end
 
+-- [YENİ] Tüm Verileri Yenileme Yardımcısı
+function IngameController:RefreshAllData()
+	-- 1. Profil Verilerini Çek (Para ve Level)
+	local Data = Net:Invoke("DataService/GetData")
+	if Data then
+		-- Data.CurrencyData bir tablodur, .Value diyerek sayıyı alıyoruz
+		self:UpdateCurrency(Data.CurrencyData.Value)
+		self:UpdateLevel(Data.LevelData)
+	end
+
+	-- 2. Şans Verisini Çek (PlayerService üzerinden)
+	local success, chance = pcall(function()
+		return Net:Invoke("PlayerService/GetChance")
+	end)
+	if success and chance then
+		self:UpdateChance(chance)
+	end
+end
+
 function IngameController:OnStart()
-	-- Listen for server signals
+	-- [DİNLEYİCİLER] Sunucudan gelen anlık değişimleri yakala
 	Net:Connect("DataUpdate", function(Type, Data)
 		if Type == "Currency" then
 			self:UpdateCurrency(Data)
@@ -78,10 +96,17 @@ function IngameController:OnStart()
 	Net:Connect("ChanceUpdate", function(NewChance)
 		self:UpdateChance(NewChance)
 	end)
-	
-	local Data = Net:Invoke("DataService/GetData")
-	self:UpdateCurrency(Data.CurrencyData)
-	self:UpdateLevel(Data.LevelData)
+
+	-- [İLK YÜKLEME] Oyuna girince verileri çek
+	self:RefreshAllData()
+
+	-- [KRİTİK DÜZELTME] Karakter Doğunca Verileri Tekrar Çek
+	-- Lobiye dönüşte (Respawn olunca) ResetOnSpawn yüzünden UI sıfırlanıyor.
+	-- Bu yüzden karakter her geldiğinde verileri tekrar yerine koyuyoruz.
+	LocalPlayer.CharacterAdded:Connect(function()
+		task.wait(0.5) -- UI'ın yüklenmesi için minik bir bekleme
+		self:RefreshAllData()
+	end)
 end
 
 return IngameController

@@ -5,11 +5,16 @@ local Players = game:GetService("Players")
 
 -- Variables
 local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+
 local Services = ServerStorage:WaitForChild("Services")
+
+-- [ÖNEMLİ] Karakter modellerinin olduğu klasör
+local Characters = Shared:WaitForChild("Characters")
 
 local Charm = require(Packages:WaitForChild("Charm"))
 local Promise = require(Packages:WaitForChild("Promise"))
-local Net = require(Packages:WaitForChild("Net")) -- [EKLENDİ]
+local Net = require(Packages:WaitForChild("Net"))
 
 -- Dependencies
 local DataService = require(Services:WaitForChild("DataService"))
@@ -20,7 +25,6 @@ local PlayerService = {
 
 	PlayerChances = {}, 
 
-	-- [EKLENDİ]
 	Network = {
 		ChanceUpdate = Net:RemoteEvent("ChanceUpdate")
 	}
@@ -32,7 +36,6 @@ function PlayerService.Client:GetChance(player)
 end
 
 --// CHANCE SYSTEM
-
 function PlayerService:GetChance(player)
 	local atom = self.PlayerChances[player]
 	if atom then return atom() end
@@ -43,7 +46,6 @@ function PlayerService:ResetChance(player)
 	local atom = self.PlayerChances[player]
 	if atom then 
 		atom(0) 
-		-- [EKLENDİ] Haber ver
 		self.Network.ChanceUpdate:FireClient(player, 0)
 	end
 end
@@ -55,7 +57,6 @@ function PlayerService:AddChance(player, amount)
 		local newValue = atom() + value
 
 		atom(newValue)
-		-- [EKLENDİ] Haber ver
 		self.Network.ChanceUpdate:FireClient(player, newValue)
 	end
 end
@@ -65,7 +66,8 @@ end
 function PlayerService:SpawnSurvivors(runningPlayers, spawnLocations)
 	for player, role in pairs(runningPlayers) do
 		if role == "Survivor" then
-			self:_spawnPlayer(player, spawnLocations)
+			-- [GÜNCELLEME] Rol bilgisini gönderiyoruz
+			self:_spawnPlayer(player, spawnLocations, "Survivor")
 		end
 	end
 end
@@ -73,7 +75,8 @@ end
 function PlayerService:SpawnKillers(runningPlayers, spawnLocations)
 	for player, role in pairs(runningPlayers) do
 		if role == "Killer" then
-			self:_spawnPlayer(player, spawnLocations)
+			-- [GÜNCELLEME] Rol bilgisini gönderiyoruz
+			self:_spawnPlayer(player, spawnLocations, "Killer")
 		end
 	end
 end
@@ -85,30 +88,67 @@ function PlayerService:DespawnAll()
 	end
 end
 
-function PlayerService:_spawnPlayer(player, spawnLocations)
+function PlayerService:_spawnPlayer(player, spawnLocations, role)
 	if not player then return end
 
-	if spawnLocations and #spawnLocations > 0 then
-		local randomSpawn = spawnLocations[math.random(1, #spawnLocations)]
-		player.RespawnLocation = randomSpawn
+	DataService:GetProfile(player):andThen(function(profile)
+		-- Spawn noktası belirleme
+		local randomSpawn = nil
+		if spawnLocations and #spawnLocations > 0 then
+			randomSpawn = spawnLocations[math.random(1, #spawnLocations)]
+			player.RespawnLocation = randomSpawn
+		end
+		local spawnCFrame = randomSpawn and (randomSpawn.CFrame * CFrame.new(0, 3, 0)) or CFrame.new(0, 10, 0)
 
+		-- KATİL İSE
+		if role == "Killer" then
+			local equippedSkin = profile.Data.Equippeds and profile.Data.Equippeds.KillerSkin
+
+			-- Skin bulmaca
+			local characterModel = nil
+			if equippedSkin then characterModel = Characters:FindFirstChild(equippedSkin) end
+			if not characterModel then characterModel = Characters:FindFirstChild("Wendigo") end
+
+			if characterModel then
+				local newCharacter = characterModel:Clone()
+				newCharacter.Name = player.Name
+				newCharacter:PivotTo(spawnCFrame)
+				newCharacter.Parent = workspace
+				player.Character = newCharacter
+
+				local rootPart = newCharacter:FindFirstChild("HumanoidRootPart")
+				if rootPart then
+					rootPart:SetNetworkOwner(player)
+				end
+
+				return
+			else
+				warn("HATA: Wendigo modeli bulunamadı!")
+			end
+		end
+
+		-- SURVIVOR İSE (veya katil modeli yüklenemediyse)
 		local connection
 		connection = player.CharacterAdded:Connect(function(character)
 			local rootPart = character:WaitForChild("HumanoidRootPart", 5)
 			if rootPart then
-				character:PivotTo(randomSpawn.CFrame * CFrame.new(0, 3, 0))
+				character:PivotTo(spawnCFrame)
 			end
-			connection:Disconnect()
+			if connection then connection:Disconnect() end
 		end)
-	end
-	player:LoadCharacterAsync()
+
+		player:LoadCharacterAsync()
+
+	end):catch(function(err)
+		warn("Spawn hatası:", err)
+		player:LoadCharacterAsync()
+	end)
 end
 
 function PlayerService:OnStart()
 	Players.PlayerAdded:Connect(function(player)
 		self.PlayerChances[player] = Charm.atom(0)
-		-- [EKLENDİ] İlk girişte şansı bildir
-		task.wait(1) -- Biraz bekle ki UI yüklensin
+		task.wait(1) 
 		self.Network.ChanceUpdate:FireClient(player, 0)
 	end)
 

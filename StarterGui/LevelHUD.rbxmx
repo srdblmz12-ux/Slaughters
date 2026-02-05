@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="ScreenGui" referent="RBX0DBFD754F2E641FF9CCAD1AB936FC7A5">
+	<Item class="ScreenGui" referent="RBX3F69CEBD7EE94E5F93CBCC7F4E834F21">
 		<Properties>
 			<bool name="ClipToDeviceSafeArea">true</bool>
 			<int name="DisplayOrder">0</int>
@@ -25,7 +25,7 @@
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 		</Properties>
-		<Item class="Frame" referent="RBX19FAFF95D72E4F99B5C2639B95D4BA2A">
+		<Item class="Frame" referent="RBX8A3E8A6B231F4CA7808D38FE0FD6408A">
 			<Properties>
 				<token name="Style">0</token>
 				<bool name="Active">false</bool>
@@ -88,7 +88,7 @@
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="Frame" referent="RBX02D095B74419407AA7B88B801C60BACE">
+			<Item class="Frame" referent="RBXEC752ABA898B4FB9B409069027FB24C5">
 				<Properties>
 					<token name="Style">0</token>
 					<bool name="Active">false</bool>
@@ -151,7 +151,7 @@
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="UIStroke" referent="RBXDE096E02DD774CB2B86FC3B0F8D9E02A">
+				<Item class="UIStroke" referent="RBXB69C89FDB08541D188C27B00CDA577D0">
 					<Properties>
 						<token name="ApplyStrokeMode">0</token>
 						<UDim name="BorderOffset">
@@ -178,7 +178,7 @@
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="Frame" referent="RBX90021534F82841A29F3838D2B7D2E1CA">
+				<Item class="Frame" referent="RBX6BC448C5672A4D25A5F0BF1B45E9E102">
 					<Properties>
 						<token name="Style">0</token>
 						<bool name="Active">false</bool>
@@ -219,7 +219,7 @@
 						<Ref name="SelectionImageObject">null</Ref>
 						<int name="SelectionOrder">0</int>
 						<UDim2 name="Size">
-							<XS>0.5</XS>
+							<XS>0</XS>
 							<XO>0</XO>
 							<YS>1</YS>
 							<YO>0</YO>
@@ -241,7 +241,7 @@
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="UIGradient" referent="RBXE495D38F0C9B4D4DB5A148D27D508AC1">
+					<Item class="UIGradient" referent="RBXC8A271204EA3437D8F8AF526A731BEF9">
 						<Properties>
 							<ColorSequence name="Color">0 0.835294 0.835294 0.835294 0 1 1 1 1 0 </ColorSequence>
 							<bool name="Enabled">true</bool>
@@ -261,7 +261,7 @@
 					</Item>
 				</Item>
 			</Item>
-			<Item class="Frame" referent="RBXC1CA7C5AEF5F4F5187C8BAD3D5D5D6E2">
+			<Item class="Frame" referent="RBXA2352B3B4A444F1B81D387AC06EF7564">
 				<Properties>
 					<token name="Style">0</token>
 					<bool name="Active">false</bool>
@@ -324,7 +324,7 @@
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="TextLabel" referent="RBX502E282CDFCF41E0988514B8059C0219">
+				<Item class="TextLabel" referent="RBXBCA8843002734A5591F82710ECEA32C5">
 					<Properties>
 						<Font name="FontFace">
 							<Family><url>rbxasset://fonts/families/SourceSansPro.json</url></Family>
@@ -417,7 +417,7 @@
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="UIStroke" referent="RBX2F9FC50A50254CA99C4A634343C8C6AB">
+					<Item class="UIStroke" referent="RBX6E6A2EAA185340799F064713F4FF6750">
 						<Properties>
 							<token name="ApplyStrokeMode">0</token>
 							<UDim name="BorderOffset">
@@ -445,7 +445,7 @@
 						</Properties>
 					</Item>
 				</Item>
-				<Item class="TextLabel" referent="RBXE3378FE0507A447298224A71BC33FC0D">
+				<Item class="TextLabel" referent="RBX212CB370D85D41818105323BA8AE383C">
 					<Properties>
 						<Font name="FontFace">
 							<Family><url>rbxasset://fonts/families/SourceSansPro.json</url></Family>
@@ -538,7 +538,7 @@
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="UIStroke" referent="RBXB3293C04BD8146F184D00EB4EA21E361">
+					<Item class="UIStroke" referent="RBXF5864736674943D5B5EF47FAEEA6E9C9">
 						<Properties>
 							<token name="ApplyStrokeMode">0</token>
 							<UDim name="BorderOffset">

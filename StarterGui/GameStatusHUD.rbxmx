@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="ScreenGui" referent="RBXF36EFFF228A442538693401D8586AD12">
+	<Item class="ScreenGui" referent="RBX0544DE8330564BB8AB83FC58614CAFB0">
 		<Properties>
 			<bool name="ClipToDeviceSafeArea">true</bool>
 			<int name="DisplayOrder">0</int>
@@ -25,7 +25,7 @@
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 		</Properties>
-		<Item class="Frame" referent="RBX1E7C7B6E10B8445C9E72F870F8E07D43">
+		<Item class="Frame" referent="RBX23CB61E6BF294DAFB786D10F29EAD38C">
 			<Properties>
 				<token name="Style">0</token>
 				<bool name="Active">false</bool>
@@ -88,7 +88,7 @@
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="TextLabel" referent="RBXACB7FD728D8541EDAB827491663D8EC8">
+			<Item class="TextLabel" referent="RBX8C85A566AAE14B0C9CF46A769BCE326B">
 				<Properties>
 					<Font name="FontFace">
 						<Family><url>rbxasset://fonts/families/ComicNeueAngular.json</url></Family>
@@ -181,7 +181,7 @@
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="UIPadding" referent="RBXCE34872428A047C5A5ECDBFAD0081DE7">
+				<Item class="UIPadding" referent="RBX2ED43669E942476FA28BF2F81ADBC31E">
 					<Properties>
 						<UDim name="PaddingBottom">
 							<S>0.200000003</S>
@@ -207,7 +207,7 @@
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="UIStroke" referent="RBX30FC2B1E24734F78840AB3FFF43AC845">
+				<Item class="UIStroke" referent="RBX13CC713A5164445F828E71A4794F8488">
 					<Properties>
 						<token name="ApplyStrokeMode">0</token>
 						<UDim name="BorderOffset">
@@ -235,7 +235,7 @@
 					</Properties>
 				</Item>
 			</Item>
-			<Item class="TextLabel" referent="RBX4D5EFBAB6B69435A997840FB6187F087">
+			<Item class="TextLabel" referent="RBX16D1CA8F799C4CF28B0E247D3703B091">
 				<Properties>
 					<Font name="FontFace">
 						<Family><url>rbxasset://fonts/families/ComicNeueAngular.json</url></Family>
@@ -328,7 +328,7 @@
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="UIPadding" referent="RBXC3D5916129554797B37CFD4B7944E82A">
+				<Item class="UIPadding" referent="RBXC3A771E4CAD24968AF384DEBAB506D7E">
 					<Properties>
 						<UDim name="PaddingBottom">
 							<S>0.400000006</S>
@@ -354,7 +354,7 @@
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="UIStroke" referent="RBX24421D9B321A476FBDCDFD7847D5E733">
+				<Item class="UIStroke" referent="RBXB04B882DCF554B15A52779AD9F376825">
 					<Properties>
 						<token name="ApplyStrokeMode">0</token>
 						<UDim name="BorderOffset">
@@ -382,7 +382,7 @@
 					</Properties>
 				</Item>
 			</Item>
-			<Item class="TextLabel" referent="RBX230BFBAAECA141C78F140E99689EEE1C">
+			<Item class="TextLabel" referent="RBX28C37F4571AE41DF8CD6F0FF9BAB0EEC">
 				<Properties>
 					<Font name="FontFace">
 						<Family><url>rbxasset://fonts/families/ComicNeueAngular.json</url></Family>
@@ -475,7 +475,7 @@
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="UIPadding" referent="RBX57B28F2075DE4899BF62BFA4A27C1374">
+				<Item class="UIPadding" referent="RBX238E05CC652D42B48670EE87EC61F33D">
 					<Properties>
 						<UDim name="PaddingBottom">
 							<S>0.600000024</S>
@@ -501,7 +501,7 @@
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="UIStroke" referent="RBX0964AB6DAE134B5D9700E1543B4AA8B4">
+				<Item class="UIStroke" referent="RBX3F7A516AE8C04C6EBB0313940AA86BF6">
 					<Properties>
 						<token name="ApplyStrokeMode">0</token>
 						<UDim name="BorderOffset">
@@ -529,7 +529,7 @@
 					</Properties>
 				</Item>
 			</Item>
-			<Item class="TextLabel" referent="RBX405139974D334902B038B89DB3E293F7">
+			<Item class="TextLabel" referent="RBXA13B4F2E0B42495096EDDE48DC030B63">
 				<Properties>
 					<Font name="FontFace">
 						<Family><url>rbxasset://fonts/families/ComicNeueAngular.json</url></Family>
@@ -622,7 +622,7 @@
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="UIPadding" referent="RBX2E44619FD09543B1877745D6E75411C9">
+				<Item class="UIPadding" referent="RBX080185DEA19D4210827A715530556811">
 					<Properties>
 						<UDim name="PaddingBottom">
 							<S>0.600000024</S>
@@ -648,7 +648,7 @@
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="UIStroke" referent="RBX671F8C9B4BA94ECCA95EAA25CAB4C33E">
+				<Item class="UIStroke" referent="RBX1F697037C1754A77AF25E6C5091F3025">
 					<Properties>
 						<token name="ApplyStrokeMode">0</token>
 						<UDim name="BorderOffset">
@@ -677,7 +677,7 @@
 				</Item>
 			</Item>
 		</Item>
-		<Item class="Frame" referent="RBX25B88C386DDB46E7BDB05ACFB85C5A8A">
+		<Item class="Frame" referent="RBXF242F09F62F34ED8BF7A72D3DF74892F">
 			<Properties>
 				<token name="Style">0</token>
 				<bool name="Active">false</bool>
@@ -701,7 +701,7 @@
 				<int name="BorderSizePixel">0</int>
 				<bool name="ClipsDescendants">false</bool>
 				<bool name="Draggable">false</bool>
-				<bool name="Interactable">false</bool>
+				<bool name="Interactable">true</bool>
 				<int name="LayoutOrder">0</int>
 				<Ref name="NextSelectionDown">null</Ref>
 				<Ref name="NextSelectionLeft">null</Ref>
@@ -740,7 +740,7 @@
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ImageButton" referent="RBX7A8CC4B46B664DA7B21C4E40F46AB1D2">
+			<Item class="ImageButton" referent="RBX7F9F00C19A824D5EBB13FFF2BA130AED">
 				<Properties>
 					<Content name="HoverImage"><null></null></Content>
 					<Content name="Image"><null></null></Content>
@@ -829,7 +829,7 @@
 					</UDim2>
 					<token name="SizeConstraint">0</token>
 					<bool name="Visible">true</bool>
-					<int name="ZIndex">1</int>
+					<int name="ZIndex">111</int>
 					<bool name="AutoLocalize">true</bool>
 					<Ref name="RootLocalizationTable">null</Ref>
 					<token name="SelectionBehaviorDown">0</token>
@@ -844,7 +844,7 @@
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="UIAspectRatioConstraint" referent="RBX6A3BF8DEF9A84880A20B76FBDB2AACC2">
+				<Item class="UIAspectRatioConstraint" referent="RBX24517A86BCF040818901BECF00AFC8E7">
 					<Properties>
 						<float name="AspectRatio">2.78571439</float>
 						<token name="AspectType">0</token>
@@ -857,7 +857,7 @@
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="UIStroke" referent="RBXA6D96B8EA3784780835EA7F164FD7689">
+				<Item class="UIStroke" referent="RBXD98397D0906C4A7A87C2DEAF95959835">
 					<Properties>
 						<token name="ApplyStrokeMode">0</token>
 						<UDim name="BorderOffset">
@@ -884,7 +884,7 @@
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="TextLabel" referent="RBX763DA411C099476D8ABD1341F8305052">
+				<Item class="TextLabel" referent="RBX63825F2662CD41E8B71E4B383C35BD0F">
 					<Properties>
 						<Font name="FontFace">
 							<Family><url>rbxasset://fonts/families/ComicNeueAngular.json</url></Family>
@@ -977,7 +977,7 @@
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="UIPadding" referent="RBXF69B93AE45DF428BA241D3CBD95F647E">
+					<Item class="UIPadding" referent="RBX4C29C24C7D80424A90AF9357DD409E0D">
 						<Properties>
 							<UDim name="PaddingBottom">
 								<S>0.200000003</S>
@@ -1005,7 +1005,7 @@
 					</Item>
 				</Item>
 			</Item>
-			<Item class="Frame" referent="RBX76F8725A1A394F3A9D9DDD607EF59E71">
+			<Item class="Frame" referent="RBX07BB6332C2C442C3817989D7CC5D4547">
 				<Properties>
 					<token name="Style">0</token>
 					<bool name="Active">false</bool>
@@ -1029,7 +1029,7 @@
 					<int name="BorderSizePixel">0</int>
 					<bool name="ClipsDescendants">false</bool>
 					<bool name="Draggable">false</bool>
-					<bool name="Interactable">false</bool>
+					<bool name="Interactable">true</bool>
 					<int name="LayoutOrder">0</int>
 					<Ref name="NextSelectionDown">null</Ref>
 					<Ref name="NextSelectionLeft">null</Ref>
@@ -1068,7 +1068,7 @@
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ImageButton" referent="RBX0BAA2715613D4B289753FC853BA48839">
+				<Item class="ImageButton" referent="RBXC80DCAE126654B2B8A9144070B12E76D">
 					<Properties>
 						<Content name="HoverImage"><null></null></Content>
 						<Content name="Image"><null></null></Content>
@@ -1172,7 +1172,7 @@
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="UIAspectRatioConstraint" referent="RBX39FF9A4297B0414DA59A9B8EA03B5F1E">
+					<Item class="UIAspectRatioConstraint" referent="RBXCA05BE8F2D34463BB57613D336873985">
 						<Properties>
 							<float name="AspectRatio">1</float>
 							<token name="AspectType">0</token>
@@ -1185,7 +1185,7 @@
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="UIStroke" referent="RBX5F41558BCDE04C5FBDD89C60EF0E47D9">
+					<Item class="UIStroke" referent="RBXD7748C4CF9D8468AA731CAE8966A408D">
 						<Properties>
 							<token name="ApplyStrokeMode">0</token>
 							<UDim name="BorderOffset">
@@ -1212,7 +1212,7 @@
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="TextLabel" referent="RBX05BAB692C9214D5380541FD9E653C4EB">
+					<Item class="TextLabel" referent="RBX6F117502FD6A44E98FF7588019408DCD">
 						<Properties>
 							<Font name="FontFace">
 								<Family><url>rbxasset://fonts/families/ComicNeueAngular.json</url></Family>
@@ -1305,7 +1305,7 @@
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
-						<Item class="UIPadding" referent="RBXDD89C59C291248929A6FED391322A75A">
+						<Item class="UIPadding" referent="RBX64CA09673E54462087920BC12C9D9004">
 							<Properties>
 								<UDim name="PaddingBottom">
 									<S>0.200000003</S>
@@ -1333,7 +1333,7 @@
 						</Item>
 					</Item>
 				</Item>
-				<Item class="ImageButton" referent="RBXCB24AF7A833E46E5AB2EBB8809DB81C6">
+				<Item class="ImageButton" referent="RBX950D2B33F8E34EC1B0F73DC412CEAE3D">
 					<Properties>
 						<Content name="HoverImage"><null></null></Content>
 						<Content name="Image"><null></null></Content>
@@ -1437,7 +1437,7 @@
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="UIAspectRatioConstraint" referent="RBXCA804511A8AC4B0B87C8BBAC85C0E636">
+					<Item class="UIAspectRatioConstraint" referent="RBXD2C6B9A65EEA4DBDBBB1ABC30A10574E">
 						<Properties>
 							<float name="AspectRatio">1</float>
 							<token name="AspectType">0</token>
@@ -1450,7 +1450,7 @@
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="UIStroke" referent="RBXB4A06FA5A17E4CCFA5D6665D599E4E25">
+					<Item class="UIStroke" referent="RBXDB59E5AB42144E619B51109695F8434A">
 						<Properties>
 							<token name="ApplyStrokeMode">0</token>
 							<UDim name="BorderOffset">
@@ -1477,7 +1477,7 @@
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="TextLabel" referent="RBX25BBF7D1FC8F49D9A3FE4652E8718AC6">
+					<Item class="TextLabel" referent="RBX4FA692F8ADC3493899E1780C5CB6672D">
 						<Properties>
 							<Font name="FontFace">
 								<Family><url>rbxasset://fonts/families/ComicNeueAngular.json</url></Family>
@@ -1570,7 +1570,7 @@
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
-						<Item class="UIPadding" referent="RBX8BC79700C3B94CAC9C8235AABBEFE2E9">
+						<Item class="UIPadding" referent="RBX6954E070963249208A97AA7E21EB1903">
 							<Properties>
 								<UDim name="PaddingBottom">
 									<S>0.200000003</S>
@@ -1598,7 +1598,7 @@
 						</Item>
 					</Item>
 				</Item>
-				<Item class="TextLabel" referent="RBX3CE07256DFA84A8CB85FCC2EB1B27827">
+				<Item class="TextLabel" referent="RBX1511A795C9254ECAB5DF46C8D490E182">
 					<Properties>
 						<Font name="FontFace">
 							<Family><url>rbxasset://fonts/families/ComicNeueAngular.json</url></Family>
@@ -1691,7 +1691,7 @@
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="UIStroke" referent="RBX28BB725038574AEF93210A76BE34A6AE">
+					<Item class="UIStroke" referent="RBXE1509007BB2845B282D6E81E785BF330">
 						<Properties>
 							<token name="ApplyStrokeMode">0</token>
 							<UDim name="BorderOffset">
@@ -1719,7 +1719,7 @@
 						</Properties>
 					</Item>
 				</Item>
-				<Item class="TextLabel" referent="RBXA43A18761D1F41E085BEEA2F90FF41C6">
+				<Item class="TextLabel" referent="RBXB95EB3173FC844689248B5C40D0C89A4">
 					<Properties>
 						<Font name="FontFace">
 							<Family><url>rbxasset://fonts/families/ComicNeueAngular.json</url></Family>
@@ -1812,7 +1812,7 @@
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="UIStroke" referent="RBXB788C33C95F44AD6B7E642A3D61B3681">
+					<Item class="UIStroke" referent="RBX44CB17FC6F64403292FF3B20183DF976">
 						<Properties>
 							<token name="ApplyStrokeMode">0</token>
 							<UDim name="BorderOffset">

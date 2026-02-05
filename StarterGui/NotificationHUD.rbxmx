@@ -1,0 +1,77 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+	<Meta name="ExplicitAutoJoints">true</Meta>
+	<External>null</External>
+	<External>nil</External>
+	<Item class="ScreenGui" referent="RBXB2A5633EEAC243F1BAED3AAC77913E92">
+		<Properties>
+			<bool name="ClipToDeviceSafeArea">true</bool>
+			<int name="DisplayOrder">10</int>
+			<token name="SafeAreaCompatibility">1</token>
+			<token name="ScreenInsets">1</token>
+			<bool name="Enabled">true</bool>
+			<bool name="ResetOnSpawn">false</bool>
+			<token name="ZIndexBehavior">1</token>
+			<bool name="AutoLocalize">true</bool>
+			<Ref name="RootLocalizationTable">null</Ref>
+			<token name="SelectionBehaviorDown">0</token>
+			<token name="SelectionBehaviorLeft">0</token>
+			<token name="SelectionBehaviorRight">0</token>
+			<token name="SelectionBehaviorUp">0</token>
+			<bool name="SelectionGroup">false</bool>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+			<bool name="DefinesCapabilities">false</bool>
+			<string name="Name">NotificationHUD</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+		</Properties>
+		<Item class="UIListLayout" referent="RBX837F42C8EBF24DE69E89232638AB8FCC">
+			<Properties>
+				<token name="HorizontalFlex">0</token>
+				<token name="ItemLineAlignment">0</token>
+				<UDim name="Padding">
+					<S>0</S>
+					<O>5</O>
+				</UDim>
+				<token name="VerticalFlex">0</token>
+				<bool name="Wraps">false</bool>
+				<token name="FillDirection">1</token>
+				<token name="HorizontalAlignment">0</token>
+				<token name="SortOrder">2</token>
+				<token name="VerticalAlignment">2</token>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">UIListLayout</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="UIPadding" referent="RBX7FB6EF35BE87462F81ED3E69A52B2692">
+			<Properties>
+				<UDim name="PaddingBottom">
+					<S>0.150000006</S>
+					<O>0</O>
+				</UDim>
+				<UDim name="PaddingLeft">
+					<S>0</S>
+					<O>0</O>
+				</UDim>
+				<UDim name="PaddingRight">
+					<S>0</S>
+					<O>0</O>
+				</UDim>
+				<UDim name="PaddingTop">
+					<S>0</S>
+					<O>0</O>
+				</UDim>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">UIPadding</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+	</Item>
+</roblox>

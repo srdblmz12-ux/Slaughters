@@ -11,11 +11,10 @@ local Modules = ServerStorage:WaitForChild("Modules")
 local ProfileStore = require(Modules:WaitForChild("ProfileStore"))
 local Promise = require(Packages:WaitForChild("Promise"))
 local Signal = require(Packages:WaitForChild("Signal"))
-local Charm = require(Packages:WaitForChild("Charm"))
-local Net = require(Packages:WaitForChild("Net")) -- [EKLENDİ]
+local Net = require(Packages:WaitForChild("Net"))
 
 -- Profile Template
-local Store = ProfileStore.New(RunService:IsStudio() and "Test" or "Live0", {
+local PROFILE_TEMPLATE = {
 	CurrencyData = {
 		Spent = 0,
 		Total = 0,
@@ -36,136 +35,48 @@ local Store = ProfileStore.New(RunService:IsStudio() and "Test" or "Live0", {
 		KillerSkin = "Wendigo",
 		KillerSkill = "",
 	},
-
 	MurdererSkill = "Default"
-})
+}
 
+local Store = ProfileStore.New(RunService:IsStudio() and "Test" or "Live0", PROFILE_TEMPLATE)
+
+-- Service Definition
 local DataService = {
-	Name = script.Name,
-	Client = {},
-
-	LoadedProfiles = {}, -- { [Player] = Profile }
-
+	Name = "DataService",
+	Client = {}, -- Framework buradaki fonksiyonları RemoteFunction'a çevirecek
+	LoadedProfiles = {},
 	Signals = {
-		ProfileLoaded = Signal.new(), -- (player, profile)
-		ProfileReleased = Signal.new() -- (player)
+		ProfileLoaded = Signal.new(),
+		ProfileReleased = Signal.new()
 	},
-
-	-- [EKLENDİ] Veri güncelleme kanalı
 	Network = {
-		DataUpdate = Net:RemoteEvent("DataUpdate")
+		-- İsimle erişebilmek için Key ataması yaptım
+		DataUpdate = Net:RemoteEvent("DataUpdate") 
 	}
 }
 
+--// Helper Functions (Local)
+
+-- "CurrencyData.Value" gibi string yollarını tablo referansına çevirir
+local function GetTablePath(root, path)
+	local parts = string.split(path, ".")
+	local current = root
+
+	for i = 1, #parts - 1 do
+		current = current[parts[i]]
+		if not current then return nil, nil end
+	end
+
+	return current, parts[#parts]
+end
+
 --// Client Functions
+
 function DataService.Client:GetData(player)
 	return DataService:GetData(player)
 end
 
 --// Server Functions
-
-function DataService:GetData(player)
-	local profile = self.LoadedProfiles[player]
-	if profile then
-		return profile.Data
-	end
-	return nil
-end
-
-function DataService:GetProfile(player)
-	return Promise.new(function(resolve, reject)
-		local profile = self.LoadedProfiles[player]
-		if profile then
-			resolve(profile)
-		else
-			reject("Profile not loaded for: " .. player.Name)
-		end
-	end)
-end
-
--- [YENİ] Para Ekleme Fonksiyonu
-function DataService:AddCurrency(player, amount)
-	local profile = self.LoadedProfiles[player]
-	if profile then
-		local currency = profile.Data.CurrencyData
-		if currency then
-			currency.Value = currency.Value + amount
-			currency.Total = currency.Total + amount
-
-			-- [EKLENDİ] Client'a haber ver
-			self.Network.DataUpdate:FireClient(player, "Currency", currency.Value)
-
-			print("[DataService] " .. player.Name .. " +" .. amount .. " Token kazandı! (Toplam: " .. currency.Value .. ")")
-		end
-	end
-end
-
--- [YENİ] XP Ekleme ve Level Atlama Fonksiyonu
-function DataService:AddXP(player, amount)
-	local profile = self.LoadedProfiles[player]
-	if profile then
-		local levelData = profile.Data.LevelData
-		if levelData then
-			levelData.ValueXP = levelData.ValueXP + amount
-
-			-- Level Atlaması (Döngü ile birden fazla level atlayabilir)
-			while levelData.ValueXP >= levelData.TargetXP do
-				levelData.ValueXP = levelData.ValueXP - levelData.TargetXP
-				levelData.Level = levelData.Level + 1
-				-- Her seviyede gereken XP'yi %20 artırıyoruz
-				levelData.TargetXP = math.floor(levelData.TargetXP * 1.2)
-				print("[DataService] " .. player.Name .. " Level Atladı! Yeni Level: " .. levelData.Level)
-			end
-
-			-- [EKLENDİ] Client'a haber ver (Level ve XP verisi)
-			self.Network.DataUpdate:FireClient(player, "Level", levelData)
-		end
-	end
-end
-
-function DataService:LoadProfile(player)
-	local profile = Store:StartSessionAsync("Player_" .. player.UserId)
-
-	if profile ~= nil then
-		profile:AddUserId(player.UserId) 
-		profile:Reconcile()
-
-		if player:IsDescendantOf(Players) then
-			self.LoadedProfiles[player] = profile
-
-			profile.OnSessionEnd:Connect(function()
-				self.LoadedProfiles[player] = nil
-				player:Kick("Profile released (Session loaded elsewhere).")
-			end)
-
-			self.Signals.ProfileLoaded:Fire(player, profile)
-			print("[DataService] Profil yüklendi: " .. player.Name)
-
-			-- [EKLENDİ] İlk girişte verileri gönder ki arayüz dolsun
-			task.delay(1, function()
-				if player.Parent then
-					self.Network.DataUpdate:FireClient(player, "Currency", profile.Data.CurrencyData.Value)
-					self.Network.DataUpdate:FireClient(player, "Level", profile.Data.LevelData)
-				end
-			end)
-
-		else
-			profile:Release()
-		end
-	else
-		player:Kick("Profile load failed. Please rejoin.")
-	end
-end
-
-function DataService:ReleaseProfile(player)
-	local profile = self.LoadedProfiles[player]
-	if profile then
-		profile:EndSession()
-		self.LoadedProfiles[player] = nil
-		self.Signals.ProfileReleased:Fire(player)
-		print("[DataService] Profil ayrıldı: " .. player.Name)
-	end
-end
 
 function DataService:OnStart()
 	Players.PlayerAdded:Connect(function(player)
@@ -180,6 +91,133 @@ function DataService:OnStart()
 		task.spawn(function()
 			self:LoadProfile(player)
 		end)
+	end
+end
+
+--[[
+	Yeni Eklenen Fonksiyon: SetValue
+	Belirli bir path'teki veriyi direkt değiştirir.
+	Örnek: DataService:SetValue(player, "CurrencyData.Value", 100)
+]]
+function DataService:SetValue(player, path, value)
+	local profile = self.LoadedProfiles[player]
+	if not profile then return end
+
+	local dataTable, key = GetTablePath(profile.Data, path)
+
+	if dataTable and key then
+		dataTable[key] = value
+		-- Client'a güncelleme bilgisini gönder
+		self.Network.DataUpdate:FireClient(player, path, value)
+	else
+		warn("[DataService] SetValue için geçersiz yol: " .. tostring(path))
+	end
+end
+
+--[[
+	Yeni Eklenen Fonksiyon: UpdateValue
+	Mevcut değerin üzerine işlem yapar. Sayı veya Fonksiyon alabilir.
+	Örnek: DataService:UpdateValue(player, "CurrencyData.Value", 50) -- 50 ekler
+]]
+function DataService:UpdateValue(player, path, callbackOrAmount)
+	local profile = self.LoadedProfiles[player]
+	if not profile then return end
+
+	local dataTable, key = GetTablePath(profile.Data, path)
+
+	if dataTable and key then
+		local oldValue = dataTable[key]
+		local newValue
+
+		if type(callbackOrAmount) == "number" and type(oldValue) == "number" then
+			newValue = oldValue + callbackOrAmount
+		elseif type(callbackOrAmount) == "function" then
+			newValue = callbackOrAmount(oldValue)
+		else
+			newValue = callbackOrAmount
+		end
+
+		dataTable[key] = newValue
+		-- Client'a güncelleme bilgisini gönder
+		self.Network.DataUpdate:FireClient(player, path, newValue)
+
+		return newValue
+	else
+		warn("[DataService] UpdateValue için geçersiz yol: " .. tostring(path))
+	end
+end
+
+function DataService:GetData(player)
+	-- 1. Durum: Profil zaten yüklü
+	local profile = self.LoadedProfiles[player]
+	if profile then
+		return profile.Data
+	end
+
+	-- 2. Durum: Profil yükleniyor (Race Condition Çözümü)
+	local maxRetries = 100 -- 10 saniye bekleme
+	local attempts = 0
+
+	while player:IsDescendantOf(Players) and attempts < maxRetries do
+		attempts += 1
+		profile = self.LoadedProfiles[player]
+		if profile then
+			return profile.Data
+		end
+		task.wait(0.1)
+	end
+
+	warn("[DataService] Data timeout or player left: " .. player.Name)
+	return nil
+end
+
+function DataService:GetProfile(player)
+	return Promise.new(function(resolve, reject)
+		local profile = self.LoadedProfiles[player]
+		if profile then
+			resolve(profile)
+		else
+			reject("Profile not loaded for: " .. player.Name)
+		end
+	end)
+end
+
+function DataService:LoadProfile(player)
+	local profile = Store:StartSessionAsync("Player_" .. player.UserId, {
+		Cancel = function()
+			return player.Parent ~= Players
+		end,
+	})
+
+	if profile ~= nil then
+		if player:IsDescendantOf(Players) then
+			profile:AddUserId(player.UserId)
+			profile:Reconcile() -- Eksik verileri template'ten tamamlar
+
+			profile.OnSessionEnd:Connect(function()
+				self.LoadedProfiles[player] = nil
+				player:Kick("Your profile session has ended. Please rejoin.") 
+			end)
+
+			self.LoadedProfiles[player] = profile
+
+			self.Signals.ProfileLoaded:Fire(player, profile)
+			print("[DataService] Profile loaded: " .. player.Name)
+		else
+			profile:EndSession()
+		end
+	else
+		player:Kick("Profile data could not be loaded. Please rejoin.")
+	end
+end
+
+function DataService:ReleaseProfile(player)
+	local profile = self.LoadedProfiles[player]
+	if profile then
+		profile:EndSession()
+		self.LoadedProfiles[player] = nil
+		self.Signals.ProfileReleased:Fire(player)
+		print("[DataService] Profile released: " .. player.Name)
 	end
 end
 

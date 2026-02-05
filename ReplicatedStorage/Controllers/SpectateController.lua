@@ -8,9 +8,7 @@ local Workspace = game:GetService("Workspace")
 local Packages = ReplicatedStorage:WaitForChild("Packages")
 local Trove = require(Packages:WaitForChild("Trove"))
 
--- [ÖNEMLİ] Server ile aynı Net kütüphanesini kullanmak için Loader'dan çekiyoruz
-local Loader = Packages:WaitForChild("Loader")
-local Net = require(Loader:WaitForChild("Net"))
+local Net = require(Packages:WaitForChild("Net"))
 
 -- References
 local LocalPlayer = Players.LocalPlayer
@@ -107,9 +105,6 @@ function SpectateController:StartSpectating(Container)
 
 	self:UpdateView(Container)
 
-	-- [KRİTİK] KAMERA DÖNGÜSÜ
-	-- RenderPriority.Camera.Value + 1 yaparak Roblox'un kamerasından SONRA çalışmasını sağlıyoruz.
-	-- Böylece Roblox kamerayı resetlese bile biz hemen ardından tekrar düzeltiyoruz.
 	RunService:BindToRenderStep("SpectateCam", Enum.RenderPriority.Camera.Value + 1, function()
 		if not self.IsSpectating then 
 			RunService:UnbindFromRenderStep("SpectateCam")
@@ -164,8 +159,6 @@ function SpectateController:PrevTarget(Container)
 	self:UpdateView(Container)
 end
 
--- SpectateController.lua içindeki OnStart fonksiyonunu bununla değiştir:
-
 function SpectateController:OnStart()
 	local HUD = PlayerGui:WaitForChild("GameStatusHUD")
 	local Container = HUD:WaitForChild("SpectateContainer")
@@ -174,6 +167,9 @@ function SpectateController:OnStart()
 
 	Container.Visible = false
 	Controllers.Visible = false
+
+	-- [YENİ] Oyun Durumunu Takip Etmek İçin Değişken
+	local CurrentGameStatus = "Intermission"
 
 	-- Butonlar
 	SpectateBtn.Activated:Connect(function()
@@ -194,6 +190,17 @@ function SpectateController:OnStart()
 
 	-- Görünürlük Kontrolü
 	local function CheckVisibility(isDeathEvent)
+		-- [ÖNEMLİ EKLEME] Eğer oyun aktif değilse (Intermission, Voting, Loading) butonu asla gösterme!
+		if CurrentGameStatus ~= "GameRunning" and CurrentGameStatus ~= "Warmup" then
+			Container.Visible = false
+
+			-- Eğer oyun bittiyse ve hala izliyorsak izlemeyi durdur
+			if self.IsSpectating then
+				self:StopSpectating(Container)
+			end
+			return
+		end
+
 		local char = LocalPlayer.Character
 		local hum = char and char:FindFirstChild("Humanoid")
 
@@ -206,7 +213,7 @@ function SpectateController:OnStart()
 		char = LocalPlayer.Character
 		hum = char and char:FindFirstChild("Humanoid")
 
-		-- 3. Karakter yoksa veya hala ölüyse -> GÖSTER
+		-- 3. Karakter yoksa veya hala ölüyse -> GÖSTER (Ama sadece oyun devam ediyorsa)
 		if not hum or hum.Health <= 0 then
 			Container.Visible = true
 			return
@@ -219,7 +226,7 @@ function SpectateController:OnStart()
 			end)
 
 			if success and myData and myData.Role == "Lobby" then
-				-- Lobideyiz (Elendik) -> GÖSTER
+				-- Lobideyiz (Elendik ve oyun hala devam ediyor) -> GÖSTER
 				Container.Visible = true
 			else
 				-- Oyundayız (Survivor/Killer) -> GİZLE
@@ -232,6 +239,14 @@ function SpectateController:OnStart()
 			end
 		end)
 	end
+
+	-- [YENİ] StateUpdate Listener: Oyun durumunu takip et
+	Net:Connect("StateUpdate", function(State, Data)
+		if State == "GameStatus" then
+			CurrentGameStatus = Data
+			CheckVisibility(false) -- Durum değiştiğinde görünürlüğü tekrar kontrol et
+		end
+	end)
 
 	-- Karakter Olayları
 	LocalPlayer.CharacterAdded:Connect(function(char)

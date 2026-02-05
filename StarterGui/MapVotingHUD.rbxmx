@@ -2,10 +2,10 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="ScreenGui" referent="RBX1F5412BD427B4440AF9D6B86528A2990">
+	<Item class="ScreenGui" referent="RBX3E614C13C69A45019C95939683F9F209">
 		<Properties>
 			<bool name="ClipToDeviceSafeArea">true</bool>
-			<int name="DisplayOrder">0</int>
+			<int name="DisplayOrder">100</int>
 			<token name="SafeAreaCompatibility">1</token>
 			<token name="ScreenInsets">1</token>
 			<bool name="Enabled">true</bool>
@@ -25,7 +25,7 @@
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 		</Properties>
-		<Item class="Frame" referent="RBX5784A556C54F4BC4B22922D7B9DBE09D">
+		<Item class="Frame" referent="RBX327126E8BC524BC3B37BC82FDC5A91CE">
 			<Properties>
 				<token name="Style">0</token>
 				<bool name="Active">false</bool>
@@ -88,7 +88,7 @@
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="Frame" referent="RBXAD23D4C39F6249D6A218920452A82D70">
+			<Item class="Frame" referent="RBX66C92CB9A07D4A52B74A08F2EDEDF9A3">
 				<Properties>
 					<token name="Style">0</token>
 					<bool name="Active">false</bool>
@@ -151,7 +151,7 @@
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="UIAspectRatioConstraint" referent="RBX21D6966FB703432AADC7E2E303C6DE01">
+				<Item class="UIAspectRatioConstraint" referent="RBX0F63A3A0B80E498BB20E586A56B51C7C">
 					<Properties>
 						<float name="AspectRatio">1.53619897</float>
 						<token name="AspectType">0</token>
@@ -164,7 +164,7 @@
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-				<Item class="Frame" referent="RBX8863584AC7A04A35AC6FC5EC59338FF4">
+				<Item class="Frame" referent="RBX1B33F364F48A4137A7326BD13CEAD711">
 					<Properties>
 						<token name="Style">0</token>
 						<bool name="Active">false</bool>
@@ -227,7 +227,7 @@
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="UIStroke" referent="RBXC26D3D4DC30240BD9A02A55276506A04">
+					<Item class="UIStroke" referent="RBXBE1B08ED2E6A4FAA81A274748A3F7F41">
 						<Properties>
 							<token name="ApplyStrokeMode">0</token>
 							<UDim name="BorderOffset">
@@ -254,7 +254,7 @@
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="TextLabel" referent="RBXE01F74FF230746EE9990EFB590E81B43">
+					<Item class="TextLabel" referent="RBX69082F9DFFC5478CB0ABF0CB2BB727DA">
 						<Properties>
 							<Font name="FontFace">
 								<Family><url>rbxasset://fonts/families/SourceSansPro.json</url></Family>
@@ -347,7 +347,7 @@
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
-						<Item class="UIPadding" referent="RBX11FF6B58710D4958B2FF66240ACD6FFD">
+						<Item class="UIPadding" referent="RBXDD3F2E8B21A643EDA13DB43FBC9834AE">
 							<Properties>
 								<UDim name="PaddingBottom">
 									<S>0.200000003</S>
@@ -375,7 +375,7 @@
 						</Item>
 					</Item>
 				</Item>
-				<Item class="Frame" referent="RBXDC83E9980EC14566899C311130CE6333">
+				<Item class="Frame" referent="RBX109C587A9FAD4507ADA952580A453099">
 					<Properties>
 						<token name="Style">0</token>
 						<bool name="Active">false</bool>
@@ -438,7 +438,7 @@
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="UIListLayout" referent="RBX8398CA6631FD407880C8C0449AF32D90">
+					<Item class="UIListLayout" referent="RBXFB81B9AE333240AB821F6BE6CC5806A0">
 						<Properties>
 							<token name="HorizontalFlex">1</token>
 							<token name="ItemLineAlignment">0</token>

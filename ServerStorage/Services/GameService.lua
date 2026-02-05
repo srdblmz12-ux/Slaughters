@@ -25,6 +25,7 @@ local Net = require(Packages:WaitForChild("Net"))
 local DataService = require(Services:WaitForChild("DataService")) 
 local PlayerService = require(Services:WaitForChild("PlayerService"))
 local MapService = require(Services:WaitForChild("MapService"))
+local RewardService = require(Services:WaitForChild("RewardService"))
 
 -- Constants
 local CONFIG = {
@@ -53,6 +54,7 @@ local GameService = {
 
 	-- Internal Game State
 	RunningPlayers = {}, -- { [Player] = "Killer" | "Survivor" }
+	RoundStartSnapshots = {},
 	_connections = {}, 
 	_gameLoopTask = nil,
 	_activeModeModule = nil,
@@ -284,6 +286,14 @@ function GameService:StartGame()
 	end
 
 	return Promise.all(promises):andThen(function()
+		
+		-- [YENİ EKLENEN KISIM] Tur Başı Snapshot Al (Token ve XP kaydet)
+		self.RoundStartSnapshots = {}
+		for _, player in ipairs(activePlayers) do
+			self.RoundStartSnapshots[player] = self:_getPlayerDataSnapshot(player)
+		end
+		-- [EKLEME BİTTİ]
+
 		local mapData = MapService:LoadMap(mapModule)
 		if not mapData then error("Harita Yüklenemedi") end
 
@@ -328,7 +338,7 @@ function GameService:StartGame()
 
 		self.GameStatus("GameRunning")
 
-		-- [DÜZELTME BURADA] Warmup sırasında çıkan oyuncular olabilir, listeyi tazeliyoruz
+		-- Warmup sırasında çıkan oyuncular olabilir, listeyi tazeliyoruz
 		local currentPlayersForSpawn = {}
 		for uid, role in pairs(self.RunningPlayers) do
 			local p = Players:GetPlayerByUserId(tonumber(uid))
@@ -477,72 +487,157 @@ function GameService:_startTimeLoop()
 end
 
 ---
+function GameService:_getPlayerDataSnapshot(player)
+	local data = DataService:GetData(player)
+	if data then
+		return {
+			Token = data.CurrencyData.Value,
+			XP = data.LevelData.ValueXP,
+			Level = data.LevelData.Level,
+			TargetXP = data.LevelData.TargetXP
+		}
+	end
+	return {Token = 0, XP = 0, Level = 1, TargetXP = 100}
+end
+
+-- // YARDIMCI: İki snapshot arasındaki kazancı hesapla
+function GameService:_calculateEarnings(startData, endData)
+	if not startData or not endData then return {Token = 0, XP = 0} end
+
+	local earnedToken = math.max(0, endData.Token - startData.Token)
+
+	local earnedXP = 0
+	if endData.Level == startData.Level then
+		earnedXP = math.max(0, endData.XP - startData.XP)
+	else
+		-- Level atladıysa basit bir hesaplama (Level farkı * HedefXP + Kalan XP)
+		local levelDiff = endData.Level - startData.Level
+		earnedXP = (levelDiff * startData.TargetXP) + (endData.XP - startData.XP) 
+	end
+
+	return {
+		Token = earnedToken,
+		XP = math.max(0, earnedXP)
+	}
+end
 
 -- =============================================================================
 --  END GAME LOGIC
 -- =============================================================================
 
 function GameService:EndGame(winningTeam, Executable)
-	if self._gameLoopTask then 
-		task.cancel(self._gameLoopTask) 
-		self._gameLoopTask = nil 
-	end
-
-	for _, conn in ipairs(self._connections) do 
-		conn:Disconnect() 
-	end
+	if self._gameLoopTask then task.cancel(self._gameLoopTask) self._gameLoopTask = nil end
+	for _, conn in ipairs(self._connections) do conn:Disconnect() end
 	self._connections = {}
 	
+	-- 1. Kazananları Belirle ve Bonusları Dağıt (Veritabanına işle)
 	for userIdStr, role in pairs(self.RunningPlayers) do
 		local player = Players:GetPlayerByUserId(tonumber(userIdStr))
-
 		if player then
 			if winningTeam == "Killer" and role == "Killer" then
-				-- Katil Kazandı
-				DataService:AddXP(player, 100)
-				print("Ödül: " .. player.Name .. " (Katil) +100 XP kazandı.")
-
+				RewardService:AddXP(player, 100)
+				RewardService:AddCurrency(player, 50)
 			elseif winningTeam == "Survivors" and role == "Survivor" then
-				-- Survivorlar Kazandı (Sadece yaşayanlar RunningPlayers'da kalır)
-				DataService:AddXP(player, 25)
-				print("Ödül: " .. player.Name .. " (Survivor) +25 XP kazandı.")
+				RewardService:AddXP(player, 25)
+				RewardService:AddCurrency(player, 25)
+			else
+				-- Kaybedenlere teselli
+				RewardService:AddXP(player, 10)
+				RewardService:AddCurrency(player, 5)
 			end
 		end
 	end
 
+	-- 2. Sonuç Paketini Hazırla (GENEL VERİ)
+	local resultsPayload = {
+		Winner = winningTeam,
+		KillerName = "None",
+		KillerId = 0,
+		KillerSkin = "Wendigo", -- [YENİ] Varsayılan kostüm
+		Survivors = {}, 
+	}
+
+	-- Katil Bilgisi ve Kostümü
+	for userIdStr, role in pairs(self.RunningPlayers) do
+		if role == "Killer" then
+			local killerPlayer = Players:GetPlayerByUserId(tonumber(userIdStr))
+			if killerPlayer then
+				resultsPayload.KillerName = killerPlayer.Name
+				resultsPayload.KillerId = killerPlayer.UserId
+
+				-- [YENİ] Katilin profiline bakıp kostümünü alıyoruz
+				local profile = DataService.LoadedProfiles[killerPlayer]
+				if profile and profile.Data.Equippeds.KillerSkin then
+					resultsPayload.KillerSkin = profile.Data.Equippeds.KillerSkin
+				end
+			else
+				resultsPayload.KillerName = "Disconnected"
+			end
+			break 
+		end
+	end
+
+	-- [DÜZELTME] DÖNGÜ A: Önce Survivor Listesini TAMAMEN Doldur
+	-- Bu döngü sadece listeyi hazırlar, kimseye bir şey göndermez.
+	for _, player in ipairs(Players:GetPlayers()) do
+		local uid = tostring(player.UserId)
+		local role = self.RunningPlayers[uid]
+		local isDead = (role == nil) -- Listede yoksa ölmüştür
+
+		-- Eğer katil değilse listeye ekle
+		if uid ~= tostring(resultsPayload.KillerId) then
+			table.insert(resultsPayload.Survivors, {
+				Name = player.Name,
+				UserId = player.UserId,
+				IsDead = isDead
+			})
+		end
+	end
+
+	-- [DÜZELTME] DÖNGÜ B: Herkesin Kazancını Hesapla ve Gönder
+	-- Artık 'resultsPayload.Survivors' tamamen dolu olduğu için herkes tam listeyi alacak.
+	for _, player in ipairs(Players:GetPlayers()) do
+		-- Snapshot Hesaplaması
+		local startData = self.RoundStartSnapshots[player]
+		local endData = self:_getPlayerDataSnapshot(player)
+		local earned = self:_calculateEarnings(startData, endData)
+
+		-- Paketi Kopyala ve Kişisel Ödülü Ekle
+		local personalizedData = table.clone(resultsPayload)
+		personalizedData.MyRewards = earned
+		
+		self.Network.Results:FireClient(player, personalizedData)
+	end
+
+	-- Durum Güncellemeleri
 	self.TimeLeft(0)
 	self.Network.StateUpdate:FireAllClients("TimeLeft", 0)
 
-	if winningTeam == "Killer" then
-		self.GameStatus("MurdererWin")
-	elseif winningTeam == "Survivors" then
-		self.GameStatus("SurvivorsWin")
-	else
-		self.GameStatus("Intermission")
-	end
+	if winningTeam == "Killer" then self.GameStatus("MurdererWin")
+	elseif winningTeam == "Survivors" then self.GameStatus("SurvivorsWin")
+	else self.GameStatus("Intermission") end
 
-	self.Network.Results:FireAllClients(winningTeam)
 	self.Network.GameEnded:FireAllClients()
 	self.Signals.GameEnded:Fire()
 
-	-- Reset States
-	self.GameStatus("Intermission") 
-	self.Gamemode("Waiting")
-	self._activeModeModule = nil
-	self.RunningPlayers = {} 
-	self.Votes({})
-	self.CurrentOptions({})
-	self.NextMapOverride(nil)
-	self.SurvivorCount(0)
+	-- Reset
+	task.delay(10, function()
+		self.GameStatus("Intermission") 
+		self.Gamemode("Waiting")
+		self._activeModeModule = nil
+		self.RunningPlayers = {} 
+		self.RoundStartSnapshots = {}
+		self.Votes({})
+		self.CurrentOptions({})
+		self.NextMapOverride(nil)
+		self.SurvivorCount(0)
 
-	MapService:Cleanup()
-	PlayerService:DespawnAll() 
+		MapService:Cleanup()
+		PlayerService:DespawnAll() 
 
-	if Executable then 
-		task.spawn(Executable) 
-	end
+		if Executable then task.spawn(Executable) end
+	end)
 end
-
 ---
 
 -- =============================================================================
@@ -565,7 +660,6 @@ function GameService:OnStart()
 		self.Network.VoteUpdate:FireAllClients(self:_calculateVoteCounts()) 
 	end)
 
-	-- Oyuncu Çıkış Kontrolü (Rage-quit handling)
 	-- Oyuncu Çıkış Kontrolü (Rage-quit handling)
 	Players.PlayerRemoving:Connect(function(player)
 		local userIdStr = tostring(player.UserId) -- Anahtarı oluştur
@@ -628,8 +722,10 @@ function GameService:OnStart()
 				-- Oyunun bitmesini bekle
 				self.Signals.GameEnded:Wait()
 			end
-
-			task.wait(3)
+			
+			task.wait(5)
+			MapService:Cleanup()
+			task.wait(5)
 		end
 	end)
 end
