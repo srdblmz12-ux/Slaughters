@@ -1,0 +1,2518 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+	<Meta name="ExplicitAutoJoints">true</Meta>
+	<External>null</External>
+	<External>nil</External>
+	<Item class="Folder" referent="RBX06C39BC2B8284A36A0F91758409D1953">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+			<bool name="DefinesCapabilities">false</bool>
+			<string name="Name">Controllers</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+		</Properties>
+		<Item class="ModuleScript" referent="RBXA7AC7A5EF73141EC8A2C656732483BDC">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Common = ReplicatedStorage:WaitForChild("Common")
+
+local Interface = Common:WaitForChild("Interface")
+local SkillAssets = Interface:WaitForChild("SkillAssets")
+local SurvivorSkills = Common:WaitForChild("SurvivorSkills")
+local MurdererSkills = Common:WaitForChild("MurdererSkills")
+
+local FormatKit = require(Packages:WaitForChild("FormatKit"))
+local TimerKit = require(Packages:WaitForChild("TimerKit"))
+local Trove = require(Packages:WaitForChild("Trove"))
+local spr = require(Packages:WaitForChild("spr"))
+local Net = require(Packages:WaitForChild("Net"))
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Mouse = LocalPlayer:GetMouse()
+
+-- Cihaz Kontrolleri
+local IS_MOBILE = UserInputService.TouchEnabled
+local function IsGamepad()
+	return UserInputService:GetGamepadConnected(Enum.UserInputType.Gamepad1)
+end
+
+-- Klavye Varsayılanları
+local DEFAULT_BINDS = {
+	[1] = Enum.KeyCode.E,
+	[2] = Enum.KeyCode.Q,
+	[3] = Enum.KeyCode.R,
+	[4] = Enum.KeyCode.F,
+}
+
+-- Kontrolcü Varsayılanları
+local GAMEPAD_BINDS = {
+	[1] = Enum.KeyCode.ButtonX,
+	[2] = Enum.KeyCode.ButtonY,
+	[3] = Enum.KeyCode.ButtonR1, -- RB
+	[4] = Enum.KeyCode.ButtonL1, -- LB
+}
+
+-- Kontrolcü Tuş İsimleri
+local GAMEPAD_DISPLAY_NAMES = {
+	[Enum.KeyCode.ButtonX] = "X",
+	[Enum.KeyCode.ButtonY] = "Y",
+	[Enum.KeyCode.ButtonA] = "A",
+	[Enum.KeyCode.ButtonB] = "B",
+	[Enum.KeyCode.ButtonR1] = "RB",
+	[Enum.KeyCode.ButtonL1] = "LB",
+	[Enum.KeyCode.ButtonR2] = "RT",
+	[Enum.KeyCode.ButtonL2] = "LT",
+}
+
+local SkillController = {
+	Name = script.Name,
+	UITrove = Trove.new(),
+	Items = {}, 
+}
+
+--// Tuş İsmini Platforma Göre Getir
+local function GetKeyDisplayName(inputEnum)
+	if GAMEPAD_DISPLAY_NAMES[inputEnum] then
+		return GAMEPAD_DISPLAY_NAMES[inputEnum]
+	end
+
+	if inputEnum == Enum.UserInputType.MouseButton1 then
+		return IS_MOBILE and "TAP" or "M1"
+	elseif inputEnum == Enum.UserInputType.MouseButton2 then
+		return "M2"
+	end
+
+	return inputEnum.Name:gsub("Button", "")
+end
+
+function SkillController:GetSkillModule(skillName)
+	return SurvivorSkills:FindFirstChild(skillName) or MurdererSkills:FindFirstChild(skillName)
+end
+
+function SkillController:Activate(data)
+	local now = workspace:GetServerTimeNow()
+	if data.FinishTime and now < data.FinishTime then return end
+
+	-- Oyuncu ölü ise yetenek kullanmayı engelle
+	local char = LocalPlayer.Character
+	if not char or not char:FindFirstChild("Humanoid") or char.Humanoid.Health <= 0 then
+		return
+	end
+
+	Net:RemoteEvent("ActivateSkill"):FireServer(data.SkillName, Mouse.Hit)
+
+	local moduleScript = self:GetSkillModule(data.SkillName) :: ModuleScript?
+	if moduleScript then
+		local skillModule = require(moduleScript)
+		if skillModule.Activate then
+			skillModule:Activate(self.UITrove) 
+		end
+	end
+end
+
+-- [YENİ] UI Temizleme Fonksiyonu
+function SkillController:CleanInterface()
+	self.UITrove:Clean()
+	self.Items = {}
+
+	local SkillHUD = PlayerGui:FindFirstChild("SkillHUD")
+	if SkillHUD then
+		local SkillPopup = SkillHUD:FindFirstChild("SkillPopup")
+		if SkillPopup then
+			local CardsPage = SkillPopup:FindFirstChild("Cards")
+			if CardsPage then CardsPage.Visible = false end
+		end
+	end
+end
+
+function SkillController:OnStart()
+	local SkillHUD = PlayerGui:WaitForChild("SkillHUD")
+	local UsageContainer = SkillHUD:WaitForChild("UsageContainer")
+	local SkillPopup = SkillHUD:WaitForChild("SkillPopup")
+	local CardsPage = SkillPopup:WaitForChild("Cards")
+	local CardsContainer = CardsPage:WaitForChild("Container")
+
+	-- Karakter öldüğünde arayüzü temizle
+	local function MonitorCharacter(char)
+		local hum = char:WaitForChild("Humanoid", 10)
+		if hum then
+			hum.Died:Connect(function()
+				self:CleanInterface()
+			end)
+		end
+	end
+
+	if LocalPlayer.Character then MonitorCharacter(LocalPlayer.Character) end
+	LocalPlayer.CharacterAdded:Connect(MonitorCharacter)
+
+	Net:Connect("GameEnded", function()
+		self:CleanInterface()
+	end)
+
+	Net:Connect("SkillOptionsOffered", function(Options, ServerTime)
+		self:CleanInterface() -- Yeni teklif gelince eskileri temizle
+
+		local NewTimer = TimerKit.NewTimer(ServerTime)
+		NewTimer:Start()
+
+		self.UITrove:Connect(NewTimer.OnTick, function(_, RemainingTime : number)
+			CardsPage.Timer.Description.Text = `Select a skill. ({math.floor(RemainingTime)}s)`
+		end)
+		self.UITrove:Add(NewTimer)
+
+		CardsPage.Visible = true
+		for _,SkillData in ipairs(Options) do
+			local SkillCard = SkillAssets.SkillCard:Clone()
+			SkillCard.Parent = CardsContainer
+			SkillCard.Icon.Image = SkillData.Image
+			SkillCard.Title.Text = SkillData.Name
+			SkillCard.Description.Text = SkillData.Description
+
+			self.UITrove:Add(SkillCard)
+			self.UITrove:Connect(SkillCard.Activated, function()
+				Net:RemoteEvent("SelectSkill"):FireServer(SkillData.Name)
+				CardsPage.Visible = false
+			end)
+		end
+	end)
+
+	Net:Connect("SkillAssigned", function(SkillName: string, Cooldown: number, Keybind: EnumItem?)
+		CardsPage.Visible = false
+
+		local assignedKey = Keybind
+		if not assignedKey then
+			local count = 0
+			for _ in pairs(self.Items) do count += 1 end
+			local nextIndex = count + 1
+
+			if IsGamepad() then
+				assignedKey = GAMEPAD_BINDS[nextIndex] or Enum.KeyCode.ButtonX
+			else
+				assignedKey = DEFAULT_BINDS[nextIndex] or Enum.KeyCode.E
+			end
+		end
+
+		local Data = {
+			SkillName = SkillName,
+			Cooldown = Cooldown, 
+			InputEnum = assignedKey,
+			FinishTime = 0,
+			Item = SkillAssets.SkillButton:Clone()
+		}
+
+		Data.Item.SkillName.Text = SkillName
+		Data.Item.Keycode.Text = GetKeyDisplayName(assignedKey)
+		Data.Item.Fade.Size = UDim2.fromScale(0, 1) 
+		Data.Item.Parent = UsageContainer
+
+		if IS_MOBILE and not IsGamepad() then
+			Data.Item.Keycode.Visible = false
+			Data.Item.SkillName.UIPadding.PaddingLeft = Data.Item.SkillName.UIPadding.PaddingRight
+		end
+
+		self.UITrove:Add(Data.Item)
+		self.UITrove:Connect(Data.Item.Activated, function()
+			self:Activate(Data)
+		end)
+
+		self.Items[assignedKey] = Data
+
+		local moduleScript = self:GetSkillModule(SkillName) :: ModuleScript?
+		if moduleScript then
+			local skillModule = require(moduleScript)
+			if skillModule.OnStart then
+				skillModule:OnStart(self.UITrove) 
+			end
+		end
+	end)
+
+	Net:Connect("CooldownUpdate", function(SkillName: string)
+		for _, data in pairs(self.Items) do
+			if data.SkillName == SkillName then
+				data.FinishTime = workspace:GetServerTimeNow() + data.Cooldown
+				data.Item.Fade.Size = UDim2.fromScale(1, 1)
+
+				local Tween = TweenService:Create(data.Item.Fade, TweenInfo.new(data.Cooldown, Enum.EasingStyle.Linear), {
+					Size = UDim2.fromScale(0, 1)
+				})
+				Tween:Play()
+				Tween.Completed:Once(function()
+					Tween:Destroy()
+				end)
+				break
+			end
+		end
+	end)
+
+	UserInputService.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed then return end
+
+		local data = self.Items[input.KeyCode]
+		if not data then
+			if IS_MOBILE and input.UserInputType == Enum.UserInputType.Touch then
+				data = self.Items[Enum.UserInputType.MouseButton1]
+			else
+				data = self.Items[input.UserInputType]
+			end
+		end
+
+		if data then
+			self:Activate(data)
+		end
+	end)
+end
+
+return SkillController]]></ProtectedString>
+				<string name="ScriptGuid">{BCAD2D96-4866-4681-8F23-5062D4C52D32}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">SkillController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX7969677355424C6C8DEE23046BC44339">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+
+local LightingImporter = require(Packages:WaitForChild("LightingImporter")) -- İsmi kontrol et: 'LighingImporter' yazmışsın, 'LightingImporter' olabilir.
+local Net = require(Packages:WaitForChild("Net"))
+
+local LightingAssets = Shared:WaitForChild("LightingAssets")
+local DefaultLighting = require(LightingAssets:WaitForChild("DefaultLighting"))
+local FallbackLighting = require(LightingAssets:WaitForChild("FallbackLighing"))
+
+-- Module
+local LightingController = {
+	Name = script.Name
+}
+
+--// Lighting Verisini İşle ve Uygula
+function LightingController:ApplyLighting(lightingData)
+	if not lightingData then
+		LightingImporter.ImportJSON(FallbackLighting, true)
+		return
+	end
+
+	LightingImporter.ImportJSON(lightingData, true)
+end
+
+function LightingController:OnStart()
+	-- 1. GameService'den gelen özel Lighting yükleme isteği
+	Net:Connect("LoadLighting", function(lightingData)
+		self:ApplyLighting(lightingData)
+	end)
+
+	-- 2. MapService'den gelen harita yüklenme sinyali (Burada da lighting verisi var)
+	Net:Connect("MapLoaded", function(mapName, lightingData)
+		self:ApplyLighting(lightingData)
+	end)
+
+	-- Opsiyonel: Oyun bittiğinde veya harita silindiğinde varsayılan lighting'e dönmek istersen:
+	Net:Connect("MapUnloaded", function()
+		LightingImporter.ImportJSON(DefaultLighting, true)
+	end)
+end
+
+return LightingController]]></ProtectedString>
+				<string name="ScriptGuid">{5a4af3a0-7334-4ff4-a311-88e698ab57c2}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">LightingController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBXE5BC00582C9D4968803AFDA6B402382A">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Common = ReplicatedStorage:WaitForChild("Common")
+local Interface = Common:WaitForChild("Interface")
+
+local MapVotingAssets = Interface:WaitForChild("MapVotingAssets")
+
+local FormatKit = require(Packages:WaitForChild("FormatKit"))
+local TimerKit = require(Packages:WaitForChild("TimerKit"))
+local Trove = require(Packages:WaitForChild("Trove"))
+local Net = require(Packages:WaitForChild("Net"))
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer.PlayerGui
+
+-- Module
+local VotingController = {
+	Name = script.Name,
+	UITrove = Trove.new(),
+	Items = {},
+}
+
+function VotingController:OnStart()
+	local VotingHUD = PlayerGui:WaitForChild("MapVotingHUD")
+	local MapPopup = VotingHUD:WaitForChild("MapPopup")
+	local CardsPage = MapPopup:WaitForChild("Cards")
+
+	--// UI Temizleme ve Sıfırlama Fonksiyonu
+	local function CleanUI()
+		-- 1. UI'ı gizle
+		CardsPage.Visible = false 
+
+		-- 2. Timer yazısını sıfırla (Görsel temizlik)
+		CardsPage.Timer.Description.Text = "Waiting for server..."
+
+		-- 3. Tabloyu sıfırla
+		self.Items = {} 
+
+		-- 4. Trove'u güvenli temizle
+		local success, err = pcall(function()
+			self.UITrove:Clean()
+		end)
+
+		if not success then
+			warn("VotingController: Trove temizlenirken hata oluştu:", err)
+		end
+	end
+
+	-- Oyun bittiğinde veya Warmup başladığında ekranı temizle
+	Net:Connect("GameEnded", CleanUI)
+	Net:Connect("WarmupStarted", CleanUI)
+
+	Net:Connect("VoteOptions", function(Options, ServerTime)
+		-- Her durumda önce temizlik yap
+		CleanUI() 
+
+		-- [KRİTİK GÜNCELLEME] 
+		-- GameService'den gelen "Force Clear" (Boş tablo veya 0 süre) sinyalini yakala.
+		-- Eğer süre yoksa veya seçenek yoksa, işlemi burada bitir. Ekran açılmaz.
+		if not Options or #Options == 0 or (ServerTime and ServerTime <= 0) then
+			return 
+		end
+
+		-- Eğer geçerli bir oylama verisi varsa devam et:
+		CardsPage.Visible = true
+
+		-- Timer Oluştur
+		local NewTimer = TimerKit.NewTimer(ServerTime)
+		NewTimer:Start()
+
+		-- Timer'ı Trove'a güvenli ekle
+		self.UITrove:Add(function()
+			pcall(function()
+				NewTimer:Destroy()
+			end)
+		end)
+
+		self.UITrove:Connect(NewTimer.OnTick, function(_, Remaining)
+			local timeLeft = math.max(0, math.floor(Remaining))
+			CardsPage.Timer.Description.Text = `Vote a map! {timeLeft}s later voting ends`
+		end)
+
+		-- Kartları Oluştur
+		for _, Details in ipairs(Options) do
+			local NewCard = MapVotingAssets:WaitForChild("VoteCard"):Clone()
+			NewCard.Parent = CardsPage.Container
+			NewCard.Title.Text = Details.Name
+			NewCard.Icon.Image = Details.Image
+			NewCard.Description.Text = Details.Description
+
+			-- Başlangıç oyu 0
+			NewCard.VoteCount.Text = "0 Vote"
+
+			self.Items[Details.Id] = NewCard
+			self.UITrove:Add(NewCard)
+
+			self.UITrove:Connect(NewCard.Activated, function()
+				Net:RemoteEvent("CastVote"):FireServer(Details.Id)
+
+				-- Basit Client-Side Görsel Geri Bildirim
+				for _, OtherCard in pairs(self.Items) do
+					if OtherCard:FindFirstChild("UIStroke") then
+						OtherCard.UIStroke.Color = Color3.fromRGB(255, 80, 80) -- Kırmızı (Seçilmeyen)
+						OtherCard.UIStroke.Transparency = 0.8
+					end
+				end
+
+				if NewCard:FindFirstChild("UIStroke") then
+					NewCard.UIStroke.Color = Color3.fromRGB(80, 255, 80) -- Yeşil (Seçilen)
+					NewCard.UIStroke.Transparency = 0
+				end
+			end)
+		end
+	end)
+
+	Net:Connect("VoteUpdate", function(VoteCounts)
+		if not CardsPage.Visible then return end -- Ekran kapalıysa işlem yapma
+
+		for MapId, Count in pairs(VoteCounts) do
+			local Item = self.Items[MapId]
+			if (Item) then
+				Item.VoteCount.Text = `{FormatKit.FormatComma(Count)} Vote`
+			end
+		end
+	end)
+end
+
+return VotingController]]></ProtectedString>
+				<string name="ScriptGuid">{9d46ad25-1862-4dbc-b13a-0fb8dd6c5d78}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">VotingController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBXB5AF58B034924518A16CA5DF3CA61883">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+
+local FormatKit = require(Packages:WaitForChild("FormatKit"))
+local TimerKit = require(Packages:WaitForChild("TimerKit"))
+local Net = require(Packages:WaitForChild("Net"))
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer.PlayerGui
+
+-- Module
+local GameController = {
+	Name = script.Name,
+	_lastStateChange = 0,
+	_isParticipating = false,
+	_currentStatus = "Intermission",
+	_isSpectating = false
+}
+
+local GameStateName = {
+	["Intermission"] = "Waiting for players...",
+	["OnVoting"] = "Voting for map...",
+	["Loading"] = "Loading map...",
+	["Warmup"] = "Selecting skills...",
+	["GameRunning"] = "Killer spawned, run!",
+	["MurdererWin"] = "No survivor is left...",
+	["SurvivorsWin"] = "Survivors won!"
+}
+
+-- HUD Görünürlüğünü Kontrol Eden Fonksiyon
+function GameController:UpdateInterfaceVisibility()
+	-- NOT: LevelHUD ve IngameHUD senin "Lobby" ekranların varsayılıyor.
+	-- Eğer oyun içi can barı vs. varsa onları buraya dahil etme!
+	local LevelHUD = PlayerGui:FindFirstChild("LevelHUD")
+	local IngameHUD = PlayerGui:FindFirstChild("IngameHUD") 
+	local PopupHUD = PlayerGui:FindFirstChild("PopupHUD")
+
+	-- Kural 1: Oyun aktifse (Warmup veya Running) ve katılımcıysa gizle.
+	local isGameActive = (self._currentStatus == "Warmup" or self._currentStatus == "GameRunning")
+	local isActiveParticipant = (isGameActive and self._isParticipating)
+
+	-- Kural 2: Oylama sırasındaysa gizle.
+	local isVoting = (self._currentStatus == "OnVoting")
+
+	-- Kural 3: İzleyici modundaysa gizle.
+	local isSpectating = self._isSpectating
+
+	-- Oylama VEYA (Oyun Aktif VE Oynuyor) VEYA İzliyor -> Menüleri Gizle
+	local shouldHideMenus = isVoting or isActiveParticipant or isSpectating
+
+	if LevelHUD then 
+		LevelHUD.Enabled = not shouldHideMenus 
+	end
+
+	if IngameHUD then 
+		IngameHUD.Enabled = not shouldHideMenus 
+	end
+	
+	if (PopupHUD) then
+		PopupHUD.Enabled = not shouldHideMenus
+	end
+end
+
+function GameController:SetSpectating(state: boolean)
+	self._isSpectating = state
+	self:UpdateInterfaceVisibility()
+end
+
+function GameController:OnStart()
+	local GameStatusHUD = PlayerGui:WaitForChild("GameStatusHUD")
+	local StatusContainer = GameStatusHUD:WaitForChild("StatusContainer")
+
+	local Timer = TimerKit.NewTimer(1)
+	Timer.OnTick:Connect(function(_, Remaining : number)
+		local displayTime = math.max(0, Remaining)
+		-- FormatKit yoksa hata vermesin diye pcall veya basit format
+		if FormatKit then
+			StatusContainer.Timer.Text = FormatKit.FormatTime(displayTime, "m:ss")
+		else
+			StatusContainer.Timer.Text = tostring(math.floor(displayTime))
+		end
+	end)
+
+	-- Karakter öldüğünde arayüzü geri getirmek için dinleyici
+	local function MonitorCharacter(char)
+		local hum = char:WaitForChild("Humanoid", 10)
+		if hum then
+			hum.Died:Connect(function()
+				-- Öldüğünde katılımcı statüsünden çık
+				self._isParticipating = false
+				self:UpdateInterfaceVisibility()
+			end)
+		end
+	end
+
+	if LocalPlayer.Character then MonitorCharacter(LocalPlayer.Character) end
+	LocalPlayer.CharacterAdded:Connect(MonitorCharacter)
+
+	-- STATE UPDATE (Genel Durum)
+	Net:Connect("StateUpdate", function(State : string, Data)
+		if (State == "GameStatus") then
+			self._currentStatus = Data -- Durumu güncelle
+			self:UpdateInterfaceVisibility() -- Arayüzü güncelle
+
+			local OldText = StatusContainer.GameState.Text
+			local NewText = GameStateName[Data] or Data
+
+			StatusContainer.GameState.Text = NewText
+
+			if (NewText ~= OldText) then
+				self._lastStateChange = tick()
+				local currentChange = self._lastStateChange
+
+				StatusContainer.GameState.Visible = true
+
+				task.delay(5, function() -- 10 saniye çok uzun, 5 kafi
+					if (self._lastStateChange == currentChange) then
+						StatusContainer.GameState.Visible = false
+					end
+				end)
+			end
+
+			-- Oylamada üst barı gizle (Oylama ekranı zaten kapatacak)
+			StatusContainer.Visible = (Data ~= "OnVoting")
+
+		elseif (State == "TimeLeft") then
+			Timer:Stop()
+			if (Data and Data > 0) then
+				Timer:AdjustDuration(Data)
+				Timer:Start()
+			else
+				StatusContainer.Timer.Text = "0:00"
+			end
+
+		elseif (State == "SurvivorCount") then
+			StatusContainer.Remaining.Text = `{Data} Survivor Left`
+		end
+	end)
+
+	-- WARMUP STARTED
+	Net:Connect("WarmupStarted", function(Mode, Roles, Time)
+		-- [DÜZELTME] Status update gecikirse diye manuel set ediyoruz
+		self._currentStatus = "Warmup" 
+
+		Timer:Stop()
+		Timer:AdjustDuration(Time)
+		Timer:Start()
+
+		local myUserId = tostring(LocalPlayer.UserId)
+		if Roles[myUserId] then
+			self._isParticipating = true
+		else
+			self._isParticipating = false
+		end
+
+		self:UpdateInterfaceVisibility()
+	end)
+
+	-- GAME STARTED
+	Net:Connect("GameStarted", function(Time)
+		-- [DÜZELTME] Status update gecikirse diye manuel set ediyoruz
+		self._currentStatus = "GameRunning"
+
+		Timer:Stop()
+		Timer:AdjustDuration(Time)
+		Timer:Start()
+
+		self:UpdateInterfaceVisibility()
+	end)
+
+	-- VOTE OPTIONS
+	Net:Connect("VoteOptions", function(_, Time)
+		self._currentStatus = "OnVoting" -- Güvenlik için
+		self:UpdateInterfaceVisibility()
+
+		Timer:Stop()
+		Timer:AdjustDuration(Time)
+		Timer:Start()
+	end)
+
+	-- GAME ENDED
+	Net:Connect("GameEnded", function()
+		self._isParticipating = false
+		self._currentStatus = "Intermission"
+		self._isSpectating = false -- Spectate'i de sıfırla
+
+		self:UpdateInterfaceVisibility()
+	end)
+end
+
+return GameController]]></ProtectedString>
+				<string name="ScriptGuid">{1A26CE48-55FD-4AAC-999F-CDCBCAB66912}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">GameController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX0577445CB4FD4C8A9C9910D9DD04942C">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Controllers = ReplicatedStorage:WaitForChild("Controllers") -- [EKLENDİ]
+
+local Trove = require(Packages:WaitForChild("Trove"))
+local Net = require(Packages:WaitForChild("Net"))
+
+-- [EKLENDİ] GameController'ı dahil ediyoruz
+local GameController = require(Controllers:WaitForChild("GameController"))
+
+-- References
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Camera = Workspace.CurrentCamera
+
+-- Controller
+local SpectateController = {
+	Name = script.Name,
+	IsSpectating = false,
+	CurrentTargetIndex = 1,
+	ValidTargets = {},
+	Trove = Trove.new(),
+}
+
+--// YARDIMCI FONKSİYONLAR
+
+-- Canlı oyuncuları bul
+function SpectateController:GetValidTargets()
+	local targets = {}
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player == LocalPlayer then continue end
+
+		-- Karakteri, Humanoid'i ve HumanoidRootPart'ı var mı? Canlı mı?
+		local char = player.Character
+		if char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") and char.Humanoid.Health > 0 then
+			table.insert(targets, player)
+		end
+	end
+	return targets
+end
+
+-- Arayüz ve Kamerayı Güncelle
+function SpectateController:UpdateView(Container)
+	-- Listeyi tazele
+	self.ValidTargets = self:GetValidTargets()
+
+	-- Kimse kalmadıysa kapat
+	if #self.ValidTargets == 0 then
+		self:StopSpectating(Container)
+		return
+	end
+
+	-- Index sınırlarını düzelt
+	if self.CurrentTargetIndex > #self.ValidTargets then self.CurrentTargetIndex = 1 end
+	if self.CurrentTargetIndex < 1 then self.CurrentTargetIndex = #self.ValidTargets end
+
+	local targetPlayer = self.ValidTargets[self.CurrentTargetIndex]
+	local ControllersUI = Container.Controllers -- İsim çakışmasını önlemek için değişken adını değiştirdim
+
+	-- 1. UI Bilgilerini Güncelle
+	ControllersUI.Username.Text = targetPlayer.DisplayName .. " (@" .. targetPlayer.Name .. ")"
+	ControllersUI.Role.Text = "Loading..."
+
+	-- 2. Rol Bilgisini Çek (Server'dan)
+	task.spawn(function()
+		-- Hata olursa patlamasın diye pcall veya güvenli çağrı yapıyoruz
+		local success, data = pcall(function() 
+			return Net:Invoke("GameService/GetPlayerData", targetPlayer.Name) 
+		end)
+
+		if success and data and self.IsSpectating and self.ValidTargets[self.CurrentTargetIndex] == targetPlayer then
+			ControllersUI.Role.Text = data.Role or "Unknown"
+
+			-- Rol Rengi
+			if data.Role == "Killer" then
+				ControllersUI.Role.TextColor3 = Color3.fromRGB(255, 50, 50)
+			elseif data.Role == "Survivor" then
+				ControllersUI.Role.TextColor3 = Color3.fromRGB(50, 255, 50)
+			else
+				ControllersUI.Role.TextColor3 = Color3.fromRGB(255, 255, 255)
+			end
+		end
+	end)
+end
+
+-- Spectate Başlat
+function SpectateController:StartSpectating(Container)
+	if self.IsSpectating then return end
+
+	self.ValidTargets = self:GetValidTargets()
+
+	if #self.ValidTargets == 0 then
+		-- Kimse yoksa başlamadan dön
+		return 
+	end
+
+	self.IsSpectating = true
+
+	-- [YENİ] GameController'a izlemeye başladığımızı bildiriyoruz (HUD'ları gizleyecek)
+	GameController:SetSpectating(true)
+
+	self.CurrentTargetIndex = 1
+
+	-- UI Düzenlemesi
+	Container.SpectateButton.Title.Text = "Lobby"
+	Container.Controllers.Visible = true
+
+	self:UpdateView(Container)
+
+	RunService:BindToRenderStep("SpectateCam", Enum.RenderPriority.Camera.Value + 1, function()
+		if not self.IsSpectating then 
+			RunService:UnbindFromRenderStep("SpectateCam")
+			return 
+		end
+
+		local targetPlayer = self.ValidTargets[self.CurrentTargetIndex]
+
+		-- Hedef Geçersizse (Öldü/Çıktı) -> Değiştir
+		if not targetPlayer or not targetPlayer.Parent or 
+			not targetPlayer.Character or 
+			not targetPlayer.Character:FindFirstChild("Humanoid") or 
+			targetPlayer.Character.Humanoid.Health <= 0 then
+
+			self:NextTarget(Container)
+			return
+		end
+
+		-- Kamerayı Hedefe Kilitle
+		local hum = targetPlayer.Character:FindFirstChild("Humanoid")
+		if hum then
+			Camera.CameraType = Enum.CameraType.Custom
+			Camera.CameraSubject = hum
+		end
+	end)
+end
+
+-- Spectate Bitir
+function SpectateController:StopSpectating(Container)
+	self.IsSpectating = false
+
+	-- [YENİ] GameController'a izlemenin bittiğini bildiriyoruz (HUD'ları geri açacak - eğer ölüysek)
+	GameController:SetSpectating(false)
+
+	RunService:UnbindFromRenderStep("SpectateCam") -- Kamera döngüsünü durdur
+
+	-- Kamerayı kendine döndür
+	task.wait(0.1) -- Ufak bir gecikme ile çakışmayı önle
+	if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+		Camera.CameraType = Enum.CameraType.Custom
+		Camera.CameraSubject = LocalPlayer.Character.Humanoid
+	end
+
+	-- UI Eski haline
+	Container.SpectateButton.Title.Text = "Spectate"
+	Container.Controllers.Visible = false
+end
+
+function SpectateController:NextTarget(Container)
+	self.CurrentTargetIndex = self.CurrentTargetIndex + 1
+	self:UpdateView(Container)
+end
+
+function SpectateController:PrevTarget(Container)
+	self.CurrentTargetIndex = self.CurrentTargetIndex - 1
+	self:UpdateView(Container)
+end
+
+function SpectateController:OnStart()
+	local HUD = PlayerGui:WaitForChild("GameStatusHUD")
+	local Container = HUD:WaitForChild("SpectateContainer")
+	local SpectateBtn = Container:WaitForChild("SpectateButton")
+	local ControllersUI = Container:WaitForChild("Controllers")
+
+	Container.Visible = false
+	ControllersUI.Visible = false
+
+	-- [YENİ] Oyun Durumunu Takip Etmek İçin Değişken
+	local CurrentGameStatus = "Intermission"
+
+	-- Butonlar
+	SpectateBtn.Activated:Connect(function()
+		if self.IsSpectating then
+			self:StopSpectating(Container)
+		else
+			self:StartSpectating(Container)
+		end
+	end)
+
+	ControllersUI.LeftButton.Activated:Connect(function()
+		self:PrevTarget(Container)
+	end)
+
+	ControllersUI.RightButton.Activated:Connect(function()
+		self:NextTarget(Container)
+	end)
+
+	-- Görünürlük Kontrolü
+	local function CheckVisibility(isDeathEvent)
+		-- [ÖNEMLİ EKLEME] Eğer oyun aktif değilse (Intermission, Voting, Loading) butonu asla gösterme!
+		if CurrentGameStatus ~= "GameRunning" and CurrentGameStatus ~= "Warmup" then
+			Container.Visible = false
+
+			-- Eğer oyun bittiyse ve hala izliyorsak izlemeyi durdur
+			if self.IsSpectating then
+				self:StopSpectating(Container)
+			end
+			return
+		end
+
+		local char = LocalPlayer.Character
+		local hum = char and char:FindFirstChild("Humanoid")
+
+		-- 1. Eğer ölüm olayından geldiysek, bekleme süresi koy (Ölüm animasyonu ve farkındalık için)
+		if isDeathEvent then
+			task.wait(3.5) -- 3.5 Saniye bekle (Oyuncu öldüğünü anlasın)
+		end
+
+		-- 2. Tekrar kontrol et (Belki bu sürede respawn oldu?)
+		char = LocalPlayer.Character
+		hum = char and char:FindFirstChild("Humanoid")
+
+		-- 3. Karakter yoksa veya hala ölüyse -> GÖSTER (Ama sadece oyun devam ediyorsa)
+		if not hum or hum.Health <= 0 then
+			Container.Visible = true
+			return
+		end
+
+		-- 4. Yaşıyorsak Rol Kontrolü Yap (Lobi mi, Oyun mu?)
+		task.spawn(function()
+			local success, myData = pcall(function()
+				return Net:Invoke("GameService/GetPlayerData", LocalPlayer.Name)
+			end)
+
+			if success and myData and myData.Role == "Lobby" then
+				-- Lobideyiz (Elendik ve oyun hala devam ediyor) -> GÖSTER
+				Container.Visible = true
+			else
+				-- Oyundayız (Survivor/Killer) -> GİZLE
+				Container.Visible = false
+
+				-- Eğer yanlışlıkla spectate açıksa kapat
+				if self.IsSpectating then
+					self:StopSpectating(Container)
+				end
+			end
+		end)
+	end
+
+	-- [YENİ] StateUpdate Listener: Oyun durumunu takip et
+	Net:Connect("StateUpdate", function(State, Data)
+		if State == "GameStatus" then
+			CurrentGameStatus = Data
+			CheckVisibility(false) -- Durum değiştiğinde görünürlüğü tekrar kontrol et
+		end
+	end)
+
+	-- Karakter Olayları
+	LocalPlayer.CharacterAdded:Connect(function(char)
+		CheckVisibility(false) -- Normal spawn, bekleme yok
+
+		local hum = char:WaitForChild("Humanoid", 10)
+		if hum then
+			hum.Died:Connect(function()
+				CheckVisibility(true) -- Ölüm gerçekleşti, bekleme süresi uygula
+			end)
+		end
+	end)
+
+	-- İlk Giriş Kontrolü
+	if LocalPlayer.Character then
+		CheckVisibility(false)
+		local hum = LocalPlayer.Character:FindFirstChild("Humanoid")
+		if hum then
+			hum.Died:Connect(function()
+				CheckVisibility(true)
+			end)
+		end
+	else
+		CheckVisibility(false)
+	end
+end
+
+return SpectateController]]></ProtectedString>
+				<string name="ScriptGuid">{DBB9F989-1EE4-4679-8F4F-104B83683C90}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">SpectateController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX3DDFE36F96744D88A86FDC46567A1B0C">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local MarketplaceService = game:GetService("MarketplaceService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+
+local FormatKit = require(Packages:WaitForChild("FormatKit")) 
+local spr = require(Packages:WaitForChild("spr"))
+local Net = require(Packages:WaitForChild("Net"))
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local IngameController = {
+	Name = script.Name,
+	LocalData = nil, -- [YENİ] Yerel Veri Önbelleği (Cache)
+}
+
+--// UI UPDATE FUNCTIONS
+
+function IngameController:UpdateCurrency()
+	if not self.LocalData or not self.LocalData.CurrencyData then return end
+
+	local amount = self.LocalData.CurrencyData.Value or 0
+	local IngameHUD = PlayerGui:WaitForChild("IngameHUD", 5)
+
+	if IngameHUD then
+		local Sidebar = IngameHUD:WaitForChild("SidebarContainer")
+		local ShopFrame = Sidebar:WaitForChild("Shop")
+		local TokenLabel = ShopFrame:WaitForChild("TokenValue")
+
+		-- spr efekti eklenebilir (Token artınca yazı büyüyüp küçülür)
+		TokenLabel.Text = "Tokens: " .. FormatKit.FormatComma(amount)
+	end
+end
+
+function IngameController:UpdateChance(amount)
+	local IngameHUD = PlayerGui:WaitForChild("IngameHUD", 5)
+	if IngameHUD then
+		local Sidebar = IngameHUD:WaitForChild("SidebarContainer")
+		local LuckFrame = Sidebar:WaitForChild("LuckRatio")
+		local LuckLabel = LuckFrame:FindFirstChild("LuckRatio") or LuckFrame:FindFirstChild("Title")
+
+		if LuckLabel then
+			LuckLabel.Text = "Chance to be killer: " .. tostring(amount) .. "%"
+		end
+	end
+end
+
+function IngameController:UpdateLevel()
+	if not self.LocalData or not self.LocalData.LevelData then return end
+
+	local levelData = self.LocalData.LevelData
+	local LevelHUD = PlayerGui:WaitForChild("LevelHUD", 5)
+
+	if LevelHUD then
+		local Container = LevelHUD:WaitForChild("LevelContainer")
+		local ValueCont = Container:WaitForChild("ValueContainer")
+		local LevelBar = Container:WaitForChild("LevelBar")
+
+		ValueCont.Level.Text = "Level " .. tostring(levelData.Level)
+		ValueCont.CurrentXP.Text = string.format("%d/%d", levelData.ValueXP, levelData.TargetXP)
+
+		local fillBar = LevelBar:FindFirstChild("FillBar")
+		if fillBar then
+			local percent = math.clamp(levelData.ValueXP / levelData.TargetXP, 0, 1)
+			-- spr ile yumuşak geçiş
+			spr.target(fillBar, 0.8, 2, {Size = UDim2.fromScale(percent, 1)})
+		end
+	end
+end
+
+--// DATA HANDLING
+
+function IngameController:RefreshAllData()
+	-- 1. Tüm Veriyi Çek ve Cache'e Yaz
+	local Data = Net:Invoke("DataService/GetData") -- DataService.Client:GetData tetiklenir
+	if Data then
+		self.LocalData = Data
+
+		-- UI'ları Cache'den güncelle
+		self:UpdateCurrency()
+		self:UpdateLevel()
+	end
+
+	-- 2. Şans Verisini Çek
+	local success, chance = pcall(function()
+		return Net:Invoke("PlayerService/GetChance")
+	end)
+	if success and chance then
+		self:UpdateChance(chance)
+	end
+end
+
+function IngameController:OnStart()
+	-- UI Referansları
+	local IngameHUD = PlayerGui:WaitForChild("IngameHUD", 5)
+	if IngameHUD then
+		local Sidebar = IngameHUD:WaitForChild("SidebarContainer")
+		local LuckFrame = Sidebar:WaitForChild("LuckRatio")
+
+		-- Ürün Satın Alma
+		local promptBtn = LuckFrame:FindFirstChild("ProductPrompt")
+		if promptBtn then
+			promptBtn.Activated:Connect(function()
+				MarketplaceService:PromptProductPurchase(LocalPlayer, 3530798250)
+			end)
+		end
+	end
+
+	-- [GÜNCELLENMİŞ NETWORK] DataUpdate Sinyali
+	-- Sunucudan gelen: (Path, NewValue) -> Örn: ("CurrencyData.Value", 150)
+	Net:Connect("DataUpdate", function(Path, NewValue)
+		if not self.LocalData then return end
+
+		-- 1. Yerel Datayı Güncelle (Cache Update)
+		-- Gelen Path'i parçalayıp yerel tabloyu güncelliyoruz
+		if Path == "CurrencyData.Value" then
+			self.LocalData.CurrencyData.Value = NewValue
+			self:UpdateCurrency()
+
+		elseif Path == "LevelData.ValueXP" then
+			self.LocalData.LevelData.ValueXP = NewValue
+			self:UpdateLevel()
+
+		elseif Path == "LevelData.Level" then
+			self.LocalData.LevelData.Level = NewValue
+			self:UpdateLevel()
+
+		elseif Path == "LevelData.TargetXP" then
+			self.LocalData.LevelData.TargetXP = NewValue
+			self:UpdateLevel()
+		end
+	end)
+
+	Net:Connect("ChanceUpdate", function(NewChance)
+		self:UpdateChance(NewChance)
+	end)
+
+	-- İlk Yükleme
+	self:RefreshAllData()
+
+	-- Karakter Respawn Olduğunda UI'ı Yenile
+	LocalPlayer.CharacterAdded:Connect(function()
+		task.wait(0.5)
+		self:RefreshAllData()
+	end)
+end
+
+return IngameController]]></ProtectedString>
+				<string name="ScriptGuid">{5A2A36DC-1A8F-4971-B369-F94BF05D708C}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">IngameUIController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX1C732751FD824B1B903D4430DE1783E3">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Controllers
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Common = ReplicatedStorage:WaitForChild("Common")
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Interface = Common:WaitForChild("Interface")
+local UIShopAssets = Interface:WaitForChild("ShopAssets")
+local ShopAssets = Shared:WaitForChild("ShopAssets")
+
+local FormatKit = require(Packages:WaitForChild("FormatKit"))
+local Net = require(Packages:WaitForChild("Net"))
+local NotificationController = require(ReplicatedStorage.Controllers.NotificationController)
+
+-- Product Verileri (Görseldeki ID ve Miktarlar)
+local ROBUX_PRODUCTS = {
+	{Id = 3530798246, Amount = 15000},
+	{Id = 3530798247, Amount = 3500},
+	{Id = 3530798248, Amount = 1500},
+	{Id = 3530798249, Amount = 500},
+}
+
+local ShopController = {
+	Name = "ShopController",
+	Pages = {},
+	Buttons = {},
+	CardCache = {}, 
+	CachedData = nil
+}
+
+--// Helper: Kamera Ayarlama (Portre Modu)
+local function SetupViewportCamera(viewportFrame, model)
+	local camera = Instance.new("Camera")
+	camera.Parent = viewportFrame
+	viewportFrame.CurrentCamera = camera
+
+	local head = model:FindFirstChild("Head")
+	local root = model:FindFirstChild("HumanoidRootPart") or model.PrimaryPart or model:FindFirstChild("Torso")
+
+	if head and root then
+		local headPos = head.Position
+		local targetPos = headPos - Vector3.new(0, 0.5, 0) 
+		local camPos = headPos + (root.CFrame.LookVector * 7) + Vector3.new(0, 0.5, 0)
+
+		camera.CFrame = CFrame.lookAt(camPos, targetPos)
+		camera.FieldOfView = 35 
+	else
+		local cf, size = model:GetBoundingBox()
+		camera.CFrame = CFrame.lookAt(cf.Position + (cf.LookVector * 9), cf.Position)
+		camera.FieldOfView = 40
+	end
+end
+
+--// Bakiye Yetersizse En Yakın Ürünü Öner
+function ShopController:PromptBestProduct(itemPrice)
+	local currentMoney = (self.CachedData and self.CachedData.CurrencyData and self.CachedData.CurrencyData.Value) or 0
+	local deficit = itemPrice - currentMoney
+
+	if deficit <= 0 then return end
+
+	-- Küçükten büyüğe sırala
+	table.sort(ROBUX_PRODUCTS, function(a, b) return a.Amount < b.Amount end)
+
+	local bestProduct = nil
+	for _, product in ipairs(ROBUX_PRODUCTS) do
+		if product.Amount >= deficit then
+			bestProduct = product
+			break
+		end
+	end
+
+	-- Eksik miktar en büyük paketten fazlaysa en büyüğü çıkar
+	if not bestProduct then
+		bestProduct = ROBUX_PRODUCTS[#ROBUX_PRODUCTS]
+	end
+
+	if bestProduct then
+		MarketplaceService:PromptProductPurchase(Players.LocalPlayer, bestProduct.Id)
+	end
+end
+
+function ShopController:UpdateCardState(card, details)
+	local currentData = self.CachedData
+	if not currentData then return end
+
+	local isOwned = false
+	local catName = details.DataCategory or details.Category
+
+	if currentData[catName] and currentData[catName][details.Id] then
+		isOwned = true
+	end
+
+	local isEquipped = false
+	if isOwned and details.EquipSlot and currentData.Equippeds then
+		if currentData.Equippeds[details.EquipSlot] == details.Id then
+			isEquipped = true
+		end
+	end
+
+	local price = details.Price or 0
+
+	if isOwned then
+		card.LayoutOrder = price
+		if isEquipped then
+			card.PurchaseButton.Title.Text = "Unequip"
+			card.PurchaseButton.UIStroke.Color = Color3.fromRGB(255, 170, 0)
+		else
+			card.PurchaseButton.Title.Text = "Equip"
+			card.PurchaseButton.UIStroke.Color = Color3.fromRGB(255, 255, 255)
+		end
+		card.BackgroundColor3 = isEquipped and Color3.fromRGB(45, 45, 45) or Color3.fromRGB(35, 35, 35)
+	else
+		card.LayoutOrder = 100000000 + price
+		card.PurchaseButton.Title.Text = `Buy for {FormatKit.FormatComma(details.Price)}T$`
+		card.PurchaseButton.UIStroke.Color = Color3.fromRGB(0, 255, 100)
+		card.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+	end
+
+	return isOwned, isEquipped
+end
+
+function ShopController:RefreshAllVisuals()
+	if not self.CachedData then return end
+	for categoryName, cardsMap in pairs(self.CardCache) do
+		for card, details in pairs(cardsMap) do
+			self:UpdateCardState(card, details)
+		end
+	end
+end
+
+function ShopController:CreatePage(CategoryName, Enabled, Children)
+	local CategoryButton = UIShopAssets.Category:Clone()
+	local Page = UIShopAssets.Page:Clone()
+
+	CategoryButton.Title.Text = CategoryName
+	CategoryButton.Name = CategoryName
+	Page.Name = CategoryName
+	Page.Visible = Enabled
+	CategoryButton.UIStroke.Color = Enabled and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+
+	local layout = Page:FindFirstChildOfClass("UIGridLayout") or Page:FindFirstChildOfClass("UIListLayout")
+	if layout then
+		layout.SortOrder = Enum.SortOrder.LayoutOrder
+	end
+
+	self.Buttons[CategoryName] = CategoryButton
+	self.Pages[CategoryName] = Page
+	self.CardCache[CategoryName] = {}
+
+	CategoryButton.Activated:Connect(function()
+		for name, btn in pairs(self.Buttons) do
+			btn.UIStroke.Color = (name == CategoryName) and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+		end
+		for name, pg in pairs(self.Pages) do
+			pg.Visible = (name == CategoryName)
+		end
+	end)
+
+	for itemName, Details in pairs(Children or {}) do
+		local NewCard = UIShopAssets.Card:Clone()
+		NewCard.Parent = Page
+		NewCard.Name = Details.Id
+		NewCard.Title.Text = Details.Name
+		NewCard.PurchaseButton.ZIndex = 10 
+		NewCard.PurchaseButton.Active = true
+
+		local Viewport = NewCard:WaitForChild("Render")
+		local ModelTemplate = Details.Model or Details.Character
+		if ModelTemplate then
+			local NewModel = ModelTemplate:Clone()
+			NewModel.Parent = Viewport.WorldModel
+			SetupViewportCamera(Viewport, NewModel)
+		end
+
+		self.CardCache[CategoryName][NewCard] = Details
+		self:UpdateCardState(NewCard, Details)
+
+		NewCard.PurchaseButton.Activated:Connect(function()
+			local catData = self.CachedData[Details.DataCategory]
+			local isOwned = (catData and catData[Details.Id])
+
+			if isOwned then
+				local state, response = Net:Invoke("ShopService/EquipItem", Details.Id)
+				NotificationController.Signals.SendNotification:Fire(response, state and 2 or 3)
+
+				if state then
+					self.CachedData = Net:Invoke("DataService/GetData")
+					self:RefreshAllVisuals()
+				end
+			else
+				local state, response = Net:Invoke("ShopService/Purchase", Details.Id)
+
+				if not state then
+					-- SERVER HATASI KONTROLÜ
+					if response == "Not enough Token!" then
+						NotificationController.Signals.SendNotification:Fire("Insufficient Tokens! The most suitable package is being opened...", 3)
+						self:PromptBestProduct(Details.Price)
+					else
+						NotificationController.Signals.SendNotification:Fire(response, 3)
+					end
+				else
+					NotificationController.Signals.SendNotification:Fire(response, 2)
+					self.CachedData = Net:Invoke("DataService/GetData")
+					self:RefreshAllVisuals() 
+				end
+			end
+		end)
+	end
+
+	return CategoryButton, Page
+end
+
+function ShopController:OnStart()
+	local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+	local IngameHUD = PlayerGui:WaitForChild("IngameHUD")
+	local ShopContainer = IngameHUD:WaitForChild("ShopContainer")
+	local SidebarContainer = IngameHUD:WaitForChild("SidebarContainer")
+
+	ShopContainer.Interactable = true
+	self.CachedData = Net:Invoke("DataService/GetData")
+
+	local DataEvents = Net:RemoteEvent("DataUpdate")
+	DataEvents.OnClientEvent:Connect(function()
+		self.CachedData = Net:Invoke("DataService/GetData")
+		self:RefreshAllVisuals()
+	end)
+
+	local function FindItemModuleInAssets(assetName)
+		for _, child in ipairs(ShopAssets:GetDescendants()) do
+			if child.Name == assetName and child:IsA("ModuleScript") then
+				return child
+			end
+		end
+		return nil
+	end
+
+	local firstCategory = true
+	for _, CategoryFolder in ipairs(ShopAssets:GetChildren()) do
+		local Cards = {}
+
+		for _, Item in ipairs(CategoryFolder:GetChildren()) do
+			if Item:IsA("ModuleScript") then
+				local success, itemData = pcall(require, Item)
+				if success then
+					itemData.Id = Item.Name
+					itemData.DataCategory = itemData.DataCategory or CategoryFolder.Name
+					itemData.Model = itemData.Model or itemData.Character 
+					itemData.Price = itemData.Price or 0
+					Cards[Item.Name] = itemData
+				end
+			end
+		end
+
+		if self.CachedData and self.CachedData[CategoryFolder.Name] then
+			for ownedItemId, _ in pairs(self.CachedData[CategoryFolder.Name]) do
+				if not Cards[ownedItemId] then
+					local foundModule = FindItemModuleInAssets(ownedItemId)
+					if foundModule then
+						local success, itemData = pcall(require, foundModule)
+						if success then
+							itemData.Id = foundModule.Name
+							itemData.DataCategory = CategoryFolder.Name 
+							itemData.Model = itemData.Model or itemData.Character
+							itemData.Price = itemData.Price or 0
+							Cards[ownedItemId] = itemData
+						end
+					end
+				end
+			end
+		end
+
+		local btn, pg = self:CreatePage(CategoryFolder.Name, firstCategory, Cards)
+		btn.Parent = ShopContainer.Categories
+		pg.Parent = ShopContainer.Pages
+		firstCategory = false
+	end
+
+	SidebarContainer.Shop.ShopButton.Activated:Connect(function()
+		ShopContainer.Visible = not ShopContainer.Visible
+		if ShopContainer.Visible then
+			self.CachedData = Net:Invoke("DataService/GetData")
+			self:RefreshAllVisuals() 
+		end
+	end)
+end
+
+return ShopController]]></ProtectedString>
+				<string name="ScriptGuid">{B0E493AF-1079-4A2A-9623-FDD97C0954ED}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">ShopController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX08E82713AB5D4048998385C1BAA952F1">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Common = ReplicatedStorage:WaitForChild("Common")
+
+local Signal = require(Packages:WaitForChild("Signal"))
+local Net = require(Packages:WaitForChild("Net"))
+
+local Interface = Common:WaitForChild("Interface")
+local NotificationAssets = Interface:WaitForChild("NotificationAssets") -- Doğru klasör yolu
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer.PlayerGui
+
+-- Module
+local NotificationController = {
+	Name = script.Name,
+	Signals = {
+		SendNotification = Signal.new()
+	}
+}
+
+function NotificationController:CreateNotification(Text : string, Lifetime : number)
+	if (typeof(Text) ~= "string") then return end
+	if (typeof(Lifetime) ~= "number") then return end
+
+	local NewNotification = NotificationAssets.Notification:Clone()
+	NewNotification.Text = Text
+	NewNotification.Visible = true -- Görünür olduğundan emin olalım
+
+	task.delay(Lifetime or 5, function()
+		if NewNotification and NewNotification.Parent then
+			NewNotification:Destroy()
+		end
+	end)
+
+	return NewNotification
+end
+
+function NotificationController:OnStart()
+	-- UI'ın yüklendiğinden emin ol
+	local NotificationHUD = PlayerGui:WaitForChild("NotificationHUD")
+
+	local function AddNotification(Text : string, Lifetime : number)
+		local Notification = self:CreateNotification(Text, Lifetime)
+		if (not Notification) then return end
+
+
+		Notification.Parent = NotificationHUD
+	end
+
+	-- Hem Client içi sinyali hem de Sunucu sinyalini dinle
+	self.Signals.SendNotification:Connect(AddNotification)
+
+	-- Sunucudan gelen bildirimi dinle (Attack.lua buraya yolluyor)
+	Net:Connect("SendNotification", function(Text, Lifetime)
+		AddNotification(Text, Lifetime)
+	end)
+end
+
+return NotificationController]]></ProtectedString>
+				<string name="ScriptGuid">{E3D93184-34DE-42E2-8D98-DD9C3476504B}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">NotificationController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX989EF7E07A4B4B44B0FAFD3825E550FB">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Common = ReplicatedStorage:WaitForChild("Common")
+local Shared = ReplicatedStorage:WaitForChild("Shared") -- [YENİ] Shared klasörü
+local Interface = Common:WaitForChild("Interface")
+local ResultAssets = Interface:WaitForChild("ResultAssets")
+
+-- Characters Folder (Katil modelleri burada)
+local CharactersFolder = Shared:WaitForChild("Characters")
+
+local Net = require(Packages:WaitForChild("Net"))
+local Trove = require(Packages:WaitForChild("Trove"))
+local spr = require(Packages:WaitForChild("spr"))
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local ResultsController = {
+	Name = script.Name,
+	UITrove = Trove.new(),
+}
+
+--// YARDIMCI: UIScale Kontrolü
+local function EnsureUIScale(container)
+	if not container then return nil end
+	local scale = container:FindFirstChild("UIScale")
+	if not scale then
+		scale = Instance.new("UIScale")
+		scale.Name = "UIScale"
+		scale.Parent = container
+	end
+	return scale
+end
+
+--// Katil Modelini Yükleme (Custom Model - Wendigo vb.)
+function ResultsController:LoadKillerModel(skinName, viewportFrame)
+	-- WorldModel kontrolü
+	local worldModel = viewportFrame:FindFirstChild("WorldModel")
+	if not worldModel then
+		worldModel = Instance.new("WorldModel")
+		worldModel.Name = "WorldModel"
+		worldModel.Parent = viewportFrame
+	else
+		worldModel:ClearAllChildren()
+	end
+
+	-- Kamera Hazırlığı
+	local camera = viewportFrame:FindFirstChildOfClass("Camera")
+	if not camera then
+		camera = Instance.new("Camera")
+		camera.Parent = viewportFrame
+	end
+	viewportFrame.CurrentCamera = camera
+
+	-- Modeli Bul ve Kopyala
+	local sourceModel = CharactersFolder:FindFirstChild(skinName or "Wendigo")
+	if not sourceModel then
+		warn("ResultsController: Model bulunamadı ->", skinName)
+		return 
+	end
+
+	local model = sourceModel:Clone()
+	model.Parent = worldModel
+
+	-- Modeli Konumlandır (Pivot noktasına göre 0,0,0'a al)
+	local cf = CFrame.new(0, 0, 0)
+	model:PivotTo(cf)
+
+	-- Kamerayı Modele Odakla
+	-- Modelin kafasını veya ana parçasını bulmaya çalışır
+	local head = model:FindFirstChild("Head") or model.PrimaryPart or model:FindFirstChild("HumanoidRootPart")
+
+	if head then
+		local lookAt = head.Position
+		-- Kamerayı biraz öne (-6) ve hafif yukarı (+1.5) koyuyoruz. Modele göre ayarlayabilirsin.
+		local camPos = lookAt + Vector3.new(-1.5, 1.5, -6) 
+		camera.CFrame = CFrame.new(camPos, lookAt)
+	end
+
+	-- Varsa animasyon oynat (Idle)
+	local humanoid = model:FindFirstChild("Humanoid")
+	local animator = humanoid and humanoid:FindFirstChild("Animator")
+	if animator then
+		-- Eğer modelin içinde "Idle" animasyonu varsa oynat
+		local idleAnim = model:FindFirstChild("Idle") -- Animasyon nesnesinin adı "Idle" olmalı
+		if idleAnim and idleAnim:IsA("Animation") then
+			local track = animator:LoadAnimation(idleAnim)
+			track.Looped = true
+			track:Play()
+		end
+	end
+end
+
+--// Arayüzü Göster
+function ResultsController:ShowResults(data)
+	local HUD = PlayerGui:WaitForChild("ResultsHUD")
+	local Container = HUD:WaitForChild("ResultContainer")
+	local uiScale = EnsureUIScale(Container)
+
+	-- İçerik Referansları
+	-- Hiyerarşi: ResultContainer -> Container (İçinde Render, MurdererName, SurvivorList var)
+	local MainContent = Container:WaitForChild("Container") 
+	local RenderFrame = MainContent:WaitForChild("Render")
+
+	local TitleContainer = Container:WaitForChild("TitleContainer")
+	local AwardedToken = Container:WaitForChild("AwardedToken")
+	local AwardedXP = Container:WaitForChild("AwardedXP")
+
+	-- 1. Kazanan Takım Yazısı
+	local winnerText = (data.Winner == "Killer") and "MURDERER WON!" or "SURVIVORS WON!"
+	local winnerColor = (data.Winner == "Killer") and Color3.fromRGB(255, 50, 50) or Color3.fromRGB(50, 255, 50)
+
+	TitleContainer.Title.Text = winnerText
+	TitleContainer.Title.TextColor3 = winnerColor
+
+	-- 2. Katil Bilgisi ve Modeli
+	MainContent.MurdererName.Text = data.KillerName or "Unknown"
+
+	-- [GÜNCEL] Skin ismine göre modeli yükle
+	self:LoadKillerModel(data.KillerSkin, RenderFrame)
+
+	-- 3. Survivor Listesi
+	local listFrame = MainContent:WaitForChild("SurvivorList")
+
+	-- Listeyi temizle
+	for _, child in ipairs(listFrame:GetChildren()) do
+		if child:IsA("Frame") then child:Destroy() end
+	end
+
+	-- Listeyi doldur
+	for _, survivor in ipairs(data.Survivors) do
+		local card = ResultAssets.SurvivorCard:Clone()
+
+		local titleLabel = card:FindFirstChild("Title")
+		local diedMark = card:FindFirstChild("DiedMark")
+
+		if titleLabel then
+			titleLabel.Text = survivor.Name
+			-- Ölenlerin ismini grileştir
+			if survivor.IsDead then
+				titleLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+			else
+				titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			end
+		end
+
+		if diedMark then
+			diedMark.Visible = survivor.IsDead
+		end
+
+		card.Parent = listFrame
+	end
+
+	-- 4. Ödüller (GameService'den hesaplanıp gelen net kazanç)
+	AwardedToken.Title.Text = string.format("Earned +%d tokens", data.MyRewards.Token)
+	AwardedXP.Title.Text = string.format("Earned +%d XP", data.MyRewards.XP)
+
+	-- 5. Animasyon ve Gösterim
+	HUD.Enabled = true
+	Container.Visible = true
+
+	-- [SPR] Başlangıç: Küçük (0)
+	uiScale.Scale = 0
+
+	-- [SPR] Hedef: Normal (1) - Yaylanma efekti
+	spr.target(uiScale, 0.6, 4, {Scale = 1})
+
+	-- 10 Saniye sonra kapat
+	self.UITrove:Add(task.delay(10, function()
+		self:HideResults()
+	end))
+end
+
+--// Arayüzü Gizle
+function ResultsController:HideResults()
+	local HUD = PlayerGui:WaitForChild("ResultsHUD")
+	local Container = HUD:WaitForChild("ResultContainer")
+	local uiScale = EnsureUIScale(Container)
+
+	-- [SPR] Çıkış Animasyonu
+	spr.target(uiScale, 0.8, 3, {Scale = 0})
+
+	-- Animasyon bitince kapat
+	task.delay(0.5, function()
+		HUD.Enabled = false
+		self.UITrove:Clean()
+	end)
+end
+
+function ResultsController:OnStart()
+	local HUD = PlayerGui:WaitForChild("ResultsHUD")
+	HUD.Enabled = false
+
+	-- Başlangıçta UIScale'i hazırla
+	EnsureUIScale(HUD:WaitForChild("ResultContainer"))
+
+	-- Server'dan gelen sinyali dinle
+	Net:Connect("Results", function(data)
+		self:ShowResults(data)
+	end)
+end
+
+return ResultsController]]></ProtectedString>
+				<string name="ScriptGuid">{AD1930CE-2B77-4DD0-90D7-6310F50A5707}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">ResultsController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX205BEDF66BE74A90ACB2C6A01783D704">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
+
+-- Klasörler
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Common = ReplicatedStorage:WaitForChild("Common")
+local AnimatorAssets = Common:WaitForChild("AnimatorAssets")
+
+-- Modüller
+local Trove = require(Packages:WaitForChild("Trove"))
+local ClassicAnimator = require(AnimatorAssets:WaitForChild("ClassicAnimator"))
+local Animator = require(AnimatorAssets:WaitForChild("Animator"))
+
+local LocalPlayer = Players.LocalPlayer
+
+local AnimateController = {
+	Name = script.Name,
+	NPCTroves = {} -- Tag'li NPC'lerin Trove'larını tutacağımız liste
+}
+
+-- [YARDIMCI FONKSİYON] Animasyon Mantığı (Hem Player Hem NPC için ortak)
+local function startAnimation(character, parentTrove)
+	-- Non-blocking olması için task.spawn içinde yapıyoruz (WaitForChild diğerlerini bekletmesin)
+	task.spawn(function()
+		local humanoid = character:WaitForChild("Humanoid", 10)
+		if not humanoid then return end
+
+		-- 1. AnimationData Kontrolü
+		local customDataModule = character:FindFirstChild("AnimationData")
+		local loadedModern = false
+
+		if customDataModule and customDataModule:IsA("ModuleScript") then
+			local success, animData = pcall(require, customDataModule)
+
+			if success and type(animData) == "table" then
+				-- Modern Animasyon Sistemini Başlat
+				local runner = Animator.new(humanoid, animData)
+				parentTrove:Add(runner)
+				loadedModern = true
+				-- print(character.Name .. " için Modern Animator yüklendi.")
+			else
+				warn(character.Name .. ": AnimationData hatalı, Classic moda geçiliyor.")
+			end
+		end
+
+		-- 2. Eğer Modern yüklenmediyse Classic Animator'ü Başlat
+		if not loadedModern then
+			-- ClassicAnimator'e Karakteri ve Trove'u gönderiyoruz
+			ClassicAnimator:OnStart(character, parentTrove)
+			-- print(character.Name .. " için Classic Animator yüklendi.")
+		end
+	end)
+end
+
+function AnimateController:OnStart()
+	-- :: 1. LOCAL PLAYER YÖNETİMİ ::
+	local playerTrove = Trove.new()
+
+	local function onLocalCharacterAdded(character)
+		playerTrove:Clean() -- Önceki karakterden kalanları temizle
+		startAnimation(character, playerTrove)
+	end
+
+	if LocalPlayer.Character then
+		onLocalCharacterAdded(LocalPlayer.Character)
+	end
+
+	LocalPlayer.CharacterAdded:Connect(onLocalCharacterAdded)
+	LocalPlayer.CharacterRemoving:Connect(function()
+		playerTrove:Clean()
+	end)
+
+	-- :: 2. COLLECTION SERVICE (NPC) YÖNETİMİ ::
+
+	local function onInstanceAdded(instance)
+		-- Zaten yönetiliyorsa atla
+		if self.NPCTroves[instance] then return end
+
+		local npcTrove = Trove.new()
+		self.NPCTroves[instance] = npcTrove
+
+		-- Animasyonu başlat
+		startAnimation(instance, npcTrove)
+
+		-- Instance silinirse (Workspace'ten düşerse/yok olursa) temizlik yap
+		npcTrove:Connect(instance.AncestryChanged, function(_, parent)
+			if not parent then
+				if self.NPCTroves[instance] then
+					self.NPCTroves[instance]:Destroy()
+					self.NPCTroves[instance] = nil
+				end
+			end
+		end)
+	end
+
+	local function onInstanceRemoved(instance)
+		if self.NPCTroves[instance] then
+			self.NPCTroves[instance]:Destroy()
+			self.NPCTroves[instance] = nil
+		end
+	end
+
+	-- Var olanları al
+	for _, instance in ipairs(CollectionService:GetTagged("Animate")) do
+		onInstanceAdded(instance)
+	end
+
+	-- Yeni gelenleri dinle
+	CollectionService:GetInstanceAddedSignal("Animate"):Connect(onInstanceAdded)
+
+	-- Tag silinenleri dinle
+	CollectionService:GetInstanceRemovedSignal("Animate"):Connect(onInstanceRemoved)
+end
+
+return AnimateController]]></ProtectedString>
+				<string name="ScriptGuid">{74A210AF-C7FD-4899-9477-107961BED2AC}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">AnimateController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX2D916F191F0549759EADF821313C27E5">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Common = ReplicatedStorage:WaitForChild("Common")
+
+local EffectAssets = Common:WaitForChild("EffectAssets")
+
+local Signal = require(Packages:WaitForChild("Signal"))
+local Trove = require(Packages:WaitForChild("Trove"))
+local Net = require(Packages:WaitForChild("Net"))
+
+-- Module
+local EffectController = {
+	Name = script.Name,
+	Signals = {
+		StartFX = Signal.new(), -- Client içinden tetiklemek istersen: self.Signals.StartFX:Fire("BloodSplash", ...)
+	},
+	LoadedEffects = {} -- Efekt modüllerini burada tutacağız
+}
+
+-- // YARDIMCI: Efekti Çalıştıran Fonksiyon
+function EffectController:_playEffect(effectName, ...)
+	local effectModule = self.LoadedEffects[effectName]
+
+	if not effectModule then
+		warn("[EffectController] Effect not found:", effectName)
+		return
+	end
+
+	-- Her efekt için yeni bir Trove oluşturuyoruz.
+	-- Efekt modülü işi bitince bu trove'u temizlemeli veya trove içindeki objeler süre bitince silinmeli.
+	local effectTrove = Trove.new()
+
+	-- Hata olursa diğer kodları durdurmasın diye task.spawn içinde çalıştırıyoruz
+	task.spawn(function(...)
+		if effectModule.Activate then
+			-- :Activate(Trove, Argumanlar...)
+			effectModule:Activate(effectTrove, ...)
+		else
+			warn("[EffectController] Activate method missing in:", effectName)
+			effectTrove:Destroy() -- Hatalıysa hemen temizle
+		end
+	end, ...)
+end
+
+function EffectController:OnStart()
+	-- 1. EffectAssets Klasöründeki Modülleri Yükle
+	for _, moduleScript in ipairs(EffectAssets:GetChildren()) do
+		if moduleScript:IsA("ModuleScript") then
+			local success, result = pcall(require, moduleScript)
+			if success then
+				self.LoadedEffects[moduleScript.Name] = result
+				-- print("[EffectController] Loaded:", moduleScript.Name)
+			else
+				warn("[EffectController] Failed to load effect:", moduleScript.Name, result)
+			end
+		end
+	end
+
+	-- 2. Server'dan Gelen Efektleri Dinle
+	-- Örn: Server "BloodSplash", Motor6D gönderdiğinde burası yakalar
+	local startFXEvent = Net:RemoteEvent("StartFX")
+	startFXEvent.OnClientEvent:Connect(function(effectName, ...)
+		self:_playEffect(effectName, ...)
+	end)
+
+	-- 3. Client İçi (Local) Efektleri Dinle
+	-- Örn: UI butonuna basınca efekt çıksın istersen
+	self.Signals.StartFX:Connect(function(effectName, ...)
+		self:_playEffect(effectName, ...)
+	end)
+end
+
+return EffectController]]></ProtectedString>
+				<string name="ScriptGuid">{43768AFF-6812-413B-9DBE-20B98145B5DC}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">EffectController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBXF186999156A743AA98A1668986A42B44">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Controllers = ReplicatedStorage:WaitForChild("Controllers")
+
+local Net = require(Packages:WaitForChild("Net"))
+local NotificationController = require(Controllers:WaitForChild("NotificationController"))
+
+local LocalPlayer = Players.LocalPlayer
+
+-- Module
+local ResetController = {
+	Name = script.Name
+}
+
+function ResetController:OnStart()
+	local ResetBindable = Instance.new("BindableEvent")
+	local function SetupResetCallback()
+		local Success, Error = pcall(function()
+			StarterGui:SetCore("ResetButtonCallback", ResetBindable)
+		end)
+		
+		if not Success then
+			warn("Reset callback setup failed:", Error)
+			task.delay(1, SetupResetCallback)
+		end
+	end
+	
+	SetupResetCallback()
+	
+	ResetBindable.Event:Connect(function()
+		local State = Net:Invoke("GameService/GetGameState")
+		if not (State == "Intermission" or State == "OnVoting") then
+			NotificationController.Signals.SendNotification:Fire("Reset disabled during the match", 5)
+		else
+			local Character = LocalPlayer.Character
+			if (Character) then
+				local Humanoid = Character:WaitForChild("Humanoid", 5) :: Humanoid?
+				if (Humanoid) then
+					Humanoid.Health = 0
+				end
+			end
+		end
+	end)
+end
+
+return ResetController]]></ProtectedString>
+				<string name="ScriptGuid">{682A4BCA-2ACA-483E-9422-791B5DF5C1A4}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">ResetController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBXD0087F9F67074CFC971FE1A6E09CA134">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+
+local TimerKit = require(Packages:WaitForChild("TimerKit"))
+local Net = require(Packages:WaitForChild("Net"))
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer.PlayerGui
+
+-- Module
+local KillerTaskController = {
+	Name = script.Name
+}
+
+function KillerTaskController:OnStart()
+	-- UI'ın hazır olduğundan emin olalım (Timeout eklemek iyidir)
+	local KillerHUD = PlayerGui:WaitForChild("KillerHUD", 10)
+	if not KillerHUD then warn("KillerHUD bulunamadı!") return end
+
+	local Container = KillerHUD:WaitForChild("Container")
+	local TimerText = Container:FindFirstChild("Timer")
+
+	-- Timer'ı başlangıçta süresiz oluşturuyoruz, sonradan set edeceğiz
+	local SpawnTimer = TimerKit.NewTimer(0) 
+
+	SpawnTimer.OnTick:Connect(function(_, Remaining)
+		if TimerText then
+			TimerText.Text = `Spawning in {math.floor(Remaining)}`
+		end
+	end)
+
+	-- Timer bittiğinde veya durduğunda
+	SpawnTimer.Completed:Connect(function()
+		KillerHUD.Enabled = false
+	end)
+
+	-- 1. EVENT: Warmup Başladığında (Server veriyi buraya atıyor)
+	Net:Connect("WarmupStarted", function(Gamemode, RunningPlayers, Duration)
+		local myId = tostring(LocalPlayer.UserId)
+		local myRole = RunningPlayers[myId]
+
+		-- Sadece KILLER ise bu ekranı göster
+		if myRole == "Killer" then
+			KillerHUD.Enabled = true
+
+			-- Server'dan gelen doğru süreyi ayarla ve başlat
+			SpawnTimer:AdjustDuration(Duration) 
+			SpawnTimer:Start()
+		else
+			KillerHUD.Enabled = false
+			SpawnTimer:Stop()
+		end
+	end)
+
+	-- 2. EVENT: Oyun Durumu Değiştiğinde (Garanti Kapatma)
+	Net:Connect("StateUpdate", function(State, Data)
+		if State == "GameStatus" then
+			-- Eğer Warmup bittiyse (GameRunning, Intermission vs.) HUD'ı kapat
+			if Data ~= "Warmup" then
+				KillerHUD.Enabled = false
+				SpawnTimer:Stop()
+			end
+		end
+	end)
+end
+
+return KillerTaskController]]></ProtectedString>
+				<string name="ScriptGuid">{bb53c40e-68c5-4fd3-bb1a-747db0799d80}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">KillerTaskController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBXC69E0AA83AB14297ABAB9F6D4AF4973B">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SoundService = game:GetService("SoundService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+
+-- Dependencies
+local Net = require(Packages:WaitForChild("Net"))
+local Promise = require(Packages:WaitForChild("Promise"))
+
+-- Assets
+local GameAmbients = SoundService:WaitForChild("GameAmbients")
+local LobbyMusics = SoundService:WaitForChild("LobbyMusic")
+local HeartbeatSound = SoundService:FindFirstChild("Heartbeat")
+
+-- Constants
+local CONFIG = {
+	HEARTBEAT_DIST = 40,
+	MAX_HEARTBEAT_VOL = 10,
+	LOBBY_MAX_VOL = 0.5,
+	AMBIENT_MAX_VOL = 1,
+	FADE_TIME = 1.5
+}
+
+-- Module
+local AmbientSoundController = {
+	Name = script.Name,
+
+	_currentTrack = nil,      -- Şu an çalan oyun müziği
+	_lastAmbientTrack = nil,  -- En son çalan oyun müziği (tekrarı önlemek için)
+
+	_currentLobbyTrack = nil, -- Şu an çalan lobi müziği
+	_lastLobbyTrack = nil,    -- En son çalan lobi müziği (tekrarı önlemek için)
+
+	_musicConnection = nil,   -- Müzik bittiğinde tetiklenen bağlantı (Ended event)
+	_heartbeatConnection = nil,
+	_targetKiller = nil,
+	_isGameRunning = false
+}
+
+-- =============================================================================
+--  YARDIMCI FONKSİYONLAR (SEÇİM MANTIĞI)
+-- =============================================================================
+
+-- Rastgele ama bir öncekiyle aynı olmayan bir şarkı seçer
+function AmbientSoundController:_pickNextTrack(folder, lastTrack)
+	local tracks = folder:GetChildren()
+	local validTracks = {}
+
+	-- Sadece Sound nesnelerini al
+	for _, t in ipairs(tracks) do
+		if t:IsA("Sound") then
+			table.insert(validTracks, t)
+		end
+	end
+
+	if #validTracks == 0 then return nil end
+	if #validTracks == 1 then return validTracks[1] end -- Sadece 1 şarkı varsa mecburen onu seç
+
+	local nextTrack
+	repeat
+		nextTrack = validTracks[math.random(1, #validTracks)]
+	until nextTrack ~= lastTrack -- Bir öncekiyle aynı olmayana kadar tekrar seç
+
+	return nextTrack
+end
+
+-- =============================================================================
+--  LOBBY MÜZİK SİSTEMİ
+-- =============================================================================
+
+function AmbientSoundController:_playLobbyMusic()
+	-- Eğer oyun içi müzik bağlantısı varsa kopar (çakışmayı önle)
+	if self._musicConnection then 
+		self._musicConnection:Disconnect() 
+		self._musicConnection = nil
+	end
+
+	-- Önceki çalanı durdur
+	self:_stopAmbient(true) -- True: Hızlı durdur
+
+	-- Yeni şarkı seç (Öncekisiyle aynı olmayan)
+	local track = self:_pickNextTrack(LobbyMusics, self._lastLobbyTrack)
+	if not track then return end
+
+	-- Yeni şarkıyı ayarla
+	self._currentLobbyTrack = track
+	self._lastLobbyTrack = track -- Kaydet ki bir dahaki sefere aynısı gelmesin
+
+	track.Looped = false -- İsteğin üzerine loop kapatıldı
+	track.Volume = 0
+	track:Play()
+
+	-- Fade In
+	TweenService:Create(track, TweenInfo.new(CONFIG.FADE_TIME), {Volume = CONFIG.LOBBY_MAX_VOL}):Play()
+
+	-- Şarkı bittiğinde ne olacağını dinle
+	self._musicConnection = track.Ended:Connect(function()
+		-- Eğer hala oyun başlamadıysa (lobi durumundaysak) sıradaki şarkıya geç
+		if not self._isGameRunning then
+			self:_playLobbyMusic()
+		end
+	end)
+end
+
+function AmbientSoundController:_stopLobbyMusic()
+	-- Event bağlantısını kopar ki şarkı durunca yenisini başlatmaya çalışmasın
+	if self._musicConnection then
+		self._musicConnection:Disconnect()
+		self._musicConnection = nil
+	end
+
+	if self._currentLobbyTrack then
+		local track = self._currentLobbyTrack
+		local tween = TweenService:Create(track, TweenInfo.new(CONFIG.FADE_TIME), {Volume = 0})
+		tween:Play()
+		tween.Completed:Connect(function()
+			track:Stop()
+		end)
+		self._currentLobbyTrack = nil
+	end
+end
+
+-- =============================================================================
+--  OYUN İÇİ AMBIENT SİSTEMİ
+-- =============================================================================
+
+function AmbientSoundController:_playRandomAmbient()
+	-- Eğer lobi müziği bağlantısı varsa kopar
+	if self._musicConnection then 
+		self._musicConnection:Disconnect() 
+		self._musicConnection = nil
+	end
+
+	self:_stopLobbyMusic()
+
+	-- Yeni şarkı seç (Öncekisiyle aynı olmayan)
+	local track = self:_pickNextTrack(GameAmbients, self._lastAmbientTrack)
+	if not track then return end
+
+	-- Yeni şarkıyı ayarla
+	self._currentTrack = track
+	self._lastAmbientTrack = track
+
+	track.Looped = false -- İsteğin üzerine loop kapatıldı
+	track.Volume = 0
+	track:Play()
+
+	-- Fade In
+	TweenService:Create(track, TweenInfo.new(CONFIG.FADE_TIME), {Volume = CONFIG.AMBIENT_MAX_VOL}):Play()
+
+	-- Şarkı bittiğinde ne olacağını dinle
+	self._musicConnection = track.Ended:Connect(function()
+		-- Eğer hala oyun devam ediyorsa sıradaki şarkıya geç
+		if self._isGameRunning then
+			self:_playRandomAmbient()
+		end
+	end)
+end
+
+function AmbientSoundController:_stopAmbient(instant)
+	-- Event bağlantısını kopar
+	if self._musicConnection then
+		self._musicConnection:Disconnect()
+		self._musicConnection = nil
+	end
+
+	if self._currentTrack then
+		local track = self._currentTrack
+
+		if instant then
+			track:Stop()
+		else
+			local tween = TweenService:Create(track, TweenInfo.new(CONFIG.FADE_TIME), {Volume = 0})
+			tween:Play()
+			tween.Completed:Connect(function()
+				track:Stop()
+			end)
+		end
+		self._currentTrack = nil
+	end
+end
+
+-- =============================================================================
+--  HEARTBEAT LOGIC (DEĞİŞİKLİK YOK)
+-- =============================================================================
+
+function AmbientSoundController:_updateHeartbeat()
+	local localPlayer = Players.LocalPlayer
+	local killer = self._targetKiller
+
+	if not self._isGameRunning or not killer or not localPlayer then 
+		HeartbeatSound.Volume = 0
+		return 
+	end
+
+	if localPlayer == killer then
+		HeartbeatSound.Volume = 0
+		return
+	end
+
+	local localChar = localPlayer.Character
+	local killerChar = killer.Character
+
+	if not localChar or not killerChar then 
+		HeartbeatSound.Volume = 0
+		return 
+	end
+
+	local localRoot = localChar:FindFirstChild("HumanoidRootPart")
+	local killerRoot = killerChar:FindFirstChild("HumanoidRootPart")
+	local localHum = localChar:FindFirstChild("Humanoid")
+
+	if not localRoot or not killerRoot or (localHum and localHum.Health <= 0) then
+		HeartbeatSound.Volume = 0
+		return
+	end
+
+	local distance = (localRoot.Position - killerRoot.Position).Magnitude
+
+	if distance <= CONFIG.HEARTBEAT_DIST then
+		local alpha = 1 - (distance / CONFIG.HEARTBEAT_DIST)
+		local targetVolume = math.clamp(alpha * CONFIG.MAX_HEARTBEAT_VOL, 0, CONFIG.MAX_HEARTBEAT_VOL)
+
+		HeartbeatSound.Volume = targetVolume
+
+		if not HeartbeatSound.IsPlaying then
+			HeartbeatSound:Play()
+		end
+	else
+		HeartbeatSound.Volume = 0
+	end
+end
+
+-- =============================================================================
+--  INITIALIZATION & LISTENERS
+-- =============================================================================
+
+function AmbientSoundController:OnStart()
+	-- GameService'den gelen Eventleri Dinle
+	local GameStartedEvent = Net:RemoteEvent("GameStarted")
+	local GameEndedEvent = Net:RemoteEvent("GameEnded")
+
+	-- 1. OYUN BAŞLADIĞINDA
+	GameStartedEvent.OnClientEvent:Connect(function(duration)
+		self._isGameRunning = true
+
+		-- Lobi müziğini durdur, oyun müziğini başlat
+		self:_stopLobbyMusic()
+		self:_playRandomAmbient()
+
+		local foundKiller = false
+		for _, player in ipairs(Players:GetPlayers()) do
+			if player.Character and player:GetAttribute("Role") == "Killer" then
+				self._targetKiller = player
+				foundKiller = true
+				break
+			end
+		end
+
+		if self._heartbeatConnection then self._heartbeatConnection:Disconnect() end
+		self._heartbeatConnection = RunService.Heartbeat:Connect(function()
+			self:_updateHeartbeat()
+		end)
+	end)
+
+	-- 2. OYUN BİTTİĞİNDE
+	GameEndedEvent.OnClientEvent:Connect(function()
+		self._isGameRunning = false
+		self._targetKiller = nil
+
+		-- Oyun seslerini kapat
+		self:_stopAmbient()
+		HeartbeatSound:Stop()
+		HeartbeatSound.Volume = 0
+
+		if self._heartbeatConnection then
+			self._heartbeatConnection:Disconnect()
+			self._heartbeatConnection = nil
+		end
+
+		-- Lobi müziğini tekrar başlat
+		self:_playLobbyMusic()
+	end)
+
+	-- 3. STATE UPDATE DİNLEYİCİ
+	local StateUpdateEvent = Net:RemoteEvent("StateUpdate")
+	StateUpdateEvent.OnClientEvent:Connect(function(stateName, value)
+		if stateName == "PlayerRoles" then
+			for userId, role in pairs(value) do
+				if role == "Killer" then
+					self._targetKiller = Players:GetPlayerByUserId(tonumber(userId))
+				end
+			end
+		end
+	end)
+
+	-- 4. OYUNA İLK GİRİŞ
+	if not self._isGameRunning then
+		self:_playLobbyMusic()
+	end
+end
+
+return AmbientSoundController]]></ProtectedString>
+				<string name="ScriptGuid">{B7A42274-0EBC-4E29-B671-5941631E39D7}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">AmbientSoundController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+		<Item class="ModuleScript" referent="RBX126CF08E0F374D44AB4F2C4DD38A08D3">
+			<Properties>
+				<Content name="LinkedSource"><null></null></Content>
+				<ProtectedString name="Source"><![CDATA[-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Variables
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Common = ReplicatedStorage:WaitForChild("Common")
+
+local PopupAssets = Common:WaitForChild("PopupAssets")
+
+local Signal = require(Packages:WaitForChild("Signal"))
+local Net = require(Packages:WaitForChild("Net"))
+
+-- Module
+local PopupController = {
+	Name = script.Name,
+	Signals = {
+		Popup = Signal.new()
+	},
+	Network = {
+		Popup = Net:RemoteEvent("Popup")
+	},
+	PopupCache = {}
+}
+
+function PopupController:OnStart()
+	for _,PopupModule : ModuleScript in ipairs(PopupAssets:GetChildren()) do
+		if (not PopupModule:IsA("ModuleScript")) then continue end
+		
+		local Success, Response = pcall(require, PopupModule)
+		if (not Success) then continue end
+		
+		self.PopupCache[PopupModule.Name] = Response
+		if (typeof(Response.OnStart) == "function") then
+			Response.OnStart(Response)
+		end
+	end
+	
+	local function ShowPopup(Name : string, ...)
+		local PopupAPI = self.PopupCache[Name]
+		if (PopupAPI and typeof(PopupAPI.Show) == "function") then
+			PopupAPI.Show(PopupAPI, ...)
+		end
+	end
+	
+	local function HidePopup(Name : string, ...)
+		local PopupAPI = self.PopupCache[Name]
+		if (PopupAPI and typeof(PopupAPI.Hide) == "function") then
+			PopupAPI.Hide(PopupAPI, ...)
+		end
+	end
+	
+	local function ListenEvent(State : "Show" | "Hide", Name : string, ...)
+		if (State == "Show") then
+			ShowPopup(Name, ...)
+		elseif (State == "Hide") then
+			HidePopup(Name, ...)
+		end
+	end
+	
+	self.Signals.Popup:Connect(ListenEvent)
+	self.Network.Popup.OnClientEvent:Connect(ListenEvent)
+end
+
+return PopupController]]></ProtectedString>
+				<string name="ScriptGuid">{4D572E93-D984-4A5A-BE69-759CD4302C5D}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">PopupController</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+	</Item>
+</roblox>
